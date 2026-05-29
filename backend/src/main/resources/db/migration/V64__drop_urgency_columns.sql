@@ -1,0 +1,2 @@
+ALTER TABLE events DROP COLUMN IF EXISTS urgency;
+ALTER TABLE resource_requests DROP COLUMN IF EXISTS urgency;

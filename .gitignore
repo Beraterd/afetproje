@@ -1,0 +1,32 @@
+# dependencies
+node_modules/
+frontend/node_modules/
+backend/target/
+
+# build outputs
+dist/
+frontend/dist/
+target/
+
+# logs
+*.log
+backend_v52.log
+
+# env / secrets
+.env
+.env.*
+!.env.example
+application-local.yml
+application-prod-local.yml
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# backups / generated
+frontend_old_backup/
+.local-storage/
+backend/.local-storage/
+.claude/

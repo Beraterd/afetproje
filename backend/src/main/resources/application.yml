@@ -1,0 +1,141 @@
+spring:
+  application:
+    name: afet-koordinasyon
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:5433/afetdb}
+    username: ${SPRING_DATASOURCE_USERNAME:afetuser}
+    password: ${SPRING_DATASOURCE_PASSWORD:afetpass}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    connect-retries: 30
+    connect-retries-interval: 2
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: UTC
+    default-property-inclusion: non_null
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:afetprojemarmara@gmail.com}
+    password: ${MAIL_PASSWORD:caur erkl qzvg zxbr}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  jwt:
+    secret: ${JWT_SECRET:afet-koordinasyon-super-secret-jwt-key-minimum-256-bits-long-2026}
+    access-token-expiration-ms: ${JWT_ACCESS_EXPIRY_MS:3600000}
+    refresh-token-expiration-ms: ${JWT_REFRESH_EXPIRY_MS:2592000000}
+
+  storage:
+    type: ${STORAGE_TYPE:local}
+    local-path: ${STORAGE_LOCAL_PATH:.local-storage}
+
+  email:
+    type: ${EMAIL_TYPE:prod}
+
+  afad:
+    base-url: ${AFAD_BASE_URL:https://deprem.afad.gov.tr/apiv2/event/filter}
+    fallback-url: ${AFAD_FALLBACK_URL:https://deprem.afad.gov.tr/EventData/GetEventsByFilter}
+    polling-interval-ms: ${AFAD_POLLING_INTERVAL_MS:30000}
+    startup-hours: ${AFAD_STARTUP_HOURS:48}
+    polling-hours: ${AFAD_POLLING_HOURS:24}
+    email-test-mode: ${AFAD_EMAIL_TEST_MODE:false}
+    email-test-recipient: ${AFAD_EMAIL_TEST_RECIPIENT:beraterdogdu7@gmail.com}
+
+notifications:
+  earthquake:
+    enabled: ${EARTHQUAKE_NOTIFICATIONS_ENABLED:true}
+    min-magnitude: ${EARTHQUAKE_MIN_MAGNITUDE:2.5}
+    recipient-roles: ${EARTHQUAKE_RECIPIENT_ROLES:ADMIN,DISTRICT_COORDINATOR,NEIGHBORHOOD_COORDINATOR}
+
+  sms:
+    enabled: ${SMS_ENABLED:false}
+    test-mode: ${SMS_TEST_MODE:true}
+    test-recipient: ${SMS_TEST_RECIPIENT:}
+    api-key: ${SMS_API_KEY:}
+    api-secret: ${SMS_API_SECRET:}
+    sender: ${SMS_SENDER:AFETKOORD}
+    provider: ${SMS_PROVIDER:iletimerkezi}
+    otp-expiry-seconds: ${SMS_OTP_EXPIRY_SECONDS:300}
+    max-otp-per-hour: ${SMS_MAX_OTP_PER_HOUR:3}
+    max-verify-attempts: ${SMS_MAX_VERIFY_ATTEMPTS:5}
+    api-url: ${SMS_API_URL:https://api.iletimerkezi.com/v1/send-sms/json}
+
+ai:
+  enabled: ${AI_ENABLED:true}
+  provider: ${AI_PROVIDER:claude}
+  claude-api-key: ${CLAUDE_API_KEY:}
+  openai-api-key: ${OPENAI_API_KEY:}
+  model: ${AI_MODEL:claude-sonnet-4-6}
+  max-photos: ${AI_MAX_PHOTOS:3}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+  default-produces-media-type: application/json
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    com.afet: DEBUG
+    org.hibernate.SQL: WARN
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG

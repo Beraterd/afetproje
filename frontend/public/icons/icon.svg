@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Blue rounded background -->
+  <rect width="512" height="512" rx="96" fill="#1d4ed8"/>
+  <!-- Shield body (filled) -->
+  <path d="M256 68 L108 140 L108 264 C108 358 176 436 256 464 C336 436 404 358 404 264 L404 140 Z"
+        fill="#3b82f6"/>
+  <!-- Shield border -->
+  <path d="M256 68 L108 140 L108 264 C108 358 176 436 256 464 C336 436 404 358 404 264 L404 140 Z"
+        fill="none" stroke="white" stroke-width="14" stroke-linejoin="round"/>
+  <!-- Letter A centred in shield -->
+  <text x="256" y="348" font-family="Arial,Helvetica,sans-serif" font-size="218"
+        font-weight="bold" fill="white" text-anchor="middle">A</text>
+</svg>

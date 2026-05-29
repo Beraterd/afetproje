@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: afet-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-afetdb}
+      POSTGRES_USER: ${POSTGRES_USER:-afetuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-afetpass}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      - afet_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-afetuser} -d ${POSTGRES_DB:-afetdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  afet_postgres_data:
+    driver: local
