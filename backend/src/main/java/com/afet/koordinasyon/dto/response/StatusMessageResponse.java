@@ -13,6 +13,11 @@ public class StatusMessageResponse {
     private String templateKey;
     private String messageText;
     private int recipientCount;
+    /** Geriye uyumluluk: toplam başarılı teslim (e-posta + WhatsApp). */
     private int sentCount;
+    /** Başarılı e-posta teslim sayısı. */
+    private int emailSentCount;
+    /** Başarılı WhatsApp teslim sayısı. */
+    private int whatsappSentCount;
     private OffsetDateTime createdAt;
 }

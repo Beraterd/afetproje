@@ -6,6 +6,7 @@ import { AuditLogFilter, AuditLogResponse } from '@/types/audit';
 import { ClipboardList, Download, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useToast } from '@/components/shared/ToastProvider';
 import { format } from 'date-fns';
+import { formatAuditAction, formatRole, formatEntityType } from '@/utils/labels';
 
 const ACTION_OPTIONS = [
     'USER_LOGIN', 'USER_LOGOUT', 'USER_CREATED', 'USER_UPDATED',
@@ -40,7 +41,7 @@ function actionBadge(action: string) {
     const cls = ACTION_COLOR[action] ?? 'bg-gray-100 text-gray-700';
     return (
         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
-            {action.replace(/_/g, ' ')}
+            {formatAuditAction(action)}
         </span>
     );
 }
@@ -72,7 +73,7 @@ function DetailModal({ log, onClose }: DetailModalProps) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
                 <div className="flex items-center justify-between p-4 border-b">
-                    <h3 className="text-lg font-semibold text-gray-900">Audit Log Detayı</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">İşlem Kaydı Detayı</h3>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
                         <X size={20} />
                     </button>
@@ -82,16 +83,16 @@ function DetailModal({ log, onClose }: DetailModalProps) {
                     <Row label="Aksiyon" value={actionBadge(log.action)} />
                     <Row label="Zaman" value={formatDate(log.createdAt)} />
                     <Row label="Aktör" value={log.actorName ?? '—'} />
-                    <Row label="Rol" value={log.actorRole ?? '—'} />
+                    <Row label="Rol" value={formatRole(log.actorRole)} />
                     <Row label="Aktör ID" value={log.actorId ?? '—'} mono />
                     <Row label="Sistem Aksiyonu" value={log.isSystemAction ? 'Evet' : 'Hayır'} />
-                    <Row label="Varlık Türü" value={log.entityType} />
+                    <Row label="Varlık Türü" value={formatEntityType(log.entityType)} />
                     <Row label="Varlık ID" value={log.entityId ?? '—'} mono />
                     <Row label="Açıklama" value={log.description ?? '—'} />
                     <Row label="IP Adresi" value={log.ipAddress ?? '—'} />
                     {log.userAgent && (
                         <div>
-                            <span className="font-medium text-gray-500">User Agent</span>
+                            <span className="font-medium text-gray-500">Tarayıcı Bilgisi</span>
                             <p className="mt-1 text-gray-700 break-all text-xs">{log.userAgent}</p>
                         </div>
                     )}
@@ -159,7 +160,7 @@ export const AuditPage: React.FC = () => {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <ClipboardList className="text-blue-600" size={24} />
-                    <h1 className="text-2xl font-bold text-gray-900">Audit Log Yönetimi</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">İşlem Kayıtları</h1>
                 </div>
                 <button
                     onClick={handleExport}
@@ -183,7 +184,7 @@ export const AuditPage: React.FC = () => {
                         >
                             <option value="">Tümü</option>
                             {ACTION_OPTIONS.map(a => (
-                                <option key={a} value={a}>{a.replace(/_/g, ' ')}</option>
+                                <option key={a} value={a}>{formatAuditAction(a)}</option>
                             ))}
                         </select>
                     </div>
@@ -196,7 +197,7 @@ export const AuditPage: React.FC = () => {
                         >
                             <option value="">Tümü</option>
                             {ROLE_OPTIONS.map(r => (
-                                <option key={r} value={r}>{r}</option>
+                                <option key={r} value={r}>{formatRole(r)}</option>
                             ))}
                         </select>
                     </div>
@@ -305,16 +306,16 @@ export const AuditPage: React.FC = () => {
                                         </td>
                                         <td className="px-4 py-3 text-gray-900 whitespace-nowrap">
                                             {log.isSystemAction ? (
-                                                <span className="text-gray-400 italic">SYSTEM</span>
+                                                <span className="text-gray-400 italic">SİSTEM</span>
                                             ) : (
                                                 log.actorName ?? '—'
                                             )}
                                         </td>
                                         <td className="px-4 py-3 text-gray-600 whitespace-nowrap text-xs">
-                                            {log.actorRole ?? '—'}
+                                            {formatRole(log.actorRole)}
                                         </td>
                                         <td className="px-4 py-3 text-gray-600 whitespace-nowrap text-xs">
-                                            {log.entityType}
+                                            {formatEntityType(log.entityType)}
                                         </td>
                                         <td className="px-4 py-3 text-gray-700 max-w-xs truncate">
                                             {log.description ?? '—'}

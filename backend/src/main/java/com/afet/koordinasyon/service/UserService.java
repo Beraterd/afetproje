@@ -18,6 +18,7 @@ import com.afet.koordinasyon.repository.DistrictRepository;
 import com.afet.koordinasyon.repository.NeighborhoodRepository;
 import com.afet.koordinasyon.repository.UserRepository;
 import com.afet.koordinasyon.security.UserPrincipal;
+import com.afet.koordinasyon.util.PhoneNumberUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -72,11 +73,13 @@ public class UserService {
             user.setEmail(request.getEmail());
         }
         if (request.getPhone() != null && !request.getPhone().isBlank()) {
-            if (!request.getPhone().equals(user.getPhone())
-                    && userRepository.existsByPhone(request.getPhone())) {
+            // Telefon DB standardı E.164 (+905XXXXXXXXX); benzersizlik kontrolü normalize değerle.
+            String normalizedPhone = PhoneNumberUtil.toE164(request.getPhone());
+            if (!normalizedPhone.equals(user.getPhone())
+                    && userRepository.existsByPhone(normalizedPhone)) {
                 throw new ConflictException("Bu telefon numarası zaten kullanımda");
             }
-            user.setPhone(request.getPhone());
+            user.setPhone(normalizedPhone);
         }
         if (request.getBloodType() != null) {
             user.setBloodType(request.getBloodType());

@@ -4,6 +4,8 @@ import com.afet.koordinasyon.domain.entity.AssemblyArea;
 import com.afet.koordinasyon.dto.request.BulkReviewRequest;
 import com.afet.koordinasyon.dto.request.ReviewAssemblyAreaRequest;
 import com.afet.koordinasyon.domain.entity.Neighborhood;
+import com.afet.koordinasyon.domain.entity.User;
+import com.afet.koordinasyon.repository.UserRepository;
 import com.afet.koordinasyon.dto.response.AssemblyAreaResponse;
 import com.afet.koordinasyon.dto.response.AssemblyAreaStatsResponse;
 import com.afet.koordinasyon.dto.response.AssemblyCoverageResponse;
@@ -37,16 +39,38 @@ public class AssemblyAreaService {
 
     private final AssemblyAreaRepository assemblyAreaRepository;
     private final NeighborhoodRepository neighborhoodRepository;
+    private final UserRepository userRepository;
+
+    /**
+     * Giriş yapmış kullanıcının mahallesindeki aktif/onaylı toplanma alanlarını döner.
+     * Kullanıcının mahallesi yoksa boş liste döner.
+     */
+    @Transactional(readOnly = true)
+    public List<AssemblyAreaResponse> getMyNeighborhoodAreas(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        if (user.getNeighborhood() == null) {
+            return List.of();
+        }
+        return assemblyAreaRepository
+                .findActiveApprovedByNeighborhoodId(user.getNeighborhood().getId())
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
 
     @Transactional(readOnly = true)
     public PagedResponse<AssemblyAreaResponse> listWithFilters(
             UUID districtId, UUID neighborhoodId, String sourceName,
             Boolean needsReview, Boolean active, String search, int page, int size) {
 
-        String searchTrimmed = (search != null && !search.isBlank()) ? search.trim() : null;
+        // Hibernate 6'da null String parametresi LOWER/CONCAT içinde bytea bind edilip
+        // "lower(bytea)" hatası verdiğinden, arama için NON-NULL pattern + boolean flag kullanılır.
+        boolean hasSearch = search != null && !search.isBlank();
+        String pattern = hasSearch ? "%" + search.trim().toLowerCase() + "%" : "%";
 
         Page<AssemblyArea> result = assemblyAreaRepository.findWithFilters(
-                districtId, neighborhoodId, sourceName, needsReview, active, searchTrimmed,
+                districtId, neighborhoodId, sourceName, needsReview, active, hasSearch, pattern,
                 PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name")));
 
         return PagedResponse.from(result.map(this::toResponse));

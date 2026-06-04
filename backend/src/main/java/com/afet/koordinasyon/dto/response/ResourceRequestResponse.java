@@ -17,7 +17,12 @@ public class ResourceRequestResponse {
     private String requestScope;
     private String resourceType;
     private String resourceTypeLabel;
+    /** Ürün adı: özel girildiyse o, yoksa kategori adı. */
+    private String productName;
     private Integer quantity;
+    private String unit;
+    private String priority;
+    private String priorityLabel;
     private String status;
     private String statusLabel;
     private String description;

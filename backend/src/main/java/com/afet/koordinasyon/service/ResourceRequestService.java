@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,27 +37,53 @@ public class ResourceRequestService {
     @Transactional(readOnly = true)
     public PagedResponse<ResourceRequestResponse> listRequests(
             int page, int size, UUID districtId, UUID neighborhoodId,
-            String status, UserPrincipal principal) {
+            ResourceType resourceType, String status, String priority, String search,
+            UserPrincipal principal) {
 
         PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        if (principal.getRole() == UserRole.DISTRICT_COORDINATOR && districtId == null) {
+        // Koordinatör kapsamı: yalnızca kendi ilçe/mahallesi
+        if (principal.getRole() == UserRole.DISTRICT_COORDINATOR) {
             districtId = principal.getDistrictId();
         }
-        if (principal.getRole() == UserRole.NEIGHBORHOOD_COORDINATOR && neighborhoodId == null) {
+        if (principal.getRole() == UserRole.NEIGHBORHOOD_COORDINATOR) {
+            districtId = principal.getDistrictId();
             neighborhoodId = principal.getNeighborhoodId();
         }
 
-        Page<ResourceRequest> result;
-        if (neighborhoodId != null) {
-            result = resourceRequestRepository.findByNeighborhoodId(neighborhoodId, pageable);
-        } else if (districtId != null) {
-            result = resourceRequestRepository.findByDistrictId(districtId, pageable);
-        } else {
-            result = resourceRequestRepository.findAll(pageable);
-        }
+        ResourceRequestStatus statusEnum = parseEnum(ResourceRequestStatus.class, status);
+        RequestPriority priorityEnum = parseEnum(RequestPriority.class, priority);
+        String pattern = (search != null && !search.isBlank())
+                ? "%" + search.trim().toLowerCase() + "%" : null;
 
-        return PagedResponse.from(result.map(this::toResponse));
+        final UUID fDistrictId = districtId;
+        final UUID fNeighborhoodId = neighborhoodId;
+
+        Specification<ResourceRequest> spec = (root, query, cb) -> {
+            List<jakarta.persistence.criteria.Predicate> ps = new java.util.ArrayList<>();
+            if (fDistrictId != null) ps.add(cb.equal(root.get("district").get("id"), fDistrictId));
+            if (fNeighborhoodId != null) ps.add(cb.equal(root.get("neighborhood").get("id"), fNeighborhoodId));
+            if (resourceType != null) ps.add(cb.equal(root.get("resourceType"), resourceType));
+            if (statusEnum != null) ps.add(cb.equal(root.get("status"), statusEnum));
+            if (priorityEnum != null) ps.add(cb.equal(root.get("priority"), priorityEnum));
+            if (pattern != null) {
+                ps.add(cb.or(
+                        cb.like(cb.lower(cb.coalesce(root.get("title"), "")), pattern),
+                        cb.like(cb.lower(cb.coalesce(root.get("description"), "")), pattern)));
+            }
+            return cb.and(ps.toArray(new jakarta.persistence.criteria.Predicate[0]));
+        };
+
+        return PagedResponse.from(resourceRequestRepository.findAll(spec, pageable).map(this::toResponse));
+    }
+
+    private static <E extends Enum<E>> E parseEnum(Class<E> type, String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            return Enum.valueOf(type, value.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BusinessRuleException("Geçersiz değer: " + value);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -64,11 +91,35 @@ public class ResourceRequestService {
         return toResponse(findById(id));
     }
 
+    /** Ürün adının zorunlu olduğu kategoriler (stok formuyla aynı mantık). */
+    private static final java.util.Set<ResourceType> NAME_REQUIRED = java.util.EnumSet.of(
+            ResourceType.FOOD, ResourceType.HYGIENE, ResourceType.MEDICAL_SUPPORT,
+            ResourceType.HEAVY_MACHINERY, ResourceType.OTHER);
+
+    /**
+     * Kategoriye göre ürün adını çözer: ad zorunlu kategorilerde boşsa hata,
+     * diğerlerinde kategori label'ı kullanılır.
+     */
+    private String resolveRequestName(ResourceType category, String name) {
+        boolean provided = name != null && !name.isBlank();
+        if (NAME_REQUIRED.contains(category)) {
+            if (!provided) {
+                throw new BusinessRuleException("Bu kategori için ürün adı zorunludur");
+            }
+            return name.trim();
+        }
+        return provided ? name.trim() : category.getLabel();
+    }
+
     @Transactional
     public ResourceRequestResponse create(CreateResourceRequestRequest req, UserPrincipal principal) {
         UserRole role = principal.getRole();
         if (role == UserRole.VOLUNTEER) {
             throw new BusinessRuleException("Gönüllüler kaynak talebi oluşturamaz");
+        }
+        // İlçe + mahalle bölgesel takip için zorunlu (DTO doğrulamasına ek servis güvencesi).
+        if (req.getNeighborhoodId() == null) {
+            throw new BusinessRuleException("Mahalle seçimi zorunludur");
         }
 
         District district = districtRepository.findById(req.getDistrictId())
@@ -107,7 +158,10 @@ public class ResourceRequestService {
                 .neighborhood(neighborhood)
                 .requestScope(scope)
                 .resourceType(req.getResourceType())
+                .title(resolveRequestName(req.getResourceType(), req.getName()))
                 .quantity(req.getQuantity())
+                .unit(req.getUnit())
+                .priority(req.getPriority() != null ? req.getPriority() : RequestPriority.MEDIUM)
                 .description(req.getDescription())
                 .createdBy(creator)
                 .build());
@@ -182,7 +236,12 @@ public class ResourceRequestService {
                 .requestScope(r.getRequestScope().name())
                 .resourceType(r.getResourceType().name())
                 .resourceTypeLabel(r.getResourceType().getLabel())
+                .productName(r.getTitle() != null && !r.getTitle().isBlank()
+                        ? r.getTitle() : r.getResourceType().getLabel())
                 .quantity(r.getQuantity())
+                .unit(r.getUnit())
+                .priority(r.getPriority() != null ? r.getPriority().name() : null)
+                .priorityLabel(r.getPriority() != null ? r.getPriority().getLabel() : null)
                 .status(r.getStatus().name())
                 .statusLabel(r.getStatus().getLabel())
                 .description(r.getDescription())

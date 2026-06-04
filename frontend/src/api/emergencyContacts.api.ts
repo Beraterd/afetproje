@@ -7,6 +7,7 @@ import {
     StatusTemplateItem,
     SendStatusMessageRequest,
     ActiveSimulationResponse,
+    MyAssemblyArea,
 } from '@/types';
 
 export const getMyEmergencyContacts = async (): Promise<EmergencyContactResponse[]> => {
@@ -47,5 +48,10 @@ export const getStatusMessageTemplates = async (): Promise<StatusTemplateItem[]>
 
 export const getActiveSimulation = async (): Promise<ActiveSimulationResponse | null> => {
     const res = await axiosInstance.get<ActiveSimulationResponse | null>('/simulations/active');
+    return res.data;
+};
+
+export const getMyAssemblyAreas = async (): Promise<MyAssemblyArea[]> => {
+    const res = await axiosInstance.get<MyAssemblyArea[]>('/users/me/assembly-areas');
     return res.data;
 };

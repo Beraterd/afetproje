@@ -26,8 +26,15 @@ public class Team {
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(nullable = false, unique = true, columnDefinition = "team_name")
+    @Column(nullable = false, columnDefinition = "team_name")
     private TeamName name;
+
+    @Column(name = "team_code", length = 20)
+    private String teamCode;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "district_id")
+    private District district;
 
     @Column(nullable = false, precision = 4, scale = 2)
     private BigDecimal coefficient;

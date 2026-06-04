@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Repository
@@ -14,4 +15,7 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, UUID>, JpaSp
     Page<AuditLog> findByEntityTypeAndEntityId(String entityType, UUID entityId, Pageable pageable);
 
     Page<AuditLog> findByActorId(UUID actorId, Pageable pageable);
+
+    /** Rapor: belirli aksiyonun [from,to) aralığındaki adedi (örn. koordinatör atamaları). */
+    long countByActionAndCreatedAtBetween(String action, OffsetDateTime from, OffsetDateTime to);
 }

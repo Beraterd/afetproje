@@ -128,61 +128,76 @@ export function DamageAssessmentsPage() {
         NOT_STARTED: 0, PENDING: 1, PROCESSING: 2, FAILED: 3, COMPLETED: 4,
     };
 
+    // §2 — Salt-okunur AI durum polling'i. Yeni bir AI çağrısı YAPMAZ; yalnızca mevcut
+    // (otomatik tetiklenmiş) analizin durumunu izler ve sonuç gelince kayda yansıtır.
+    const beginAiPoll = (assessmentId: string) => {
+        stopAiPolling();
+        setAiPolling(true);
+
+        aiPollTimeoutRef.current = setTimeout(() => {
+            stopAiPolling();
+            setAiTimedOut(true);
+        }, 40000);
+
+        aiPollRef.current = setInterval(async () => {
+            try {
+                const updated = await getDamageAssessmentById(assessmentId);
+
+                // Never regress status backward (e.g. PROCESSING → NOT_STARTED) during active polling.
+                // The async AI service may keep the TX open during the AI call, so the DB can still
+                // show an earlier status until COMPLETED commits.
+                setShowDetailModal(prev => {
+                    if (!prev || prev.id !== updated.id) return prev;
+                    const prevRank = AI_STATUS_RANK[prev.aiAnalysisStatus ?? 'NOT_STARTED'] ?? 0;
+                    const nextRank = AI_STATUS_RANK[updated.aiAnalysisStatus ?? 'NOT_STARTED'] ?? 0;
+                    if (nextRank < prevRank) {
+                        return { ...updated, aiAnalysisStatus: prev.aiAnalysisStatus };
+                    }
+                    return updated;
+                });
+
+                const s = updated.aiAnalysisStatus;
+                if (s === 'COMPLETED' || s === 'FAILED' || updated.aiComment) {
+                    stopAiPolling();
+                }
+            } catch (err: any) {
+                // Only stop on definitive client errors (4xx). Transient errors → keep polling.
+                if (err?.response?.status && err.response.status < 500) {
+                    stopAiPolling();
+                }
+            }
+        }, 2000);
+    };
+
+    // Manuel "AI Yorumunu Yenile" — yeni analiz tetikler, ardından durumu izler.
     const handleAiRefresh = async (assessmentId: string) => {
         setAiRefreshing(true);
         setAiTimedOut(false);
         try {
             await triggerAiAnalysis(assessmentId);
             setShowDetailModal(prev => prev ? { ...prev, aiAnalysisStatus: 'PROCESSING' } : null);
-            stopAiPolling();
-            setAiPolling(true);
-
-            aiPollTimeoutRef.current = setTimeout(() => {
-                stopAiPolling();
-                setAiTimedOut(true);
-            }, 40000);
-
-            aiPollRef.current = setInterval(async () => {
-                try {
-                    const updated = await getDamageAssessmentById(assessmentId);
-                    console.log('[AI Poll]', {
-                        id: updated.id,
-                        aiAnalysisStatus: updated.aiAnalysisStatus,
-                        hasComment: !!updated.aiComment,
-                    });
-
-                    // Never regress status backward (e.g. PROCESSING → NOT_STARTED) during active polling.
-                    // This can happen because the async @Transactional on the AI service keeps the TX open
-                    // during the AI call, so the DB may still show NOT_STARTED until COMPLETED commits.
-                    setShowDetailModal(prev => {
-                        if (!prev) return null;
-                        const prevRank = AI_STATUS_RANK[prev.aiAnalysisStatus ?? 'NOT_STARTED'] ?? 0;
-                        const nextRank = AI_STATUS_RANK[updated.aiAnalysisStatus ?? 'NOT_STARTED'] ?? 0;
-                        if (nextRank < prevRank) {
-                            // Keep current (higher) status, but update all other fields
-                            return { ...updated, aiAnalysisStatus: prev.aiAnalysisStatus };
-                        }
-                        return updated;
-                    });
-
-                    const s = updated.aiAnalysisStatus;
-                    if (s === 'COMPLETED' || s === 'FAILED' || updated.aiComment) {
-                        stopAiPolling();
-                    }
-                } catch (err: any) {
-                    console.warn('[AI Poll] Request failed:', err?.message);
-                    // Only stop on definitive client errors (4xx). Transient errors → keep polling.
-                    if (err?.response?.status && err.response.status < 500) {
-                        stopAiPolling();
-                    }
-                }
-            }, 2000);
+            beginAiPoll(assessmentId);
         } catch (err: any) {
             toastError(err?.response?.data?.message || 'AI analizi başlatılamadı');
         } finally {
             setAiRefreshing(false);
         }
     };
+
+    // §2 — Detay modalı açıldığında, AI otomatik üretimi devam ediyorsa (veya yeni kayıtta
+    // henüz tamamlanmamışsa) otomatik salt-okunur polling başlat. Böylece kullanıcı butona
+    // basmadan loading görür ve yorum geldiğinde kayıtta otomatik belirir.
+    useEffect(() => {
+        if (!showDetailModal) return;
+        const s = showDetailModal.aiAnalysisStatus;
+        const running = s === 'PENDING' || s === 'PROCESSING';
+        const freshNoComment = (!s || s === 'NOT_STARTED') && !showDetailModal.aiComment;
+        if ((running || freshNoComment) && aiPollRef.current === null) {
+            setAiTimedOut(false);
+            beginAiPoll(showDetailModal.id);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [showDetailModal?.id]);
 
     const loadAssessments = useCallback(async () => {
         setLoading(true);
@@ -725,7 +740,8 @@ export function DamageAssessmentsPage() {
 
                             {showDetailModal.aiAnalysisStatus === 'FAILED' && (
                                 <div className="bg-red-50 rounded-lg px-4 py-3 text-sm text-red-600">
-                                    Analiz başarısız oldu. Yeniden denemek için "AI Yorumu Yenile" butonunu kullanın.
+                                    AI yorumu şu anda oluşturulamadı, daha sonra tekrar deneyebilirsiniz.
+                                    {canVerify && ' Yeniden denemek için "AI Yorumu Yenile" butonunu kullanabilirsiniz.'}
                                 </div>
                             )}
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Users, Search, X, Plus, Send, CheckCircle } from 'lucide-react';
+import { Users, Search, X, Plus, Send, CheckCircle, AlertTriangle } from 'lucide-react';
 import {
     getMyEmergencyContacts,
     addEmergencyContact,
@@ -18,6 +18,32 @@ import {
     StatusTemplateItem,
 } from '@/types';
 import { useToast } from '@/components/shared/ToastProvider';
+
+/** İş kuralı: en fazla 3 yakın. Backend EmergencyContactService ile uyumludur. */
+const MAX_CONTACTS = 3;
+
+/** Konum istenmesi gereken acil şablonlar (backend EMERGENCY_TEMPLATES ile uyumlu). */
+const EMERGENCY_TEMPLATE_KEYS = ['NEED_HELP', 'TRAPPED_UNDER_RUBBLE'];
+
+/** Tarayıcıdan tek seferlik konum almayı dener; başarısız olursa null döner. */
+function requestCurrentLocation(): Promise<{ latitude: number; longitude: number; accuracy: number } | null> {
+    return new Promise(resolve => {
+        if (!('geolocation' in navigator)) {
+            resolve(null);
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            pos =>
+                resolve({
+                    latitude: pos.coords.latitude,
+                    longitude: pos.coords.longitude,
+                    accuracy: pos.coords.accuracy,
+                }),
+            () => resolve(null),
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    });
+}
 
 export function EmergencyContactsPage() {
     const { success: toastSuccess, error: toastError, warning: toastWarning } = useToast();
@@ -87,8 +113,8 @@ export function EmergencyContactsPage() {
     }, []);
 
     const handleAdd = async (user: UserSearchResponse) => {
-        if (contacts.length >= 5) {
-            toastWarning('En fazla 5 yakın ekleyebilirsiniz');
+        if (contacts.length >= MAX_CONTACTS) {
+            toastWarning(`En fazla ${MAX_CONTACTS} yakın ekleyebilirsiniz`);
             return;
         }
         try {
@@ -119,9 +145,25 @@ export function EmergencyContactsPage() {
         }
         setSending(true);
         try {
+            let location: { latitude: number; longitude: number; accuracy: number } | null = null;
+
+            // Yalnızca acil şablonlarda konum iste; güvenli şablonlarda konum istenmez.
+            if (EMERGENCY_TEMPLATE_KEYS.includes(selectedTemplate)) {
+                location = await requestCurrentLocation();
+                if (!location) {
+                    toastWarning(
+                        'Konum alınamadı. Mesaj konumsuz gönderilecek. ' +
+                            'Daha hızlı yardım için konum izni verebilirsiniz.'
+                    );
+                }
+            }
+
             const result = await sendStatusMessage({
                 templateKey: selectedTemplate,
                 simulationId: activeSimulation?.id,
+                latitude: location?.latitude,
+                longitude: location?.longitude,
+                locationAccuracy: location?.accuracy,
             });
             toastSuccess(`Mesaj ${result.sentCount} kişiye başarıyla gönderildi`);
             setSelectedTemplate('');
@@ -144,7 +186,7 @@ export function EmergencyContactsPage() {
                 <Users className="h-8 w-8 text-blue-600" />
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Yakınlarım</h1>
-                    <p className="text-sm text-gray-500">Acil durumlarda bildirim gönderilecek kişiler ({contacts.length}/5)</p>
+                    <p className="text-sm text-gray-500">Acil durumlarda bildirim gönderilecek kişiler ({contacts.length}/{MAX_CONTACTS})</p>
                 </div>
             </div>
 
@@ -169,28 +211,37 @@ export function EmergencyContactsPage() {
                             {templates.length === 0 && (
                                 <p className="text-xs text-gray-400 py-2">Şablonlar yükleniyor...</p>
                             )}
-                            {templates.map(tpl => (
-                                <label
-                                    key={tpl.key}
-                                    className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                                        selectedTemplate === tpl.key
-                                            ? 'border-red-500 bg-red-100'
-                                            : 'border-gray-200 bg-white hover:bg-gray-50'
-                                    }`}
-                                >
-                                    <input
-                                        type="radio"
-                                        name="template"
-                                        value={tpl.key}
-                                        checked={selectedTemplate === tpl.key}
-                                        onChange={() => setSelectedTemplate(tpl.key)}
-                                        className="mt-0.5 text-red-600"
-                                    />
-                                    <div>
-                                        <p className="text-sm text-gray-800">"{tpl.label}"</p>
-                                    </div>
-                                </label>
-                            ))}
+                            {templates.map(tpl => {
+                                const isEmergency = EMERGENCY_TEMPLATE_KEYS.includes(tpl.key);
+                                const isSelected = selectedTemplate === tpl.key;
+                                const base = 'flex items-center gap-3 p-3.5 rounded-lg border-2 cursor-pointer transition-colors font-medium text-sm';
+                                let cls: string;
+                                if (isEmergency) {
+                                    cls = isSelected
+                                        ? 'border-red-600 bg-red-600 text-white'
+                                        : 'border-red-300 bg-red-50 text-red-700 hover:bg-red-100';
+                                } else {
+                                    cls = isSelected
+                                        ? 'border-blue-600 bg-blue-50 text-blue-800'
+                                        : 'border-gray-200 bg-white text-gray-800 hover:bg-gray-50';
+                                }
+                                return (
+                                    <label key={tpl.key} className={`${base} ${cls}`}>
+                                        <input
+                                            type="radio"
+                                            name="template"
+                                            value={tpl.key}
+                                            checked={isSelected}
+                                            onChange={() => setSelectedTemplate(tpl.key)}
+                                            className="flex-shrink-0"
+                                        />
+                                        <span className="flex items-center gap-2">
+                                            {isEmergency && <AlertTriangle className="h-4 w-4 flex-shrink-0" />}
+                                            <span>{tpl.label}</span>
+                                        </span>
+                                    </label>
+                                );
+                            })}
                         </div>
                         <button
                             onClick={handleSendMessage}
@@ -250,7 +301,7 @@ export function EmergencyContactsPage() {
                                     </div>
                                     <button
                                         onClick={() => handleAdd(user)}
-                                        disabled={added || contacts.length >= 5}
+                                        disabled={added || contacts.length >= MAX_CONTACTS}
                                         className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${
                                             added
                                                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'

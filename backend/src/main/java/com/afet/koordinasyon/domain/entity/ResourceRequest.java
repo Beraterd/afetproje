@@ -1,5 +1,6 @@
 package com.afet.koordinasyon.domain.entity;
 
+import com.afet.koordinasyon.domain.enums.RequestPriority;
 import com.afet.koordinasyon.domain.enums.RequestScope;
 import com.afet.koordinasyon.domain.enums.ResourceRequestStatus;
 import com.afet.koordinasyon.domain.enums.ResourceType;
@@ -39,7 +40,15 @@ public class ResourceRequest {
     @Column(name = "resource_type", nullable = false, length = 50)
     private ResourceType resourceType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "priority", nullable = false, length = 20)
+    @Builder.Default
+    private RequestPriority priority = RequestPriority.MEDIUM;
+
     private Integer quantity;
+
+    @Column(length = 30)
+    private String unit;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)

@@ -23,12 +23,18 @@ export interface StatusMessageResponse {
     messageText: string;
     recipientCount: number;
     sentCount: number;
+    emailSentCount?: number;
+    whatsappSentCount?: number;
     createdAt: string;
 }
 
 export interface SendStatusMessageRequest {
     simulationId?: string;
     templateKey: string;
+    clientGeneratedId?: string;
+    latitude?: number;
+    longitude?: number;
+    locationAccuracy?: number;
 }
 
 export interface ActiveSimulationResponse {
@@ -42,4 +48,14 @@ export interface ActiveSimulationResponse {
 export interface StatusTemplateItem {
     key: string;
     label: string;
+}
+
+/** Toplanma alanı — GET /api/users/me/assembly-areas yanıtı */
+export interface MyAssemblyArea {
+    id: string;
+    name: string;
+    address: string | null;
+    latitude: number | null;
+    longitude: number | null;
+    googleMapsUrl: string | null;
 }

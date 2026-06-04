@@ -15,7 +15,7 @@ public class AfadEventDto {
     private String eventId;
 
     @JsonProperty("location")
-    @JsonAlias({"Location", "LOCATION"})
+    @JsonAlias({"Location", "LOCATION", "yer", "Yer", "YER", "eventLocation", "EventLocation", "description", "Description"})
     private String location;
 
     @JsonProperty("latitude")
@@ -43,11 +43,11 @@ public class AfadEventDto {
     private String country;
 
     @JsonProperty("province")
-    @JsonAlias({"Province", "PROVINCE", "il"})
+    @JsonAlias({"Province", "PROVINCE", "il", "Il", "IL", "city", "City", "CITY"})
     private String province;
 
     @JsonProperty("district")
-    @JsonAlias({"District", "DISTRICT", "ilce"})
+    @JsonAlias({"District", "DISTRICT", "ilce", "Ilce", "ILCE", "town", "Town", "TOWN"})
     private String district;
 
     @JsonProperty("neighbourhood")

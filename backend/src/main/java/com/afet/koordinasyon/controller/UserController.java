@@ -3,12 +3,14 @@ package com.afet.koordinasyon.controller;
 import com.afet.koordinasyon.dto.request.AssignRoleRequest;
 import com.afet.koordinasyon.dto.request.UpdateNotificationPreferencesRequest;
 import com.afet.koordinasyon.dto.request.UpdateProfileRequest;
+import com.afet.koordinasyon.dto.response.AssemblyAreaResponse;
 import com.afet.koordinasyon.dto.response.NotificationPreferencesResponse;
 import com.afet.koordinasyon.dto.response.PagedResponse;
 import com.afet.koordinasyon.dto.response.UserResponse;
 import com.afet.koordinasyon.dto.response.UserSearchResponse;
 import com.afet.koordinasyon.security.UserPrincipal;
 import com.afet.koordinasyon.service.AdminMaintenanceService;
+import com.afet.koordinasyon.service.AssemblyAreaService;
 import com.afet.koordinasyon.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -31,6 +33,7 @@ public class UserController {
 
     private final UserService userService;
     private final AdminMaintenanceService adminMaintenanceService;
+    private final AssemblyAreaService assemblyAreaService;
 
     @PutMapping("/api/users/me")
     @Operation(summary = "Update own profile")
@@ -95,6 +98,13 @@ public class UserController {
             @AuthenticationPrincipal UserPrincipal principal) {
         adminMaintenanceService.deleteUserHard(userId, principal.getId(), null);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/api/users/me/assembly-areas")
+    @Operation(summary = "Get assembly areas in the current user's neighborhood (emergency page)")
+    public ResponseEntity<List<AssemblyAreaResponse>> getMyAssemblyAreas(
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.ok(assemblyAreaService.getMyNeighborhoodAreas(principal.getId()));
     }
 
     @GetMapping("/api/users/search")

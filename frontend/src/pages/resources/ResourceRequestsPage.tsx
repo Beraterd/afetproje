@@ -1,16 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Archive, Plus, RefreshCw, Eye, X } from 'lucide-react';
+import { Archive, Plus, RefreshCw, Eye, X, Filter } from 'lucide-react';
 import { getResourceRequests, createResourceRequest, updateResourceRequestStatus } from '@/api/resourceRequests.api';
+import { lookupStock } from '@/api/resourceStocks.api';
 import { getDistricts } from '@/api/districts.api';
 import { getNeighborhoods } from '@/api/neighborhoods.api';
 import {
     ResourceRequestResponse,
     CreateResourceRequestRequest,
+    StockLookupResponse,
     RESOURCE_TYPES,
     RESOURCE_STATUSES,
+    NAME_REQUIRED_CATEGORIES,
+    PRODUCT_NAME_PLACEHOLDER,
 } from '@/types';
 import { useToast } from '@/components/shared/ToastProvider';
 import { useAuthStore } from '@/store/authStore';
+import { StockSection } from './StockSection';
 
 export function ResourceRequestsPage() {
     const { success: toastSuccess, error: toastError, warning: toastWarning } = useToast();
@@ -27,7 +32,14 @@ export function ResourceRequestsPage() {
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const [filterStatus, setFilterStatus] = useState('');
+
+    // Talep filtreleri
+    const [showReqFilters, setShowReqFilters] = useState(false);
+    const [reqFilters, setReqFilters] = useState<{
+        districtId?: string; neighborhoodId?: string; resourceType?: string;
+        status?: string; search?: string;
+    }>({});
+    const [reqFilterNeighborhoods, setReqFilterNeighborhoods] = useState<any[]>([]);
 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [districts, setDistricts] = useState<any[]>([]);
@@ -43,10 +55,20 @@ export function ResourceRequestsPage() {
 
     const [showDetailModal, setShowDetailModal] = useState<ResourceRequestResponse | null>(null);
 
+    // Talep modalı stok uyarısı
+    const [stockInfo, setStockInfo] = useState<StockLookupResponse | null>(null);
+
     const loadRequests = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await getResourceRequests({ page, size: 15, status: filterStatus || undefined });
+            const res = await getResourceRequests({
+                page, size: 15,
+                districtId: reqFilters.districtId,
+                neighborhoodId: reqFilters.neighborhoodId,
+                resourceType: reqFilters.resourceType,
+                status: reqFilters.status,
+                search: reqFilters.search,
+            });
             setRequests(res.content);
             setTotalPages(res.totalPages);
         } catch {
@@ -54,11 +76,20 @@ export function ResourceRequestsPage() {
         } finally {
             setLoading(false);
         }
-    }, [page, filterStatus, toastError]);
+    }, [page, reqFilters, toastError]);
 
     useEffect(() => { loadRequests(); }, [loadRequests]);
 
-    // Modal açıldığında ilçe listesini yükle ve role göre formu hazırla
+    // İlçe listesini sayfa açılışında yükle (hem filtre hem modal kullanır)
+    useEffect(() => { getDistricts().then(setDistricts).catch(() => {}); }, []);
+
+    // Filtre ilçesine göre mahalle listesi
+    useEffect(() => {
+        if (!reqFilters.districtId) { setReqFilterNeighborhoods([]); return; }
+        getNeighborhoods(reqFilters.districtId).then(setReqFilterNeighborhoods).catch(() => {});
+    }, [reqFilters.districtId]);
+
+    // Modal açıldığında role göre formu hazırla
     useEffect(() => {
         if (!showCreateModal) return;
         getDistricts().then(d => setDistricts(d)).catch(() => {});
@@ -84,10 +115,33 @@ export function ResourceRequestsPage() {
             .finally(() => setLoadingNeighborhoods(false));
     }, [selectedDistrictId]);
 
+    // Stok uyarısı: ilçe + mahalle + kaynak türü seçilince ilgili stok sorgulanır
+    useEffect(() => {
+        if (!showCreateModal) { setStockInfo(null); return; }
+        const districtId = isAdmin ? form.districtId : user?.districtId;
+        const neighborhoodId = isNeighborhoodCoord ? (user?.neighborhoodId ?? undefined) : form.neighborhoodId;
+        if (!districtId || !neighborhoodId || !form.resourceType) {
+            setStockInfo(null);
+            return;
+        }
+        const timer = setTimeout(() => {
+            lookupStock({
+                districtId,
+                neighborhoodId,
+                resourceType: form.resourceType!,
+                quantity: form.quantity,
+            })
+                .then(setStockInfo)
+                .catch(() => setStockInfo(null));
+        }, 350);
+        return () => clearTimeout(timer);
+    }, [showCreateModal, form.districtId, form.neighborhoodId, form.resourceType, form.quantity, isAdmin, isNeighborhoodCoord, user]);
+
     const closeCreateModal = () => {
         setShowCreateModal(false);
         setForm({});
         setSelectedDistrictId('');
+        setStockInfo(null);
     };
 
     const handleCreate = async () => {
@@ -96,8 +150,13 @@ export function ResourceRequestsPage() {
             ? (user?.neighborhoodId ?? undefined)
             : (form.neighborhoodId || undefined);
 
-        if (!effectiveDistrictId || !form.resourceType) {
-            toastWarning('İlçe ve kaynak türü zorunludur');
+        if (!effectiveDistrictId || !effectiveNeighborhoodId || !form.resourceType
+                || !form.quantity || !form.unit) {
+            toastWarning('İlçe, mahalle, kaynak türü, miktar ve birim zorunludur');
+            return;
+        }
+        if (form.resourceType && NAME_REQUIRED_CATEGORIES.includes(form.resourceType) && !form.name?.trim()) {
+            toastWarning('Bu kategori için ürün adı zorunludur');
             return;
         }
         setCreating(true);
@@ -106,7 +165,9 @@ export function ResourceRequestsPage() {
                 districtId: effectiveDistrictId,
                 neighborhoodId: effectiveNeighborhoodId,
                 resourceType: form.resourceType!,
+                name: form.name?.trim() || undefined,
                 quantity: form.quantity,
+                unit: form.unit,
                 description: form.description,
             };
             await createResourceRequest(payload);
@@ -146,11 +207,16 @@ export function ResourceRequestsPage() {
     };
 
     return (
-        <div className="space-y-5">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <Archive className="h-7 w-7 text-indigo-600" />
-                    <h1 className="text-2xl font-bold text-gray-900">Kaynak ve Ekipman Talepleri</h1>
+        <div className="space-y-6">
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+                <div className="flex items-start gap-3">
+                    <Archive className="h-7 w-7 text-indigo-600 mt-0.5" />
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">Kaynak Talepleri ve Stok</h1>
+                        <p className="text-sm text-gray-500 mt-0.5">
+                            Kaynak/ekipman ihtiyaçlarını ve mevcut stok durumunu bölgesel olarak takip edin.
+                        </p>
+                    </div>
                 </div>
                 {canCreate && (
                     <button
@@ -158,23 +224,65 @@ export function ResourceRequestsPage() {
                         className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                     >
                         <Plus className="h-4 w-4" />
-                        Yeni Talep
+                        Yeni Talep Aç
                     </button>
                 )}
             </div>
 
-            {/* Filter */}
-            <div className="flex gap-2 flex-wrap">
-                {['', 'OPEN', 'IN_PROGRESS', 'FULFILLED', 'CANCELLED'].map(s => (
-                    <button
-                        key={s}
-                        onClick={() => { setFilterStatus(s); setPage(0); }}
-                        className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${filterStatus === s ? 'bg-indigo-600 text-white border-indigo-600' : 'border-gray-300 text-gray-600 hover:bg-gray-50'}`}
-                    >
-                        {s === '' ? 'Tümü' : RESOURCE_STATUSES.find(x => x.value === s)?.label || s}
-                    </button>
-                ))}
+            {/* ── Bölüm 1: Kaynak Talepleri ── */}
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+                <h2 className="text-xl font-bold text-gray-900">Kaynak Talepleri</h2>
+                <button
+                    onClick={() => setShowReqFilters(v => !v)}
+                    className="flex items-center gap-1.5 border border-gray-300 text-gray-600 px-3 py-2 rounded-lg text-sm hover:bg-gray-50"
+                >
+                    <Filter className="h-4 w-4" /> Filtrele
+                </button>
             </div>
+
+            {/* Talep filtreleri */}
+            {showReqFilters && (
+                <div className="bg-white border border-gray-200 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {isAdmin && (
+                        <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                            value={reqFilters.districtId ?? ''}
+                            onChange={e => { setPage(0); setReqFilters(f => ({ ...f, districtId: e.target.value || undefined, neighborhoodId: undefined })); }}>
+                            <option value="">Tüm İlçeler</option>
+                            {districts.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                        </select>
+                    )}
+                    {isAdmin && (
+                        <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-50"
+                            value={reqFilters.neighborhoodId ?? ''} disabled={!reqFilters.districtId}
+                            onChange={e => { setPage(0); setReqFilters(f => ({ ...f, neighborhoodId: e.target.value || undefined })); }}>
+                            <option value="">Tüm Mahalleler</option>
+                            {reqFilterNeighborhoods.map((n: any) => <option key={n.id} value={n.id}>{n.name}</option>)}
+                        </select>
+                    )}
+                    <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                        value={reqFilters.resourceType ?? ''}
+                        onChange={e => { setPage(0); setReqFilters(f => ({ ...f, resourceType: e.target.value || undefined })); }}>
+                        <option value="">Tüm Kaynak Türleri</option>
+                        {RESOURCE_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                    </select>
+                    <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                        value={reqFilters.status ?? ''}
+                        onChange={e => { setPage(0); setReqFilters(f => ({ ...f, status: e.target.value || undefined })); }}>
+                        <option value="">Tüm Durumlar</option>
+                        {RESOURCE_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                    </select>
+                    <input type="text" placeholder="Açıklamada ara..."
+                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                        value={reqFilters.search ?? ''}
+                        onChange={e => { setPage(0); setReqFilters(f => ({ ...f, search: e.target.value || undefined })); }} />
+                    <button
+                        onClick={() => { setPage(0); setReqFilters({}); }}
+                        className="text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
+                    >
+                        Filtreleri Temizle
+                    </button>
+                </div>
+            )}
 
             {loading ? (
                 <p className="text-center text-gray-500 py-10">Yükleniyor...</p>
@@ -189,7 +297,7 @@ export function ResourceRequestsPage() {
                         <table className="w-full text-sm">
                             <thead className="bg-gray-50 border-b border-gray-200">
                                 <tr>
-                                    <th className="text-left px-4 py-3 font-medium text-gray-600">Kaynak</th>
+                                    <th className="text-left px-4 py-3 font-medium text-gray-600">Ürün / Kaynak</th>
                                     <th className="text-left px-4 py-3 font-medium text-gray-600">Miktar</th>
                                     <th className="text-left px-4 py-3 font-medium text-gray-600">Konum</th>
                                     <th className="text-left px-4 py-3 font-medium text-gray-600">Oluşturan</th>
@@ -201,13 +309,14 @@ export function ResourceRequestsPage() {
                                 {requests.map(r => (
                                     <tr key={r.id} className="hover:bg-gray-50">
                                         <td className="px-4 py-3">
-                                            <p className="font-medium text-gray-800">{r.resourceTypeLabel}</p>
+                                            <p className="font-medium text-gray-800">{r.productName || r.resourceTypeLabel}</p>
+                                            <p className="text-xs text-gray-400 mt-0.5">{r.resourceTypeLabel}</p>
                                             {r.description && (
                                                 <p className="text-xs text-gray-400 line-clamp-1 mt-0.5">{r.description}</p>
                                             )}
                                         </td>
                                         <td className="px-4 py-3 text-gray-600">
-                                            {r.quantity ? `${r.quantity} adet` : '-'}
+                                            {r.quantity ? `${r.quantity} ${r.unit || 'adet'}` : '-'}
                                         </td>
                                         <td className="px-4 py-3 text-gray-600 text-xs">
                                             {r.neighborhoodName ? `${r.neighborhoodName}, ` : ''}{r.districtName}
@@ -254,6 +363,10 @@ export function ResourceRequestsPage() {
                 </>
             )}
 
+            {/* ── Bölüm 2: Stok Durumu ── */}
+            <div className="pt-2 border-t border-gray-200" />
+            <StockSection />
+
             {/* Detail Modal */}
             {showDetailModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -267,13 +380,17 @@ export function ResourceRequestsPage() {
 
                         <div className="space-y-3 text-sm">
                             <div className="flex gap-2">
+                                <span className="text-gray-500 w-32 flex-shrink-0">Ürün Adı:</span>
+                                <span className="text-gray-800 font-medium">{showDetailModal.productName || showDetailModal.resourceTypeLabel}</span>
+                            </div>
+                            <div className="flex gap-2">
                                 <span className="text-gray-500 w-32 flex-shrink-0">Kaynak Türü:</span>
-                                <span className="text-gray-800 font-medium">{showDetailModal.resourceTypeLabel}</span>
+                                <span className="text-gray-800">{showDetailModal.resourceTypeLabel}</span>
                             </div>
                             {showDetailModal.quantity && (
                                 <div className="flex gap-2">
                                     <span className="text-gray-500 w-32 flex-shrink-0">Miktar:</span>
-                                    <span className="text-gray-800">{showDetailModal.quantity} adet</span>
+                                    <span className="text-gray-800">{showDetailModal.quantity} {showDetailModal.unit || 'adet'}</span>
                                 </div>
                             )}
                             <div className="flex gap-2">
@@ -367,7 +484,7 @@ export function ResourceRequestsPage() {
                         {selectedDistrictId && (
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Mahalle {neighborhoodLocked ? '' : '(isteğe bağlı)'}
+                                    Mahalle *
                                 </label>
                                 <select
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
@@ -379,7 +496,7 @@ export function ResourceRequestsPage() {
                                         <option value="">Yükleniyor...</option>
                                     ) : (
                                         <>
-                                            {!neighborhoodLocked && <option value="">İlçe geneli</option>}
+                                            <option value="">Seçin</option>
                                             {neighborhoods.map((n: any) => (
                                                 <option key={n.id} value={n.id}>{n.name}</option>
                                             ))}
@@ -399,19 +516,57 @@ export function ResourceRequestsPage() {
                             <label className="block text-sm font-medium text-gray-700 mb-1">Kaynak Türü *</label>
                             <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                                 value={form.resourceType || ''}
-                                onChange={e => setForm(f => ({ ...f, resourceType: e.target.value }))}>
+                                onChange={e => setForm(f => ({ ...f, resourceType: e.target.value, name: undefined }))}>
                                 <option value="">Seçin</option>
                                 {RESOURCE_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                             </select>
                         </div>
 
-                        {/* Miktar */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Miktar</label>
-                            <input type="number" min="1" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                                value={form.quantity ?? ''}
-                                onChange={e => setForm(f => ({ ...f, quantity: e.target.value ? parseInt(e.target.value) : undefined }))} />
+                        {/* Ürün Adı — yalnızca ad zorunlu kategorilerde (stok formuyla aynı mantık) */}
+                        {form.resourceType && NAME_REQUIRED_CATEGORIES.includes(form.resourceType) && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Ürün Adı *</label>
+                                <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                                    value={form.name ?? ''}
+                                    placeholder={PRODUCT_NAME_PLACEHOLDER[form.resourceType] ?? ''}
+                                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                            </div>
+                        )}
+
+                        {/* Miktar + Birim */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Miktar *</label>
+                                <input type="number" min="1" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                                    value={form.quantity ?? ''}
+                                    onChange={e => setForm(f => ({ ...f, quantity: e.target.value ? parseInt(e.target.value) : undefined }))} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Birim *</label>
+                                <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                                    value={form.unit ?? ''} placeholder="koli, adet, litre..."
+                                    onChange={e => setForm(f => ({ ...f, unit: e.target.value }))} />
+                            </div>
                         </div>
+
+                        {/* Stok uyarısı */}
+                        {stockInfo && (
+                            <div className={`rounded-lg p-3 text-sm border ${
+                                stockInfo.status === 'CRITICAL' || stockInfo.status === 'OUT_OF_STOCK'
+                                    ? 'bg-red-50 border-red-200 text-red-700'
+                                    : !stockInfo.hasStock
+                                        ? 'bg-blue-50 border-blue-200 text-blue-700'
+                                        : 'bg-green-50 border-green-200 text-green-700'
+                            }`}>
+                                <p className="font-medium">{stockInfo.message}</p>
+                                {stockInfo.hasStock && (
+                                    <p className="text-xs mt-1 opacity-80">
+                                        Mevcut stok: {stockInfo.totalQuantity} {stockInfo.unit}
+                                        {stockInfo.daysRemaining != null ? ` · Tahmini yeterlilik: ${stockInfo.daysRemaining} gün` : ''}
+                                    </p>
+                                )}
+                            </div>
+                        )}
 
                         {/* Açıklama */}
                         <div>

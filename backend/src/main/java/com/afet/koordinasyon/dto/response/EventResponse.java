@@ -1,6 +1,7 @@
 package com.afet.koordinasyon.dto.response;
 
 import com.afet.koordinasyon.domain.enums.EventStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,10 +28,15 @@ public class EventResponse {
     private TeamSummaryResponse team;
     private UserSummaryResponse createdBy;
     private int assignedVolunteers;
+    private int acceptedCount;
+    @JsonProperty("isParticipating")
     private boolean isParticipating;
+    // currentUserJoined = isParticipating (alias, "is" prefix olmadan serializasyon sorunsuz)
+    private boolean currentUserJoined;
     private OffsetDateTime startsAt;
     private OffsetDateTime endsAt;
     private OffsetDateTime closedAt;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
+    private String eventTeamCode;
 }

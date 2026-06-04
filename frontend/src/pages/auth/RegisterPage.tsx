@@ -11,13 +11,17 @@ import { Button, FormField } from '@/components/ui';
 import { ShieldAlert } from 'lucide-react';
 import { DistrictResponse, NeighborhoodSummaryResponse } from '@/types';
 import { ApiError } from '@/utils/errorParser';
+import { isValidTurkishMobile, PHONE_HINT, PHONE_PLACEHOLDER } from '@/utils/phone';
 
 const registerSchema = z.object({
     firstName: z.string().min(2, 'Ad en az 2 karakter olmalıdır'),
     lastName: z.string().min(2, 'Soyad en az 2 karakter olmalıdır'),
     email: z.string().email('Geçerli bir e-posta adresi girin'),
     password: z.string().min(8, 'Şifre en az 8 karakter olmalıdır'),
-    phone: z.string().min(1, 'Telefon numarası zorunludur').max(20, 'Telefon numarası çok uzun'),
+    phone: z.string()
+        .min(1, 'Telefon numarası zorunludur')
+        .max(20, 'Telefon numarası çok uzun')
+        .refine(isValidTurkishMobile, 'Geçerli bir telefon girin: ' + PHONE_HINT),
     bloodType: z.string().min(1, 'Kan grubu seçimi zorunludur'),
     districtId: z.string().min(1, 'İlçe seçimi zorunludur'),
     neighborhoodId: z.string().min(1, 'Mahalle seçimi zorunludur'),
@@ -125,11 +129,11 @@ export const RegisterPage: React.FC = () => {
                     </FormField>
 
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                        <FormField label="Telefon" error={errors.phone?.message} required hint="Örn: +905XXXXXXXXX">
+                        <FormField label="Telefon" error={errors.phone?.message} required hint={'Örn: ' + PHONE_HINT}>
                             <input
                                 {...register('phone')}
                                 type="tel"
-                                placeholder="+905XXXXXXXXX"
+                                placeholder={PHONE_PLACEHOLDER}
                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm"
                             />
                         </FormField>

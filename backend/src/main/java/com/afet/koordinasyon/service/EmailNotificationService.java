@@ -574,7 +574,7 @@ public class EmailNotificationService {
 
     private void notifyAdmins(String subject, String htmlContent, EmailNotificationType type,
                                String entityType, String entityId) {
-        List<User> admins = userRepository.findAdmins();
+        List<User> admins = userRepository.findAdmins(com.afet.koordinasyon.domain.enums.UserRole.ADMIN);
         for (User admin : admins) {
             try {
                 if (!admin.isEmailSystemNotificationsEnabled()) continue;
@@ -632,6 +632,71 @@ public class EmailNotificationService {
         } catch (Exception e) {
             log.error("Email skip log kaydedilemedi: {}", e.getMessage());
         }
+    }
+
+    // ── Etkinlik atama daveti ─────────────────────────────────────────────────
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void sendEventAssignmentInvitation(User recipient, Event event, String acceptToken,
+                                               String declineToken, String managerName) {
+        if (!recipient.isEmailTaskNotificationsEnabled()) return;
+
+        String teamLabel = event.getTeam() != null ? event.getTeam().getName().getLabel() : "-";
+        String districtName = (event.getNeighborhood() != null && event.getNeighborhood().getDistrict() != null)
+                ? event.getNeighborhood().getDistrict().getName() : "-";
+        String neighborhoodName = event.getNeighborhood() != null ? event.getNeighborhood().getName() : "-";
+        String location = districtName + " / " + neighborhoodName;
+
+        String subject = "Yeni Afet Görevi Ataması — " + teamLabel + " / " + districtName;
+
+        String acceptUrl = frontendBaseUrl + "/assignment/accept?token=" + acceptToken;
+        String declineUrl = (declineToken != null)
+                ? frontendBaseUrl + "/assignment/decline?token=" + declineToken : null;
+
+        String bodyHtml = "<p>Merhaba <strong>" + esc(recipient.getFirstName() + " " + recipient.getLastName()) + "</strong>,</p>"
+                + "<p>Afet Koordinasyon Platformu üzerinden size yeni bir görev atanmıştır.</p>"
+                + "<table style=\"border-collapse:collapse;width:100%;margin:12px 0;\">"
+                + tr(true,  "Görev",               event.getTitle())
+                + tr(false, "Görev Tipi",          teamLabel)
+                + tr(true,  "Bölge",               location)
+                + tr(false, "Gerekli Kişi Sayısı", String.valueOf(event.getRequiredPeople()))
+                + tr(true,  "Atayan",              managerName != null ? managerName : "-")
+                + "</table>"
+                + "<p>Bu görev size geçmiş görev deneyiminiz ve bölgesel uygunluğunuz nedeniyle önerilmiştir.</p>"
+                + "<p>Görevi kabul etmek için aşağıdaki butona tıklayın:</p>"
+                + "<div style=\"margin:24px 0;display:flex;gap:12px;\">"
+                + "<a href=\"" + esc(acceptUrl) + "\" style=\"background:#16a34a;color:white;padding:12px 24px;"
+                + "border-radius:6px;text-decoration:none;font-size:14px;\">Görevi Kabul Et</a>"
+                + (declineUrl != null ? " &nbsp;<a href=\"" + esc(declineUrl) + "\" style=\"background:#dc2626;color:white;padding:12px 24px;"
+                + "border-radius:6px;text-decoration:none;font-size:14px;\">Reddet</a>" : "")
+                + "</div>"
+                + "<p style=\"font-size:12px;color:#9ca3af;\">Bu bağlantı 48 saat geçerlidir.</p>";
+
+        String body = buildHtml(subject, bodyHtml, "", "", "");
+        sendAndLog(recipient, subject, body, EmailNotificationType.TASK_INVITATION,
+                "Event", event.getId().toString());
+    }
+
+    // ── Ekip öneri onay bildirimi ──────────────────────────────────────────────
+
+    public void sendTeamRecommendationApproved(User recipient, String teamTypeLabel,
+                                                String districtName, String neighborhoodName,
+                                                String priority) {
+        if (!recipient.isEmailTaskNotificationsEnabled()) return;
+        String subject = "Yeni Afet Görevi Ataması — " + teamTypeLabel + " / " + districtName;
+        String location = neighborhoodName != null ? districtName + " / " + neighborhoodName : districtName;
+        String bodyHtml = "<p>Merhaba <strong>" + esc(recipient.getFirstName() + " " + recipient.getLastName()) + "</strong>,</p>"
+                + "<p>Afet Koordinasyon Platformu üzerinden size yeni bir görev atanmıştır.</p>"
+                + "<table style=\"border-collapse:collapse;width:100%;margin:12px 0;\">"
+                + tr(true, "Görev Tipi", teamTypeLabel)
+                + tr(false, "Bölge", location)
+                + tr(true, "Öncelik", priority)
+                + "</table>"
+                + "<p>Lütfen panele giriş yaparak görevi onaylayın ve detayları inceleyin.</p>"
+                + "<p style=\"font-size:12px;color:#9ca3af;\">Bu otomatik bir bilgilendirme mesajıdır.</p>";
+        String body = buildHtml(subject, bodyHtml, "", frontendBaseUrl + "/my-tasks", "Görevimi Görüntüle");
+        sendAndLog(recipient, subject, body, EmailNotificationType.TASK_ASSIGNED,
+                "TeamRecommendation", null);
     }
 
     // ── HTML template ──────────────────────────────────────────────────────────

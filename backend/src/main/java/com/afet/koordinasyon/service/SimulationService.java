@@ -52,13 +52,12 @@ public class SimulationService {
 
         EarthquakeSimulation saved = simulationRepository.save(simulation);
 
-        // Tüm aktif kullanıcılar için QUEUED notification log oluştur.
-        // E-posta gönderimi transaction commit edildikten sonra arka planda
-        // SimulationEmailDispatcher tarafından async olarak yapılır.
-        List<User> allUsers = userRepository.findAll();
+        // Gerçek deprem akışıyla aynı alıcı kümesi (aktif + doğrulanmış kullanıcılar) için
+        // QUEUED notification log oluştur. Bildirimler (mail + WhatsApp) commit sonrası
+        // ortak EarthquakeAlertNotificationService tarafından async gönderilir.
+        List<User> recipients = userRepository.findActiveVerifiedWithNeighborhood();
         int userCount = 0;
-        for (User user : allUsers) {
-            if (!user.isActive()) continue;
+        for (User user : recipients) {
             notificationLogRepository.save(SimulationNotificationLog.builder()
                     .simulation(saved)
                     .user(user)
@@ -68,12 +67,12 @@ public class SimulationService {
             userCount++;
         }
 
-        // Transaction commit sonrası async e-posta gönderimini tetikle.
-        // @TransactionalEventListener(phase = AFTER_COMMIT) garantisi ile
-        // SimulationEmailDispatcher.dispatch() ayrı thread'de çalışır.
-        eventPublisher.publishEvent(new SimulationEmailEvent(saved.getId()));
+        // Gerçek deprem ile aynı ortak bildirim akışını tetikle (mail + WhatsApp + kısa link).
+        // @TransactionalEventListener(phase = AFTER_COMMIT) ile async çalışır.
+        eventPublisher.publishEvent(
+                new EarthquakeAlertCreatedEvent(EarthquakeAlert.fromSimulation(saved)));
 
-        log.info("Simulation {} created for district {}. {} users queued for async email dispatch.",
+        log.info("Simulation {} created for district {}. {} users queued for async notifications.",
                 saved.getId(), district.getName(), userCount);
 
         return SimulationCreatedResponse.builder()

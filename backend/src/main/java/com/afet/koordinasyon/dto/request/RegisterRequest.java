@@ -1,6 +1,7 @@
 package com.afet.koordinasyon.dto.request;
 
 import com.afet.koordinasyon.domain.enums.BloodType;
+import com.afet.koordinasyon.validation.TurkishPhone;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -20,6 +21,7 @@ public class RegisterRequest {
     private String email;
     @NotBlank
     @Size(max = 20)
+    @TurkishPhone
     private String phone;
     @NotNull
     private BloodType bloodType;

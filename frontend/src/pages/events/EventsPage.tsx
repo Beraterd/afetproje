@@ -67,6 +67,14 @@ export const EventsPage: React.FC = () => {
 
     const columns: ColumnDef<EventSummaryResponse>[] = [
         {
+            header: 'İsim',
+            render: (row) => (
+                <span className="text-sm font-medium text-gray-900">
+                    {row.eventTeamCode || row.team?.teamCode || '-'}
+                </span>
+            ),
+        },
+        {
             header: 'Olay',
             accessor: 'title',
             render: (row) => <div className="font-medium text-gray-900">{row.title}</div>,
@@ -167,7 +175,7 @@ export const EventsPage: React.FC = () => {
                             <option value="">Tüm Ekipler</option>
                             {teams.map((t: any) => (
                                 <option key={t.id} value={t.id}>
-                                    {TEAM_TR[t.name] || t.name}
+                                    {t.teamCode ? `${t.teamCode} — ${TEAM_TR[t.name] || t.name}` : (TEAM_TR[t.name] || t.name)}
                                 </option>
                             ))}
                         </select>

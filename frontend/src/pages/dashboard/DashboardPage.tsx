@@ -5,11 +5,12 @@ import { getPendingDocuments, getMyDocuments } from '@/api/documents.api';
 import { getDamageAssessments } from '@/api/damageAssessments.api';
 import { getResourceRequests } from '@/api/resourceRequests.api';
 import { getMe } from '@/api/users.api';
-import { AlertTriangle, Building2, PackageOpen, FileText, Calendar, CheckCircle, Clock, Activity } from 'lucide-react';
+import { AlertTriangle, Building2, PackageOpen, FileText, Calendar, CheckCircle, Clock, Activity, FileBarChart2, ShieldAlert, TrendingUp, FileDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Badge, LoadingSpinner } from '@/components/ui';
 import { UserResponse, EarthquakeEventResponse, EarthquakeRiskLevel } from '@/types';
 import { getLatestEarthquakes } from '@/api/earthquakes.api';
+import { getActiveEventCount } from '@/api/teamRecommendations.api';
 
 const RISK_VARIANTS: Record<EarthquakeRiskLevel, 'neutral' | 'info' | 'warning' | 'danger'> = {
     LOW: 'neutral',
@@ -45,10 +46,48 @@ export const DashboardPage: React.FC = () => {
             {(user.role === 'DISTRICT_COORDINATOR' || user.role === 'NEIGHBORHOOD_COORDINATOR') && <CoordinatorDashboard />}
             {user.role === 'VOLUNTEER' && <VolunteerDashboard />}
 
+            {user.role !== 'VOLUNTEER' && <ReportCenterModule />}
+
             <LatestEarthquakeCard />
         </div>
     );
 };
+
+// ─────────────────────────────────────────────────────
+// Rapor Merkezi modülü — yönetici & koordinatörler (§10)
+// ─────────────────────────────────────────────────────
+const REPORT_SHORTCUTS = [
+    { label: 'Günlük Rapor', focus: 'gunluk', icon: <FileBarChart2 className="h-5 w-5" />, color: 'bg-brand-100 text-brand-700' },
+    { label: 'Operasyon', focus: 'operasyon', icon: <TrendingUp className="h-5 w-5" />, color: 'bg-emerald-100 text-emerald-700' },
+    { label: 'Risk & Hasar', focus: 'hasar', icon: <ShieldAlert className="h-5 w-5" />, color: 'bg-orange-100 text-orange-700' },
+    { label: 'Kaynak & Stok', focus: 'kaynak', icon: <PackageOpen className="h-5 w-5" />, color: 'bg-blue-100 text-blue-700' },
+];
+
+const ReportCenterModule = () => (
+    <div className="glass-card px-4 py-5 sm:p-6">
+        <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                <FileBarChart2 className="h-5 w-5 text-brand-700" />
+                Rapor Merkezi
+            </h3>
+            <Link to="/reports" className="text-xs font-medium text-brand-700 hover:text-brand-900 transition-colors flex items-center gap-1">
+                Tüm Raporlar <FileDown className="h-3.5 w-3.5" />
+            </Link>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {REPORT_SHORTCUTS.map((r) => (
+                <Link
+                    key={r.focus}
+                    to={`/reports/view?focus=${r.focus}`}
+                    className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white/60 px-3 py-3 hover:border-brand-300 hover:shadow-sm transition-all group"
+                >
+                    <span className={`rounded-lg p-2 ${r.color} transition-transform group-hover:scale-110`}>{r.icon}</span>
+                    <span className="text-sm font-medium text-gray-800">{r.label}</span>
+                </Link>
+            ))}
+        </div>
+    </div>
+);
 
 const StatCard = ({ title, value, icon, to, color = 'blue', index = 0 }: any) => {
     const bgColors = {
@@ -91,13 +130,13 @@ const AdminDashboard = () => {
 
     useEffect(() => {
         Promise.all([
-            getEvents({ status: 'OPEN', size: 1 }),
+            getActiveEventCount(),
             getDamageAssessments({ size: 1 }),
             getResourceRequests({ size: 1, status: 'OPEN' }),
             getPendingDocuments({ size: 1 }),
-        ]).then(([eventsRes, damageRes, resourceRes, docsRes]) => {
+        ]).then(([activeCount, damageRes, resourceRes, docsRes]) => {
             setStats({
-                events:      eventsRes.totalElements,
+                events:      activeCount,
                 damage:      damageRes.totalElements,
                 resources:   resourceRes.totalElements,
                 pendingDocs: docsRes.totalElements,
@@ -154,13 +193,13 @@ const CoordinatorDashboard = () => {
 
     useEffect(() => {
         Promise.all([
-            getEvents({ status: 'OPEN', size: 1 }),
+            getActiveEventCount(),
             getDamageAssessments({ size: 1 }),
             getResourceRequests({ size: 1, status: 'OPEN' }),
             getPendingDocuments({ size: 1 }),
-        ]).then(([eventsRes, damageRes, resourceRes, docsRes]) => {
+        ]).then(([activeCount, damageRes, resourceRes, docsRes]) => {
             setStats({
-                events:      eventsRes.totalElements,
+                events:      activeCount,
                 damage:      damageRes.totalElements,
                 resources:   resourceRes.totalElements,
                 pendingDocs: docsRes.totalElements,
@@ -211,6 +250,18 @@ const CoordinatorDashboard = () => {
 // ─────────────────────────────────────────────────────
 // Son AFAD Depremi Kartı — tüm roller
 // ─────────────────────────────────────────────────────
+const formatNumber = (value?: number | null, digits = 1): string =>
+    typeof value === 'number' && Number.isFinite(value) ? value.toFixed(digits) : '-';
+
+const formatEventTime = (eventTime?: string | null): string => {
+    if (!eventTime) return '-';
+    try {
+        return new Date(eventTime).toLocaleString('tr-TR');
+    } catch {
+        return '-';
+    }
+};
+
 const LatestEarthquakeCard = () => {
     const [latest, setLatest] = React.useState<EarthquakeEventResponse | null>(null);
     const [loading, setLoading] = React.useState(true);
@@ -223,7 +274,30 @@ const LatestEarthquakeCard = () => {
     }, []);
 
     if (loading) return null;
-    if (!latest) return null;
+
+    if (!latest) {
+        return (
+            <div className="glass-card px-4 py-5 sm:p-6 animate-stagger-4">
+                <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                        <Activity className="h-5 w-5 text-red-600" />
+                        Son AFAD Depremi
+                    </h3>
+                    <Link
+                        to="/earthquakes"
+                        className="text-xs font-medium text-brand-700 hover:text-brand-900 transition-colors"
+                    >
+                        Tümünü Gör →
+                    </Link>
+                </div>
+                <p className="text-sm text-gray-400">Son deprem verisi bulunamadı.</p>
+            </div>
+        );
+    }
+
+    const riskVariant = latest.riskLevel && RISK_VARIANTS[latest.riskLevel] ? RISK_VARIANTS[latest.riskLevel] : 'neutral';
+    const riskLabel = latest.riskLevel && RISK_LABELS[latest.riskLevel] ? RISK_LABELS[latest.riskLevel] : '-';
+    const depthFormatted = formatNumber(latest.depth, 0);
 
     return (
         <div className="glass-card px-4 py-5 sm:p-6 animate-stagger-4">
@@ -241,30 +315,39 @@ const LatestEarthquakeCard = () => {
             </div>
             <div className="flex flex-wrap items-center gap-4">
                 <div className="text-center">
-                    <div className="text-3xl font-bold text-gray-900">{latest.magnitude.toFixed(1)}</div>
+                    <div className="text-3xl font-bold text-gray-900">{formatNumber(latest.magnitude, 1)}</div>
                     <div className="text-xs text-gray-500 mt-0.5">Büyüklük</div>
                 </div>
                 <div className="flex-1 min-w-0">
-                    <div className="font-medium text-gray-800 truncate">{latest.location || 'Konum bilgisi yok'}</div>
+                    <div className="font-medium text-gray-800 truncate">
+                        {latest.location ||
+                            [latest.province, latest.district].filter(Boolean).join(' / ') ||
+                            (latest.latitude != null && latest.longitude != null
+                                ? `${formatNumber(latest.latitude, 4)}, ${formatNumber(latest.longitude, 4)}`
+                                : null) ||
+                            'Konum bilgisi yok'}
+                    </div>
                     {(latest.province || latest.district) && (
                         <div className="text-sm text-gray-500">
                             {[latest.province, latest.district].filter(Boolean).join(' / ')}
                         </div>
                     )}
                     <div className="text-xs text-gray-400 mt-1">
-                        {new Date(latest.eventTime).toLocaleString('tr-TR')}
+                        {formatEventTime(latest.eventTime)}
                     </div>
                 </div>
                 <div className="flex flex-col gap-1.5 items-end">
-                    <Badge variant={RISK_VARIANTS[latest.riskLevel]}>
-                        {RISK_LABELS[latest.riskLevel]}
+                    <Badge variant={riskVariant}>
+                        {riskLabel}
                     </Badge>
-                    {latest.depth != null && (
-                        <span className="text-xs text-gray-400">Derinlik: {latest.depth.toFixed(0)} km</span>
+                    {depthFormatted !== '-' && (
+                        <span className="text-xs text-gray-400">Derinlik: {depthFormatted} km</span>
                     )}
-                    <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
-                        {latest.source}
-                    </span>
+                    {latest.source && (
+                        <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                            {latest.source}
+                        </span>
+                    )}
                 </div>
             </div>
         </div>

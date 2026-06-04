@@ -45,6 +45,73 @@ public interface ResourceRequestRepository
         """)
     List<Object[]> findOpenRequestCountByDistrict();
 
+    // ── Operations AI context queries ────────────────────────────────────────
+
+    @Query("""
+        SELECT r.resourceType, COUNT(r)
+        FROM ResourceRequest r
+        WHERE r.status IN :statuses
+        GROUP BY r.resourceType
+        ORDER BY COUNT(r) DESC
+        """)
+    List<Object[]> findResourceTypeSummary(@Param("statuses") List<ResourceRequestStatus> statuses);
+
+    @Query("""
+        SELECT r.resourceType, COUNT(r)
+        FROM ResourceRequest r
+        WHERE r.district.id = :districtId AND r.status IN :statuses
+        GROUP BY r.resourceType
+        ORDER BY COUNT(r) DESC
+        """)
+    List<Object[]> findResourceTypeSummaryByDistrict(
+            @Param("districtId") UUID districtId,
+            @Param("statuses") List<ResourceRequestStatus> statuses);
+
+    @Query("""
+        SELECT r.resourceType, COUNT(r)
+        FROM ResourceRequest r
+        WHERE r.neighborhood.id = :neighborhoodId AND r.status IN :statuses
+        GROUP BY r.resourceType
+        ORDER BY COUNT(r) DESC
+        """)
+    List<Object[]> findResourceTypeSummaryByNeighborhood(
+            @Param("neighborhoodId") UUID neighborhoodId,
+            @Param("statuses") List<ResourceRequestStatus> statuses);
+
+    // ── Rapor: trend / süre / mahalle karşılaştırma ──────────────────────────
+
+    /** Kapsamda belirli tarih aralığında oluşturulan talep sayısı (trend analizi). */
+    @Query("""
+            SELECT COUNT(r) FROM ResourceRequest r
+            WHERE r.createdAt >= :from AND r.createdAt < :to
+              AND (:districtId IS NULL OR r.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR r.neighborhood.id = :neighborhoodId)
+            """)
+    long reportCountCreatedBetween(@Param("districtId") UUID districtId,
+                                   @Param("neighborhoodId") UUID neighborhoodId,
+                                   @Param("from") java.time.OffsetDateTime from,
+                                   @Param("to") java.time.OffsetDateTime to);
+
+    /** Ortalama talep çözüm süresi (saniye) — resolvedAt set edilmiş talepler üzerinden. */
+    @Query(value = """
+            SELECT AVG(EXTRACT(EPOCH FROM (r.resolved_at - r.created_at)))
+              FROM resource_requests r
+             WHERE r.resolved_at IS NOT NULL
+               AND (:districtId IS NULL OR r.district_id = :districtId)
+               AND (:neighborhoodId IS NULL OR r.neighborhood_id = :neighborhoodId)
+            """, nativeQuery = true)
+    Double reportAvgResolutionSeconds(@Param("districtId") UUID districtId,
+                                      @Param("neighborhoodId") UUID neighborhoodId);
+
+    /** Mahalle bazında toplam talep sayısı (ilçe kapsamında karşılaştırma). [neighborhoodId, count] */
+    @Query("""
+            SELECT r.neighborhood.id, COUNT(r) FROM ResourceRequest r
+            WHERE r.neighborhood IS NOT NULL
+              AND (:districtId IS NULL OR r.district.id = :districtId)
+            GROUP BY r.neighborhood.id
+            """)
+    List<Object[]> reportRequestCountByNeighborhood(@Param("districtId") UUID districtId);
+
     // ── Bakım / Purge sorguları ──────────────────────────────────────────────
 
     @Modifying(clearAutomatically = true)

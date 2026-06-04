@@ -37,4 +37,8 @@
   .glass-sidebar {
     @apply bg-earth-50/85 backdrop-blur-md border-r border-white/60 shadow-soft transition-all duration-300;
   }
+
+  .modal-input {
+    @apply w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500;
+  }
 }

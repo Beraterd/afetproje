@@ -1,6 +1,7 @@
 package com.afet.koordinasyon.dto.request;
 
 import com.afet.koordinasyon.domain.enums.BloodType;
+import com.afet.koordinasyon.validation.TurkishPhone;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -17,6 +18,7 @@ public class UpdateProfileRequest {
     @Size(max = 200)
     private String email;
     @Size(max = 20)
+    @TurkishPhone
     private String phone;
     private BloodType bloodType;
     private UUID districtId;

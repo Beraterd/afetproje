@@ -22,6 +22,8 @@ public interface EventVolunteerRepository extends JpaRepository<EventVolunteer, 
 
     boolean existsByEventIdAndUserId(UUID eventId, UUID userId);
 
+    boolean existsByEventIdAndUserIdAndStatus(UUID eventId, UUID userId, EventVolunteerStatus status);
+
     Page<EventVolunteer> findByEventId(UUID eventId, Pageable pageable);
 
     List<EventVolunteer> findByEventIdAndStatus(UUID eventId, EventVolunteerStatus status);
@@ -31,8 +33,20 @@ public interface EventVolunteerRepository extends JpaRepository<EventVolunteer, 
     @Query("SELECT COUNT(ev) FROM EventVolunteer ev WHERE ev.user.id = :userId AND ev.status = :status")
     long countByUserIdAndStatus(@Param("userId") UUID userId, @Param("status") EventVolunteerStatus status);
 
+    /** Rapor: kapsamda göreve atanmış benzersiz gönüllü sayısı. */
+    @Query("""
+            SELECT COUNT(DISTINCT ev.user.id) FROM EventVolunteer ev
+            WHERE (:districtId IS NULL OR ev.event.neighborhood.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR ev.event.neighborhood.id = :neighborhoodId)
+            """)
+    long reportAssignedVolunteers(@Param("districtId") UUID districtId,
+                                  @Param("neighborhoodId") UUID neighborhoodId);
+
     @Query("SELECT ev FROM EventVolunteer ev WHERE ev.user.id = :userId")
     Page<EventVolunteer> findByUserId(@Param("userId") UUID userId, Pageable pageable);
+
+    @Query("SELECT ev FROM EventVolunteer ev JOIN FETCH ev.event e LEFT JOIN FETCH e.team LEFT JOIN FETCH e.neighborhood n LEFT JOIN FETCH n.district WHERE ev.user.id = :userId")
+    List<EventVolunteer> findByUserIdAll(@Param("userId") UUID userId);
 
     @Query("SELECT ev FROM EventVolunteer ev WHERE ev.user.id = :userId AND ev.status = :status")
     Page<EventVolunteer> findByUserIdAndStatus(

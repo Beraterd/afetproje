@@ -2,11 +2,13 @@ package com.afet.koordinasyon.service;
 
 import com.afet.koordinasyon.domain.entity.District;
 import com.afet.koordinasyon.domain.entity.Event;
+import com.afet.koordinasyon.domain.entity.EventAssignment;
 import com.afet.koordinasyon.domain.entity.EventVolunteer;
 import com.afet.koordinasyon.domain.entity.Neighborhood;
 import com.afet.koordinasyon.domain.entity.Team;
 import com.afet.koordinasyon.domain.entity.User;
 import com.afet.koordinasyon.domain.enums.AuditActionType;
+import com.afet.koordinasyon.domain.enums.EventInvitationStatus;
 import com.afet.koordinasyon.domain.enums.EventStatus;
 import com.afet.koordinasyon.domain.enums.EventVolunteerStatus;
 import com.afet.koordinasyon.domain.enums.TeamName;
@@ -21,6 +23,7 @@ import com.afet.koordinasyon.service.email.TaskCompletedEmailEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 import com.afet.koordinasyon.repository.*;
+import com.afet.koordinasyon.repository.EventAssignmentRepository;
 import com.afet.koordinasyon.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,10 +48,13 @@ public class EventService {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final EventVolunteerRepository eventVolunteerRepository;
+    private final EventAssignmentRepository eventAssignmentRepository;
     private final DocumentRepository documentRepository;
     private final RiskCalculationService riskCalculationService;
     private final AuditLogService auditLogService;
     private final ApplicationEventPublisher eventPublisher;
+    private final TeamCodeGeneratorService teamCodeGeneratorService;
+    private final TeamRecommendationAutoTrigger teamRecommendationAutoTrigger;
 
     @Transactional(readOnly = true)
     public PagedResponse<EventSummaryResponse> listEvents(
@@ -86,10 +93,14 @@ public class EventService {
                 .orElseThrow(() -> new ResourceNotFoundException("Event", "id", id));
         boolean participating = false;
         if (principal != null) {
+            // Check direct volunteer join
             participating = eventVolunteerRepository
-                    .findByEventIdAndUserId(id, principal.getId())
-                    .map(ev -> ev.getStatus() == EventVolunteerStatus.ASSIGNED)
-                    .orElse(false);
+                    .existsByEventIdAndUserIdAndStatus(id, principal.getId(), EventVolunteerStatus.ASSIGNED);
+            // Also check AI invitation acceptance
+            if (!participating) {
+                participating = eventAssignmentRepository
+                        .existsByEventIdAndUserIdAndStatus(id, principal.getId(), EventInvitationStatus.ACCEPTED);
+            }
         }
         return toFullResponse(event, participating);
     }
@@ -160,6 +171,19 @@ public class EventService {
         auditLogService.logUserAction(principal, AuditActionType.EVENT_CREATED, "Event", saved.getId(),
                 "Olay oluşturuldu: " + saved.getTitle(),
                 java.util.Map.of("neighborhood", neighborhood.getName(), "team", team.getName().getLabel()));
+
+        // §3 — Olay oluşturulduktan SONRA (commit sonrası) otomatik ekip önerisini arka planda tetikle.
+        // Kayıt önce güvenle oluşturulur; öneri motoru asenkron çalışır, sayfa beklemez ve hata olursa
+        // olay oluşturma başarısız SAYILMAZ. Manuel "Ekip öner/yenile" akışı korunur.
+        final UUID savedEventId = saved.getId();
+        final UUID creatorId = creator.getId();
+        org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+                new org.springframework.transaction.support.TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        teamRecommendationAutoTrigger.onEventCreated(savedEventId, creatorId);
+                    }
+                });
 
         return toFullResponse(saved, false);
     }
@@ -250,6 +274,12 @@ public class EventService {
                 throw new BusinessRuleException("Bu olaya zaten katılıyorsunuz");
             }
         });
+
+        // AI davet yoluyla kabul etmiş kişi tekrar doğrudan katılamaz
+        if (eventAssignmentRepository.existsByEventIdAndUserIdAndStatus(
+                eventId, principal.getId(), EventInvitationStatus.ACCEPTED)) {
+            throw new BusinessRuleException("Bu olaya davet yoluyla zaten kabul ettiniz");
+        }
 
         long activeCount = eventVolunteerRepository.countByUserIdAndStatus(principal.getId(), EventVolunteerStatus.ASSIGNED);
         if (activeCount > 0) {
@@ -391,6 +421,7 @@ public class EventService {
                     .team(e.getTeam() != null ? TeamSummaryResponse.builder()
                             .id(e.getTeam().getId())
                             .name(e.getTeam().getName().name())
+                            .teamCode(e.getTeam().getTeamCode())
                             .coefficient(e.getTeam().getCoefficient())
                             .build() : null)
                     .neighborhood(e.getNeighborhood() != null ? NeighborhoodSummaryResponse.builder()
@@ -405,12 +436,84 @@ public class EventService {
         }));
     }
 
+    @Transactional(readOnly = true)
+    public List<EventParticipantResponse> getEventParticipants(UUID eventId) {
+        if (!eventRepository.existsById(eventId)) {
+            throw new ResourceNotFoundException("Event", "id", eventId);
+        }
+
+        List<EventParticipantResponse> result = new ArrayList<>();
+        java.util.Set<UUID> seen = new java.util.HashSet<>();
+
+        // 1. Doğrudan katılan gönüllüler (EventVolunteer — ASSIGNED)
+        eventVolunteerRepository.findByEventIdAndStatus(eventId, EventVolunteerStatus.ASSIGNED)
+                .forEach(ev -> {
+                    UUID uid = ev.getUser().getId();
+                    if (seen.add(uid)) {
+                        result.add(EventParticipantResponse.builder()
+                                .userId(uid)
+                                .firstName(ev.getUser().getFirstName())
+                                .lastName(ev.getUser().getLastName())
+                                .email(ev.getUser().getEmail())
+                                .source("DIRECT_JOIN")
+                                .status("JOINED")
+                                .joinedAt(ev.getJoinedAt())
+                                .build());
+                    }
+                });
+
+        // 2. AI davet listesi (EventAssignment — tüm durumlar)
+        eventAssignmentRepository.findByEventIdWithUser(eventId)
+                .forEach(ea -> {
+                    UUID uid = ea.getUser().getId();
+                    String status;
+                    switch (ea.getStatus()) {
+                        case ACCEPTED  -> status = "ACCEPTED";
+                        case DECLINED  -> status = "DECLINED";
+                        case CANCELLED -> status = "CANCELLED";
+                        default        -> status = "INVITED";
+                    }
+                    if (!seen.contains(uid) || ea.getStatus() == EventInvitationStatus.ACCEPTED) {
+                        seen.add(uid);
+                        result.add(EventParticipantResponse.builder()
+                                .userId(uid)
+                                .firstName(ea.getUser().getFirstName())
+                                .lastName(ea.getUser().getLastName())
+                                .email(ea.getUser().getEmail())
+                                .source("AI_INVITATION")
+                                .status(status)
+                                .joinedAt(ea.getAcceptedAt() != null ? ea.getAcceptedAt() : ea.getInvitedAt())
+                                .build());
+                    }
+                });
+
+        return result;
+    }
+
     // Legacy method for backwards compatibility
     @Transactional(readOnly = true)
     public List<EventResponse> listEvents() {
         return eventRepository.findAll().stream()
                 .map(e -> toFullResponse(e, false))
                 .toList();
+    }
+
+    // ── Dashboard: active event count ─────────────────────────────────────────
+
+    @Transactional(readOnly = true)
+    public long countActiveEvents(UserPrincipal principal) {
+        List<EventStatus> active = List.of(EventStatus.OPEN, EventStatus.IN_PROGRESS);
+        UserRole role = principal.getRole();
+        UUID districtId = principal.getDistrictId();
+        UUID neighborhoodId = principal.getNeighborhoodId();
+        if (role == UserRole.ADMIN) {
+            return eventRepository.countByStatusIn(active);
+        } else if (role == UserRole.DISTRICT_COORDINATOR && districtId != null) {
+            return eventRepository.countByDistrictIdAndStatusIn(districtId, active);
+        } else if (role == UserRole.NEIGHBORHOOD_COORDINATOR && neighborhoodId != null) {
+            return eventRepository.countByNeighborhoodIdAndStatusIn(neighborhoodId, active);
+        }
+        return 0L;
     }
 
     // ── Access check helper ───────────────────────────────────────────────────
@@ -459,18 +562,28 @@ public class EventService {
                 .team(e.getTeam() != null ? TeamSummaryResponse.builder()
                         .id(e.getTeam().getId())
                         .name(e.getTeam().getName().name())
+                        .teamCode(e.getTeam().getTeamCode())
                         .coefficient(e.getTeam().getCoefficient())
                         .build() : null)
                 .latitude(e.getLatitude())
                 .longitude(e.getLongitude())
                 .startsAt(e.getStartsAt())
                 .createdAt(e.getCreatedAt())
+                .eventTeamCode(teamCodeGeneratorService.generateDisplayCodeForEvent(e))
                 .build();
     }
 
     private EventResponse toFullResponse(Event e, boolean isParticipating) {
+        // Doğrudan katılan gönüllü sayısı (Ayrıl butonu için)
         int assignedVolunteers = eventVolunteerRepository
                 .countByEventIdAndStatus(e.getId(), EventVolunteerStatus.ASSIGNED);
+        // Distinct userId ile deduplication — iki tabloda aynı kişi iki kez sayılmasın
+        java.util.Set<UUID> participantIds = new java.util.HashSet<>();
+        eventVolunteerRepository.findByEventIdAndStatus(e.getId(), EventVolunteerStatus.ASSIGNED)
+                .forEach(ev -> participantIds.add(ev.getUser().getId()));
+        eventAssignmentRepository.findByEventIdAndStatus(e.getId(), EventInvitationStatus.ACCEPTED)
+                .forEach(ea -> participantIds.add(ea.getUser().getId()));
+        int acceptedCount = participantIds.size();
         return EventResponse.builder()
                 .id(e.getId())
                 .title(e.getTitle())
@@ -489,6 +602,7 @@ public class EventService {
                 .team(e.getTeam() != null ? TeamSummaryResponse.builder()
                         .id(e.getTeam().getId())
                         .name(e.getTeam().getName().name())
+                        .teamCode(e.getTeam().getTeamCode())
                         .coefficient(e.getTeam().getCoefficient())
                         .build() : null)
                 .createdBy(e.getCreatedBy() != null ? UserSummaryResponse.builder()
@@ -498,12 +612,15 @@ public class EventService {
                         .email(e.getCreatedBy().getEmail())
                         .build() : null)
                 .assignedVolunteers(assignedVolunteers)
+                .acceptedCount(acceptedCount)
                 .isParticipating(isParticipating)
+                .currentUserJoined(isParticipating)
                 .startsAt(e.getStartsAt())
                 .endsAt(e.getEndsAt())
                 .closedAt(e.getClosedAt())
                 .createdAt(e.getCreatedAt())
                 .updatedAt(e.getUpdatedAt())
+                .eventTeamCode(teamCodeGeneratorService.generateDisplayCodeForEvent(e))
                 .build();
     }
 }

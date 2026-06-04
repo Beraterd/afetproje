@@ -36,14 +36,20 @@ import { AuditPage } from '@/pages/admin/AuditPage';
 
 import { MyTasksPage } from '@/pages/tasks/MyTasksPage';
 import { EmergencyContactsPage } from '@/pages/profile/EmergencyContactsPage';
+import { EmergencyAssemblyAreasPage } from '@/pages/emergency/EmergencyAssemblyAreasPage';
 import { MyRecordsPage } from '@/pages/profile/MyRecordsPage';
 import { DamageAssessmentsPage } from '@/pages/damage/DamageAssessmentsPage';
 import { ResourceRequestsPage } from '@/pages/resources/ResourceRequestsPage';
 import { CoordinationCenterPage } from '@/pages/coordination/CoordinationCenterPage';
 import { EarthquakesPage } from '@/pages/earthquakes/EarthquakesPage';
+import { ReportCenterPage } from '@/pages/reports/ReportCenterPage';
+import { ReportViewPage } from '@/pages/reports/ReportViewPage';
 
 import { UnauthorizedPage } from '@/pages/errors/UnauthorizedPage';
 import { NotFoundPage } from '@/pages/errors/NotFoundPage';
+import { AssignmentAcceptPage } from '@/pages/assignment/AssignmentAcceptPage';
+import { AssignmentDeclinePage } from '@/pages/assignment/AssignmentDeclinePage';
+import { EmergencyMessageResultPage } from '@/pages/emergency/EmergencyMessageResultPage';
 
 function AppRoutes() {
     return useRoutes([
@@ -66,6 +72,7 @@ function AppRoutes() {
                 { path: 'profile', element: <ProfilePage /> },
                 { path: 'my-tasks', element: <MyTasksPage /> },
                 { path: 'emergency-contacts', element: <EmergencyContactsPage /> },
+                { path: 'emergency/assembly-areas', element: <EmergencyAssemblyAreasPage /> },
                 { path: 'my-records', element: <MyRecordsPage /> },
                 { path: 'damage-assessments', element: <DamageAssessmentsPage /> },
                 { path: 'resource-requests', element: <ResourceRequestsPage /> },
@@ -77,6 +84,19 @@ function AppRoutes() {
                             <CoordinationCenterPage />
                         </ProtectedRoute>
                     ),
+                },
+
+                {
+                    path: 'reports',
+                    element: (
+                        <ProtectedRoute allowedRoles={['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR']}>
+                            <Outlet />
+                        </ProtectedRoute>
+                    ),
+                    children: [
+                        { path: '', element: <ReportCenterPage /> },
+                        { path: 'view', element: <ReportViewPage /> },
+                    ],
                 },
 
                 {
@@ -194,6 +214,10 @@ function AppRoutes() {
                 { path: 'unauthorized', element: <UnauthorizedPage /> },
             ],
         },
+
+        { path: 'assignment/accept', element: <AssignmentAcceptPage /> },
+        { path: 'assignment/decline', element: <AssignmentDeclinePage /> },
+        { path: 'emergency-message-result', element: <EmergencyMessageResultPage /> },
 
         { path: '*', element: <NotFoundPage /> },
     ]);

@@ -39,6 +39,57 @@ public interface DocumentRepository extends JpaRepository<Document, UUID> {
     List<Document> findApprovedByUserAndType(@Param("userId") UUID userId,
             @Param("documentType") DocumentType documentType);
 
+    // ── Rapor: belge onayları (dönem + ilçe/mahalle kapsamı) ─────────────────
+
+    /** Kapsamda [from,to) aralığında YÜKLENEN belge sayısı (createdAt). */
+    @Query("""
+            SELECT COUNT(d) FROM Document d
+            WHERE d.createdAt >= :from AND d.createdAt < :to
+              AND (:districtId IS NULL OR d.user.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR d.user.neighborhood.id = :neighborhoodId)
+            """)
+    long reportCountCreatedBetween(@Param("districtId") UUID districtId,
+                                   @Param("neighborhoodId") UUID neighborhoodId,
+                                   @Param("from") java.time.OffsetDateTime from,
+                                   @Param("to") java.time.OffsetDateTime to);
+
+    /** Kapsamda [from,to) aralığında belirli statüye GEÇİRİLEN belge sayısı (reviewedAt). */
+    @Query("""
+            SELECT COUNT(d) FROM Document d
+            WHERE d.status = :status AND d.reviewedAt >= :from AND d.reviewedAt < :to
+              AND (:districtId IS NULL OR d.user.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR d.user.neighborhood.id = :neighborhoodId)
+            """)
+    long reportCountReviewedBetween(@Param("status") DocumentStatus status,
+                                    @Param("districtId") UUID districtId,
+                                    @Param("neighborhoodId") UUID neighborhoodId,
+                                    @Param("from") java.time.OffsetDateTime from,
+                                    @Param("to") java.time.OffsetDateTime to);
+
+    /** Kapsamda belirli statüdeki güncel (snapshot) belge sayısı — örn. bekleyen. */
+    @Query("""
+            SELECT COUNT(d) FROM Document d
+            WHERE d.status = :status
+              AND (:districtId IS NULL OR d.user.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR d.user.neighborhood.id = :neighborhoodId)
+            """)
+    long reportCountByStatus(@Param("status") DocumentStatus status,
+                             @Param("districtId") UUID districtId,
+                             @Param("neighborhoodId") UUID neighborhoodId);
+
+    /** Kapsamda [from,to) aralığında yüklenen belgelerin türlere göre dağılımı. [documentType, count] */
+    @Query("""
+            SELECT d.documentType, COUNT(d) FROM Document d
+            WHERE d.createdAt >= :from AND d.createdAt < :to
+              AND (:districtId IS NULL OR d.user.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR d.user.neighborhood.id = :neighborhoodId)
+            GROUP BY d.documentType
+            """)
+    List<Object[]> reportCountByTypeCreatedBetween(@Param("districtId") UUID districtId,
+                                                   @Param("neighborhoodId") UUID neighborhoodId,
+                                                   @Param("from") java.time.OffsetDateTime from,
+                                                   @Param("to") java.time.OffsetDateTime to);
+
     // ── Bakım / Purge sorguları ──────────────────────────────────────────────
 
     @Modifying(clearAutomatically = true)

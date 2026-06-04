@@ -37,15 +37,19 @@ public class AfadEarthquakeSmsNotificationService {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleNewEarthquake(AfadNewEarthquakeEvent event) {
+    public void handleNewEarthquake(EarthquakeAlertCreatedEvent event) {
+        // SMS yalnızca gerçek deprem için gönderilir; simülasyon SMS göndermez.
+        if (event.alert().isSimulation()) {
+            return;
+        }
         if (!smsProperties.isEnabled()) {
             log.debug("SMS bildirimleri devre dışı (app.sms.enabled=false), deprem SMS atlanıyor.");
             return;
         }
 
-        EarthquakeEvent eq = earthquakeEventRepository.findById(event.earthquakeEventId()).orElse(null);
+        EarthquakeEvent eq = earthquakeEventRepository.findById(event.alert().alertId()).orElse(null);
         if (eq == null) {
-            log.warn("Deprem SMS bildirimi: kayıt bulunamadı id={}", event.earthquakeEventId());
+            log.warn("Deprem SMS bildirimi: kayıt bulunamadı id={}", event.alert().alertId());
             return;
         }
 

@@ -12,7 +12,10 @@ export const getResourceRequests = async (params?: {
     size?: number;
     districtId?: string;
     neighborhoodId?: string;
+    resourceType?: string;
     status?: string;
+    priority?: string;
+    search?: string;
 }): Promise<PagedResponse<ResourceRequestResponse>> => {
     const res = await axiosInstance.get<PagedResponse<ResourceRequestResponse>>('/resource-requests', { params });
     return res.data;

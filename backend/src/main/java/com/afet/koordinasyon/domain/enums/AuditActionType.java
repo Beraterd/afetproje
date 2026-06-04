@@ -40,4 +40,11 @@ public enum AuditActionType {
     // Deprem / Sistem
     EARTHQUAKE_AUTO_TRIGGER,
     SIMULATION_RESULT,
+
+    // Raporlama
+    REPORT_GENERATED,
+    REPORT_EXPORTED,
+
+    // Acil durum mesajı (yakınlara)
+    EMERGENCY_MESSAGE_SENT,
 }

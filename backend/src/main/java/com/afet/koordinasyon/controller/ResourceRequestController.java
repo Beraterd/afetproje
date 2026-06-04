@@ -35,10 +35,13 @@ public class ResourceRequestController {
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) UUID districtId,
             @RequestParam(required = false) UUID neighborhoodId,
+            @RequestParam(required = false) com.afet.koordinasyon.domain.enums.ResourceType resourceType,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String priority,
+            @RequestParam(required = false) String search,
             @AuthenticationPrincipal UserPrincipal principal) {
         return ResponseEntity.ok(resourceRequestService.listRequests(
-                page, size, districtId, neighborhoodId, status, principal));
+                page, size, districtId, neighborhoodId, resourceType, status, priority, search, principal));
     }
 
     @GetMapping("/{id}")

@@ -4,6 +4,7 @@ import com.afet.koordinasyon.domain.entity.District;
 import com.afet.koordinasyon.domain.entity.EarthquakeEvent;
 import com.afet.koordinasyon.domain.entity.Neighborhood;
 import com.afet.koordinasyon.domain.entity.SystemNotification;
+import com.afet.koordinasyon.domain.entity.User;
 import com.afet.koordinasyon.domain.enums.NotificationType;
 import com.afet.koordinasyon.dto.response.NotificationResponse;
 import com.afet.koordinasyon.dto.response.PagedResponse;
@@ -41,11 +42,12 @@ public class NotificationService {
 
     // ── Spring Event Listener: Yeni Deprem ───────────────────────────────────
 
-    /** Yeni AFAD depremi commit sonrası admin bildirimi oluşturur. */
+    /** Yeni AFAD depremi commit sonrası admin bildirimi oluşturur (yalnızca gerçek deprem). */
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onNewEarthquake(AfadNewEarthquakeEvent event) {
-        EarthquakeEvent eq = earthquakeEventRepository.findById(event.earthquakeEventId()).orElse(null);
+    public void onNewEarthquake(EarthquakeAlertCreatedEvent event) {
+        if (event.alert().isSimulation()) return;
+        EarthquakeEvent eq = earthquakeEventRepository.findById(event.alert().alertId()).orElse(null);
         if (eq == null) return;
         String title = String.format("Yeni Deprem: M%.1f — %s",
                 eq.getMagnitude() != null ? eq.getMagnitude() : 0.0,
@@ -65,6 +67,21 @@ public class NotificationService {
                                 String relatedEntityType, String relatedEntityId) {
         save(SystemNotification.builder()
                 .targetRole("ADMIN")
+                .type(type)
+                .title(title)
+                .message(message)
+                .relatedEntityType(relatedEntityType)
+                .relatedEntityId(relatedEntityId)
+                .build());
+    }
+
+    /** Belirli bir kullanıcıya yönelik kişisel bildirim (recipient_user_id). */
+    @Transactional
+    public void createForUser(User recipient, NotificationType type, String title, String message,
+                              String relatedEntityType, String relatedEntityId) {
+        if (recipient == null) return;
+        save(SystemNotification.builder()
+                .recipientUser(recipient)
                 .type(type)
                 .title(title)
                 .message(message)

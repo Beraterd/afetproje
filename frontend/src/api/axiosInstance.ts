@@ -2,8 +2,11 @@ import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
 import { parseApiError } from '@/utils/errorParser';
 
+const _apiBase = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
+const baseURL = _apiBase ? `${_apiBase}/api` : '/api';
+
 const instance = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL + '/api',
+    baseURL,
     timeout: 15000,
     headers: { 'Content-Type': 'application/json' },
 });

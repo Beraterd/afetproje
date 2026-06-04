@@ -46,16 +46,18 @@ spring:
     default-property-inclusion: non_null
 
   mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:afetprojemarmara@gmail.com}
-    password: ${MAIL_PASSWORD:caur erkl qzvg zxbr}
+    host: ${MAIL_HOST:smtp.hostinger.com}
+    port: ${MAIL_PORT:465}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
           auth: true
+          ssl:
+            enable: ${MAIL_SSL_ENABLED:true}
           starttls:
-            enable: true
+            enable: ${MAIL_STARTTLS_ENABLED:false}
 
 server:
   port: ${SERVER_PORT:8080}
@@ -81,6 +83,24 @@ app:
 
   email:
     type: ${EMAIL_TYPE:prod}
+
+  short-link:
+    # /s/{code} redirect endpoint'i backend tarafından sunulur; backend public adresine işaret etmelidir.
+    base-url: ${SHORT_LINK_BASE_URL:http://localhost:8080}
+
+  whatsapp:
+    enabled: ${WHATSAPP_ENABLED:false}
+    test-mode: ${WHATSAPP_TEST_MODE:true}
+    test-recipient: ${WHATSAPP_TEST_RECIPIENT:}
+    phone-number-id: ${WHATSAPP_PHONE_NUMBER_ID:}
+    access-token: ${WHATSAPP_ACCESS_TOKEN:}
+    api-version: ${WHATSAPP_API_VERSION:v20.0}
+    base-url: ${WHATSAPP_BASE_URL:https://graph.facebook.com}
+    # Deprem/simülasyon bildirimleri YALNIZCA approved template ile gider (text fallback yok).
+    # Geçici test için Meta'nın hazır hello_world (en_US) template'i; prod için earthquake_alert_tr (tr).
+    earthquake-template-name: ${WHATSAPP_EARTHQUAKE_TEMPLATE_NAME:hello_world}
+    status-template-name: ${WHATSAPP_STATUS_TEMPLATE_NAME:}
+    language-code: ${WHATSAPP_LANGUAGE_CODE:en_US}
 
   afad:
     base-url: ${AFAD_BASE_URL:https://deprem.afad.gov.tr/apiv2/event/filter}
@@ -115,7 +135,7 @@ ai:
   provider: ${AI_PROVIDER:claude}
   claude-api-key: ${CLAUDE_API_KEY:}
   openai-api-key: ${OPENAI_API_KEY:}
-  model: ${AI_MODEL:claude-sonnet-4-6}
+  model: ${AI_MODEL:claude-haiku-4-5}
   max-photos: ${AI_MAX_PHOTOS:3}
 
 springdoc:

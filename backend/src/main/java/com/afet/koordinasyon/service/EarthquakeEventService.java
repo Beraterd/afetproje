@@ -104,7 +104,8 @@ public class EarthquakeEventService {
                 EarthquakeEvent entity = toEntity(dto, externalId);
                 entity.setAfadOrderIndex(i);
                 EarthquakeEvent savedEntity = repository.save(entity);
-                eventPublisher.publishEvent(new AfadNewEarthquakeEvent(savedEntity.getId()));
+                eventPublisher.publishEvent(
+                        new EarthquakeAlertCreatedEvent(EarthquakeAlert.fromEvent(savedEntity)));
                 saved++;
                 log.info("Yeni deprem kaydedildi: externalId={} time={} M{} loc={} afadIdx={}",
                         externalId, dto.getDate(), dto.getMagnitude(), dto.getLocation(), i);
@@ -197,6 +198,21 @@ public class EarthquakeEventService {
             rawPayload = null;
         }
 
+        String location = dto.getLocation();
+        if (location == null || location.isBlank()) {
+            String province = dto.getProvince();
+            String district = dto.getDistrict();
+            if (province != null && !province.isBlank() && district != null && !district.isBlank()) {
+                location = province + " / " + district;
+            } else if (province != null && !province.isBlank()) {
+                location = province;
+            } else if (district != null && !district.isBlank()) {
+                location = district;
+            } else if (dto.getLatitude() != null && dto.getLongitude() != null) {
+                location = String.format("%.4f, %.4f", dto.getLatitude(), dto.getLongitude());
+            }
+        }
+
         return EarthquakeEvent.builder()
                 .externalId(externalId)
                 .eventTime(eventTime)
@@ -204,7 +220,7 @@ public class EarthquakeEventService {
                 .longitude(dto.getLongitude())
                 .depth(dto.getDepth())
                 .magnitude(dto.getMagnitude())
-                .location(dto.getLocation())
+                .location(location)
                 .province(dto.getProvince())
                 .district(dto.getDistrict())
                 .source("AFAD")

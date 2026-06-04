@@ -15,6 +15,8 @@ import java.util.UUID;
 public class TeamResponse {
     private UUID id;
     private String name;
+    private String teamCode;
+    private String districtName;
     private BigDecimal coefficient;
     private String requiresDocument;
     private String description;

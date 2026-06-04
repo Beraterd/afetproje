@@ -3,6 +3,7 @@ import { UserSummaryResponse } from './auth';
 export interface TeamSummaryResponse {
     id: string;
     name: string;
+    teamCode?: string;
     coefficient: number;
 }
 
@@ -20,6 +21,8 @@ export interface TeamTypeResponse {
 export interface TeamResponse {
     id: string;
     name: string;
+    teamCode?: string;
+    districtName?: string;
     coefficient: number;
     requiresDocument?: string;
     leader?: UserSummaryResponse;

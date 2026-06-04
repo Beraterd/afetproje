@@ -40,10 +40,14 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             // Public endpoints
             .requestMatchers(
                 "/api/auth/**",
+                "/s/**",
                 "/api/dashboard/health",
                 "/api/districts/**",
                 "/api/teams/**",
                 "/api/files/**",
+                "/api/event-assignments/accept",
+                "/api/event-assignments/decline",
+                "/api/emergency-message/**",
                 "/swagger-ui/**",
                 "/swagger-ui.html",
                 "/api-docs/**",

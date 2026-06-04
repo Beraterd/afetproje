@@ -71,6 +71,36 @@ public interface SystemNotificationRepository extends JpaRepository<SystemNotifi
             @Param("districtId")     UUID districtId,
             @Param("neighborhoodId") UUID neighborhoodId);
 
+    /** Rapor: kapsamdaki gönderilen bildirim sayısı (districtId null ise tüm sistem). */
+    @Query("""
+            SELECT COUNT(n) FROM SystemNotification n
+            WHERE (:districtId IS NULL OR (n.district IS NOT NULL AND n.district.id = :districtId))
+              AND (:neighborhoodId IS NULL OR (n.neighborhood IS NOT NULL AND n.neighborhood.id = :neighborhoodId))
+            """)
+    long reportSentCount(@Param("districtId") UUID districtId,
+                         @Param("neighborhoodId") UUID neighborhoodId);
+
+    /** Rapor: kapsamda okunan bildirim sayısı. */
+    @Query("""
+            SELECT COUNT(n) FROM SystemNotification n
+            WHERE n.isRead = true
+              AND (:districtId IS NULL OR (n.district IS NOT NULL AND n.district.id = :districtId))
+              AND (:neighborhoodId IS NULL OR (n.neighborhood IS NOT NULL AND n.neighborhood.id = :neighborhoodId))
+            """)
+    long reportReadCount(@Param("districtId") UUID districtId,
+                         @Param("neighborhoodId") UUID neighborhoodId);
+
+    /** Rapor: kapsamda son dönemde gönderilen bildirim sayısı. */
+    @Query("""
+            SELECT COUNT(n) FROM SystemNotification n
+            WHERE n.createdAt >= :since
+              AND (:districtId IS NULL OR (n.district IS NOT NULL AND n.district.id = :districtId))
+              AND (:neighborhoodId IS NULL OR (n.neighborhood IS NOT NULL AND n.neighborhood.id = :neighborhoodId))
+            """)
+    long reportSentSince(@Param("districtId") UUID districtId,
+                         @Param("neighborhoodId") UUID neighborhoodId,
+                         @Param("since") OffsetDateTime since);
+
     /** Kullanıcının görebildiği tüm okunmamışları işaretle. */
     @Modifying(clearAutomatically = true)
     @Query("""

@@ -27,6 +27,38 @@ public final class PhoneNumberUtil {
     }
 
     /**
+     * Normalizes to full E.164 format with the leading '+' (e.g. +905551234567).
+     * This is the canonical DB storage format for user phones.
+     * Returns null for null input.
+     */
+    public static String toE164(String phone) {
+        String normalized = normalize(phone);
+        if (normalized == null || normalized.isBlank()) return normalized;
+        return "+" + normalized;
+    }
+
+    /**
+     * E.164 formatından '+' işaretini kaldırarak Meta WhatsApp Cloud API'nin beklediği
+     * sade rakam formatını döner (905XXXXXXXXX). Geçersiz/boş girişte normalize çıktısını döner.
+     */
+    public static String toWhatsAppRecipient(String phone) {
+        return normalize(phone);
+    }
+
+    /**
+     * Türkiye cep telefonu numarasının geçerliliğini kontrol eder.
+     * Kabul edilen formatlar (normalize sonrası 905XXXXXXXXX olmalı):
+     * +905XXXXXXXXX, 905XXXXXXXXX, 05XXXXXXXXX, 5XXXXXXXXX.
+     */
+    public static boolean isValidTurkishMobile(String phone) {
+        String digits = normalize(phone);
+        return digits != null
+                && digits.length() == 12
+                && digits.startsWith("90")
+                && digits.charAt(2) == '5';
+    }
+
+    /**
      * Masks a phone number so only the last 2 digits are visible.
      * 905551234567 → 05** *** **67
      */

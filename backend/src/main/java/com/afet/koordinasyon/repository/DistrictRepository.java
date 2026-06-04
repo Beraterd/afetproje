@@ -19,6 +19,9 @@ public interface DistrictRepository extends JpaRepository<District, UUID> {
 
     Optional<District> findByCoordinatorId(UUID coordinatorId);
 
+    /** Rapor: koordinatör atanmış ilçe sayısı (güncel snapshot). */
+    long countByCoordinatorIsNotNull();
+
     // ── Bakım / Purge sorguları ──────────────────────────────────────────────
 
     @Modifying(clearAutomatically = true)

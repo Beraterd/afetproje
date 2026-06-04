@@ -26,4 +26,5 @@ public class EventSummaryResponse {
     private BigDecimal longitude;
     private OffsetDateTime startsAt;
     private OffsetDateTime createdAt;
+    private String eventTeamCode;
 }

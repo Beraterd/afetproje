@@ -25,6 +25,7 @@ import {
     Wrench,
     Activity,
     ClipboardList,
+    FileBarChart2,
 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { clearAllOfflineData } from '@/lib/offlineDb';
@@ -37,9 +38,10 @@ const navItems = [
     { name: 'Kaynak Talepleri', to: '/resource-requests', icon: PackageOpen, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR'] },
     { name: 'Belge Onayları', to: '/documents/approvals', icon: CheckSquare, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR'] },
     { name: 'Koordinasyon Merkezi', to: '/coordination-center', icon: Landmark, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR'] },
+    { name: 'Rapor Merkezi', to: '/reports', icon: FileBarChart2, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR'] },
     { name: 'Koordinatör Atamaları', to: '/admin/coordinators', icon: UserCheck, roles: ['ADMIN', 'DISTRICT_COORDINATOR'] },
     { name: 'Kullanıcı Yönetimi', to: '/admin/users', icon: Users, roles: ['ADMIN'] },
-    { name: 'Audit Log', to: '/admin/audit', icon: ClipboardList, roles: ['ADMIN'] },
+    { name: 'İşlem Kayıtları', to: '/admin/audit', icon: ClipboardList, roles: ['ADMIN'] },
     { name: 'Sistem Bakımı', to: '/admin/maintenance', icon: Wrench, roles: ['ADMIN'] },
     { name: 'AFAD Depremleri', to: '/earthquakes', icon: Activity, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR', 'VOLUNTEER'] },
     { name: 'Simülasyonlar', to: '/simulations', icon: ShieldAlert, roles: ['ADMIN'] },

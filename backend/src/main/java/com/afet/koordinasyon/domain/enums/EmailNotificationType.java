@@ -55,6 +55,10 @@ public enum EmailNotificationType {
     // Koordinatör ataması
     COORDINATOR_ASSIGNED,
 
+    // Görev daveti
+    TASK_INVITATION,
+    TASK_INVITATION_ACCEPTED,
+
     // Admin / Sistem
     SYSTEM_CRITICAL_ERROR,
     AFAD_POLLING_ERROR

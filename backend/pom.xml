@@ -128,11 +128,18 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
-        <!-- Apache POI — Excel (xlsx) okuma: toplanma alanı import -->
+        <!-- Apache POI — Excel (xlsx) okuma/yazma: toplanma alanı import + rapor export -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <version>5.2.5</version>
+        </dependency>
+
+        <!-- OpenPDF — kurumsal PDF rapor export (LGPL/MPL) -->
+        <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+            <version>1.3.30</version>
         </dependency>
 
         <!-- Test -->

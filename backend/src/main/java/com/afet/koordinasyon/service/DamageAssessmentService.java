@@ -467,15 +467,24 @@ public class DamageAssessmentService {
 
     @Transactional(readOnly = true)
     public List<DamagePointResponse> getDamagePoints(UUID districtId, UUID neighborhoodId) {
+        // §1 — Haritada YALNIZCA sahada doğrulanıp koordinatör tarafından onaylanan
+        // (KOORDINATOR_ONAYLADI) ve koordinatı bulunan kayıtlar pin olarak gösterilir.
+        // İnceleme bekleyen / görevli atanmış / yalnızca saha doğrulanmış / onaysız
+        // kayıtlar sistemde durur fakat haritada görünmez. Filtre backend'de uygulanır
+        // (asıl güvenilir filtre); stream üzerindeki ek kontrol savunma amaçlıdır.
+        final VerificationStatus approved = VerificationStatus.KOORDINATOR_ONAYLADI;
         List<DamageAssessment> assessments;
         if (neighborhoodId != null) {
-            assessments = damageAssessmentRepository.findByNeighborhoodIdWithCoordinates(neighborhoodId);
+            assessments = damageAssessmentRepository.findApprovedByNeighborhoodIdWithCoordinates(neighborhoodId, approved);
         } else if (districtId != null) {
-            assessments = damageAssessmentRepository.findByDistrictIdWithCoordinates(districtId);
+            assessments = damageAssessmentRepository.findApprovedByDistrictIdWithCoordinates(districtId, approved);
         } else {
-            assessments = damageAssessmentRepository.findByLatitudeIsNotNullAndLongitudeIsNotNull();
+            assessments = damageAssessmentRepository.findApprovedWithCoordinates(approved);
         }
-        return assessments.stream().map(a -> DamagePointResponse.builder()
+        return assessments.stream()
+                .filter(a -> a.getVerificationStatus() == approved
+                        && a.getLatitude() != null && a.getLongitude() != null)
+                .map(a -> DamagePointResponse.builder()
                 .id(a.getId())
                 .latitude(a.getLatitude().doubleValue())
                 .longitude(a.getLongitude().doubleValue())

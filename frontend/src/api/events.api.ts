@@ -6,6 +6,7 @@ import {
     EventCloseResponse,
     EventJoinResponse,
     EventVolunteerResponse,
+    EventParticipantResponse,
     UserEventResponse,
     MessageResponse,
 } from '@/types';
@@ -56,5 +57,10 @@ export const getEventVolunteers = async (id: string, params?: any): Promise<Page
 
 export const getMyEvents = async (params?: { page?: number; size?: number; volunteerStatus?: string }): Promise<PagedResponse<UserEventResponse>> => {
     const res = await axiosInstance.get<PagedResponse<UserEventResponse>>('/events/my', { params });
+    return res.data;
+};
+
+export const getEventParticipants = async (id: string): Promise<EventParticipantResponse[]> => {
+    const res = await axiosInstance.get<EventParticipantResponse[]>(`/events/${id}/participants`);
     return res.data;
 };

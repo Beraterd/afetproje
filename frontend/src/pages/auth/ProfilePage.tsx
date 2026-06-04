@@ -10,6 +10,7 @@ import { getNotificationPreferences, updateNotificationPreferences } from '@/api
 import { Button, FormField, Badge, LoadingSpinner } from '@/components/ui';
 import { UserResponse, DistrictResponse, NeighborhoodSummaryResponse, NotificationPreferences } from '@/types';
 import { ApiError } from '@/utils/errorParser';
+import { isValidTurkishMobile, PHONE_HINT, PHONE_PLACEHOLDER } from '@/utils/phone';
 import { Bell } from 'lucide-react';
 
 const ROLE_TR: Record<string, string> = {
@@ -23,7 +24,10 @@ const profileSchema = z.object({
     firstName: z.string().min(2, 'Ad en az 2 karakter olmalıdır'),
     lastName: z.string().min(2, 'Soyad en az 2 karakter olmalıdır'),
     email: z.string().email('Geçerli bir e-posta adresi giriniz'),
-    phone: z.string().optional(),
+    phone: z.string()
+        .optional()
+        .refine(v => !v || v.trim() === '' || isValidTurkishMobile(v),
+            'Geçerli bir telefon girin: ' + PHONE_HINT),
     bloodType: z.string().optional(),
     address: z.string().optional(),
     profession: z.string().optional(),
@@ -224,10 +228,12 @@ export const ProfilePage: React.FC = () => {
                                 />
                             </FormField>
 
-                            <FormField label="Telefon" error={errors.phone?.message}>
+                            <FormField label="Telefon" error={errors.phone?.message} hint={'Örn: ' + PHONE_HINT}>
                                 <input
                                     {...register('phone')}
-                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm"
+                                    type="tel"
+                                    placeholder={PHONE_PLACEHOLDER}
+                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm"
                                 />
                             </FormField>
 

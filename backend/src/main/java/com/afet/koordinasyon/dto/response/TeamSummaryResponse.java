@@ -15,5 +15,6 @@ import java.util.UUID;
 public class TeamSummaryResponse {
     private UUID id;
     private String name;
+    private String teamCode;
     private BigDecimal coefficient;
 }

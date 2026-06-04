@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { GeoJSON, MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
     getMapDistricts,
     getMapNeighborhoods,
@@ -10,11 +10,13 @@ import {
     getDistrictCentersForMap,
     getNeighborhoodCentersForMap,
 } from '@/api/map.api';
+import { queryOperationsAi, OperationsAiResponse } from '@/api/operationsAi.api';
 import { queryKeys } from '@/utils/queryKeys';
 import { LoadingSpinner } from '@/components/ui';
 import { MapDistrictResponse, MapNeighborhoodResponse, DistrictCoordinatorMapResponse, NeighborhoodCoordinatorMapResponse } from '@/types';
 import { DamagePointResponse } from '@/types/damage';
-import { Layers } from 'lucide-react';
+import { RoleGuard } from '@/layouts/RoleGuard';
+import { AlertCircle, Bot, Layers, Loader2, Sparkles } from 'lucide-react';
 
 // Fix leaflet default icon issue in React
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -324,6 +326,54 @@ function CenterPopupContent({
     );
 }
 
+// ─── Operations AI ────────────────────────────────────────────────────────────
+const QUICK_QUERIES: { label: string; prompt: string }[] = [
+    {
+        label: 'Son 24 saatin en kritik bölgeleri',
+        prompt: 'Son 24 saat içinde en kritik bölgeler nelerdir? Hasar kayıtları, risk faktörleri ve kaynak taleplerini birlikte değerlendirerek öncelikli müdahale gerektiren bölgeleri listele.',
+    },
+    {
+        label: 'En yoğun hasar alan ilçeler',
+        prompt: 'En yoğun hasar alan ilçeler hangileri? İlçe bazlı hasar seviyesi dağılımını analiz et ve karşılaştır.',
+    },
+    {
+        label: 'Riskli bölgeler',
+        prompt: 'En riskli mahalle ve bölgeler hangileri? Çökme riski, gaz sızıntısı ve tahliye gerektiren durumları değerlendir.',
+    },
+    {
+        label: 'Operasyon önerileri',
+        prompt: 'Mevcut operasyonel duruma göre öncelikli aksiyonlar neler olmalı? Ekip ihtiyaçları ve koordinasyon önerilerini belirt.',
+    },
+    {
+        label: 'Kaynak dağılım tavsiyeleri',
+        prompt: 'Açık kaynak taleplerini ve mevcut kapasiteyi değerlendirerek kaynak dağılım tavsiyesi ver. Hangi bölgeye ne tür kaynak önceliklendirilmeli?',
+    },
+];
+
+function renderAiAnswer(text: string): React.ReactNode {
+    return text.split('\n').map((line, i) => {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('## ')) {
+            return (
+                <p key={i} className="text-sm font-semibold text-gray-900 mt-4 mb-1 first:mt-0">
+                    {trimmed.slice(3)}
+                </p>
+            );
+        }
+        if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
+            return (
+                <p key={i} className="text-sm text-gray-700 pl-3 leading-relaxed">
+                    {trimmed}
+                </p>
+            );
+        }
+        if (trimmed === '') {
+            return <div key={i} className="h-1" />;
+        }
+        return <p key={i} className="text-sm text-gray-700 leading-relaxed">{line}</p>;
+    });
+}
+
 // ─── MapPage ──────────────────────────────────────────────────────────────────
 export const MapPage: React.FC = () => {
     const [activeDistrictId, setActiveDistrictId]       = useState<string | null>(null);
@@ -340,6 +390,38 @@ export const MapPage: React.FC = () => {
 
     const toggleLayer = (key: keyof LayerState) =>
         setLayers(prev => ({ ...prev, [key]: !prev[key] }));
+
+    // ── AI assistant state ──
+    const [aiPrompt, setAiPrompt]       = useState('');
+    const [aiResult, setAiResult]       = useState<OperationsAiResponse | null>(null);
+    const [aiError, setAiError]         = useState<string | null>(null);
+    const aiResultRef                   = useRef<HTMLDivElement>(null);
+
+    const aiMutation = useMutation({
+        mutationFn: queryOperationsAi,
+        onSuccess: (data) => {
+            setAiResult(data);
+            setAiError(null);
+            setTimeout(() => aiResultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+        },
+        onError: (err: any) => {
+            setAiError(err?.message ?? 'Bir hata oluştu. Lütfen tekrar deneyin.');
+        },
+    });
+
+    const handleAiSubmit = () => {
+        if (!aiPrompt.trim() || aiMutation.isPending) return;
+        setAiResult(null);
+        setAiError(null);
+        aiMutation.mutate({ prompt: aiPrompt.trim() });
+    };
+
+    const handleQuickQuery = (prompt: string) => {
+        setAiPrompt(prompt);
+        setAiResult(null);
+        setAiError(null);
+        aiMutation.mutate({ prompt });
+    };
 
     // ── Data fetches ──
     const { data: districts, isLoading: loadingDistricts } = useQuery({
@@ -360,6 +442,13 @@ export const MapPage: React.FC = () => {
             activeNeighborhoodId ?? undefined
         ),
         enabled: layers.damage,
+        // §1 — Ek güvenlik filtresi: asıl filtre backend'de uygulanır; burada yalnızca
+        // sahada doğrulanıp koordinatör onaylı (KOORDINATOR_ONAYLADI) ve koordinatı olan
+        // pinler haritaya çizilir. İnceleme bekleyen kayıtlar hiçbir koşulda görünmez.
+        select: (rows) => rows.filter(
+            (p) => p.verificationStatus === 'KOORDINATOR_ONAYLADI'
+                && p.latitude != null && p.longitude != null
+        ),
     });
 
     const { data: districtCenters = [] } = useQuery<DistrictCoordinatorMapResponse[]>({
@@ -401,7 +490,7 @@ export const MapPage: React.FC = () => {
     const districtsWithPolygon    = districts?.filter((d: MapDistrictResponse) => !!d.polygon) ?? [];
 
     return (
-        <div className="flex flex-col h-[calc(100vh-100px)]">
+        <div className="flex flex-col gap-4 pb-10">
             {/* Header */}
             <div className="mb-4 sm:flex sm:items-center sm:justify-between">
                 <div>
@@ -506,7 +595,7 @@ export const MapPage: React.FC = () => {
             )}
 
             {/* Map */}
-            <div className="relative flex-1 bg-gray-100 rounded-lg overflow-hidden border border-gray-300 shadow-sm z-0">
+            <div className="relative h-[calc(100vh-240px)] min-h-[400px] bg-gray-100 rounded-lg overflow-hidden border border-gray-300 shadow-sm z-0">
                 {isLoading && (
                     <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/50 backdrop-blur-sm">
                         <LoadingSpinner size="lg" />
@@ -744,6 +833,127 @@ export const MapPage: React.FC = () => {
 
                 </MapContainer>
             </div>
+
+            {/* ── AI Operations Assistant ── */}
+            <RoleGuard allowedRoles={['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR']}>
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    {/* Header */}
+                    <div className="flex items-start gap-3 p-5 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <div className="p-2 bg-blue-600 rounded-lg flex-shrink-0">
+                            <Bot className="h-5 w-5 text-white" />
+                        </div>
+                        <div>
+                            <h2 className="text-base font-semibold text-gray-900">
+                                Operasyon Merkezi AI Asistanı
+                            </h2>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                Son verileri analiz ederek kritik bölgeler, hasar yoğunluğu, ekip ihtiyacı
+                                ve kaynak dağılımı hakkında öneriler üretir.
+                            </p>
+                        </div>
+                        <span className="ml-auto flex-shrink-0 text-xs bg-blue-100 text-blue-700 font-medium px-2 py-0.5 rounded-full">
+                            Karar Destek
+                        </span>
+                    </div>
+
+                    <div className="p-5 space-y-4">
+                        {/* Quick query buttons */}
+                        <div>
+                            <p className="text-xs font-medium text-gray-500 mb-2">Hazır sorgular</p>
+                            <div className="flex flex-wrap gap-2">
+                                {QUICK_QUERIES.map((q) => (
+                                    <button
+                                        key={q.label}
+                                        onClick={() => handleQuickQuery(q.prompt)}
+                                        disabled={aiMutation.isPending}
+                                        className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        <Sparkles className="h-3 w-3" />
+                                        {q.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Custom prompt textarea */}
+                        <div>
+                            <label className="text-xs font-medium text-gray-500 block mb-1.5">
+                                Özel soru
+                            </label>
+                            <textarea
+                                value={aiPrompt}
+                                onChange={(e) => setAiPrompt(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handleAiSubmit();
+                                }}
+                                placeholder="Operasyona dair sorunuzu yazın… (Ctrl+Enter ile gönder)"
+                                rows={3}
+                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400"
+                            />
+                        </div>
+
+                        {/* Submit button */}
+                        <button
+                            onClick={handleAiSubmit}
+                            disabled={!aiPrompt.trim() || aiMutation.isPending}
+                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            {aiMutation.isPending ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Analiz ediliyor…
+                                </>
+                            ) : (
+                                <>
+                                    <Bot className="h-4 w-4" />
+                                    AI Analiz Et
+                                </>
+                            )}
+                        </button>
+
+                        {/* Loading skeleton */}
+                        {aiMutation.isPending && (
+                            <div className="animate-pulse space-y-2 pt-1">
+                                <div className="h-3 bg-gray-200 rounded w-3/4" />
+                                <div className="h-3 bg-gray-200 rounded w-full" />
+                                <div className="h-3 bg-gray-200 rounded w-5/6" />
+                                <div className="h-3 bg-gray-200 rounded w-2/3" />
+                            </div>
+                        )}
+
+                        {/* Error */}
+                        {aiError && !aiMutation.isPending && (
+                            <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />
+                                <p className="text-sm text-red-700">{aiError}</p>
+                            </div>
+                        )}
+
+                        {/* Result */}
+                        {aiResult && !aiMutation.isPending && (
+                            <div ref={aiResultRef} className="border border-blue-100 rounded-lg overflow-hidden">
+                                <div className="flex items-center justify-between px-4 py-2 bg-blue-50 border-b border-blue-100">
+                                    <div className="flex items-center gap-2">
+                                        <Bot className="h-4 w-4 text-blue-600" />
+                                        <span className="text-xs font-medium text-blue-700">AI Operasyon Analizi</span>
+                                    </div>
+                                    <span className="text-xs text-gray-400">
+                                        {new Date(aiResult.generatedAt).toLocaleTimeString('tr-TR')}
+                                    </span>
+                                </div>
+                                <div className="p-4 space-y-0.5">
+                                    {renderAiAnswer(aiResult.answer)}
+                                </div>
+                                <div className="px-4 py-2 bg-gray-50 border-t border-gray-100">
+                                    <p className="text-xs text-gray-400">
+                                        Bu analiz bir karar destek çıktısıdır. Nihai operasyonel kararlar koordinatör sorumluluğundadır.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </RoleGuard>
         </div>
     );
 };

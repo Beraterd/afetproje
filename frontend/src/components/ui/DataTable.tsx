@@ -25,7 +25,7 @@ export function DataTable<T>({
     columns,
     data,
     isLoading,
-    emptyMessage = 'No data available',
+    emptyMessage = 'Veri bulunamadı',
     pagination,
     onPageChange,
 }: DataTableProps<T>) {

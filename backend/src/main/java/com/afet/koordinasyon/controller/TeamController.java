@@ -5,6 +5,7 @@ import com.afet.koordinasyon.dto.response.TeamMemberResponse;
 import com.afet.koordinasyon.dto.response.TeamResponse;
 import com.afet.koordinasyon.dto.response.TeamTypeResponse;
 import com.afet.koordinasyon.service.TeamService;
+import java.util.Map;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,5 +44,12 @@ public class TeamController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         return ResponseEntity.ok(teamService.listMembers(id, page, size));
+    }
+
+    @PostMapping("/backfill-codes")
+    @Operation(summary = "Ekip kodu olmayan ekiplere otomatik kod atar (ADMIN)")
+    public ResponseEntity<Map<String, Integer>> backfillCodes() {
+        int count = teamService.backfillTeamCodes();
+        return ResponseEntity.ok(Map.of("backfilledCount", count));
     }
 }

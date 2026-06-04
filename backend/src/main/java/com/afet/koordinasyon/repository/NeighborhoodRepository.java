@@ -17,6 +17,12 @@ public interface NeighborhoodRepository extends JpaRepository<Neighborhood, UUID
 
     Optional<Neighborhood> findByCoordinatorId(UUID coordinatorId);
 
+    /** Rapor: koordinatör atanmış mahalle sayısı (güncel snapshot). */
+    long countByCoordinatorIsNotNull();
+
+    /** Rapor: belirli ilçede koordinatör atanmış mahalle sayısı. */
+    long countByCoordinatorIsNotNullAndDistrictId(UUID districtId);
+
     /** Excel import için district'i JOIN FETCH ile tek sorguda yükler */
     @Query("SELECT n FROM Neighborhood n JOIN FETCH n.district")
     List<Neighborhood> findAllWithDistrict();

@@ -414,7 +414,9 @@ const EventRow: React.FC<{
                 <p className="text-sm font-medium text-gray-900">{ev.title}</p>
                 <p className="text-xs text-gray-500 mt-0.5">
                     {ev.neighborhood?.districtName} / {ev.neighborhood?.name}
-                    {ev.team ? ` — ${TEAM_TR[ev.team.name] || ev.team.name}` : ''}
+                    {ev.team
+                        ? ` — ${ev.team.teamCode ? `${ev.team.teamCode} ` : ''}${TEAM_TR[ev.team.name] || ev.team.name}`
+                        : ''}
                 </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">

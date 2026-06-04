@@ -13,19 +13,10 @@ import { NotificationResponse, NotificationType } from '@/types';
 import { useAuthStore } from '@/store/authStore';
 import { formatDistanceToNow } from 'date-fns';
 import { tr } from 'date-fns/locale';
+import { notificationTypeLabels, formatNotificationType } from '@/utils/labels';
 
 const COORDINATOR_ROLES = ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR'] as const;
 const POLL_INTERVAL_MS = 30_000;
-
-const TYPE_LABELS: Record<NotificationType, string> = {
-    DOCUMENT_APPROVAL:       'Belge Onayı',
-    RESOURCE_REQUEST:        'Kaynak Talebi',
-    TEAM_NEED:               'Ekip İhtiyacı',
-    DAMAGE_REPORT:           'Hasar Tespiti',
-    NEW_EARTHQUAKE:          'Yeni Deprem',
-    SIMULATION_RESULT:       'Simülasyon',
-    MESSAGE_DELIVERY_STATUS: 'SMS/Mail Durumu',
-};
 
 const TYPE_COLORS: Record<NotificationType, string> = {
     DOCUMENT_APPROVAL:       'bg-blue-100 text-blue-700',
@@ -145,54 +136,70 @@ export const NotificationBell: React.FC = () => {
 
             {/* Dropdown panel */}
             {open && (
-                <div className="absolute right-0 mt-2 w-96 max-h-[560px] flex flex-col bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
-                    {/* Başlık */}
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                        <h3 className="text-sm font-semibold text-gray-900">
-                            Bildirimler {unread > 0 && (
-                                <span className="ml-1.5 inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
-                                    {unread} okunmamış
-                                </span>
-                            )}
-                        </h3>
-                        <div className="flex items-center gap-2">
-                            {unread > 0 && (
+                <div
+                    className={cn(
+                        // Mobil: viewport'a sabit, sağ/sol 12px boşlukla — taşma yok, ortalı kalır
+                        'fixed left-3 right-3 top-[4.5rem] z-50 max-h-[calc(100vh-90px)]',
+                        // Masaüstü: zile göre sağa yaslı dropdown, sabit genişlik (dar pencerede taşmaz)
+                        'sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[440px] sm:max-w-[calc(100vw-24px)] sm:max-h-[560px]',
+                        'flex flex-col bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden'
+                    )}
+                >
+                    {/* Sabit filtre bloğu: başlık + sekmeler. Liste alanına dahil değildir, scroll etmez. */}
+                    <div className="shrink-0 border-b border-gray-200 bg-white">
+                        {/* Başlık — dar ekranda butonlar alt satıra sarılır, üst üste binmez */}
+                        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3">
+                            <h3 className="flex items-center gap-1.5 min-w-0 text-sm font-semibold text-gray-900">
+                                <span>Bildirimler</span>
+                                {unread > 0 && (
+                                    <span className="inline-flex shrink-0 items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+                                        {unread} okunmamış
+                                    </span>
+                                )}
+                            </h3>
+                            <div className="flex items-center gap-2 shrink-0">
+                                {unread > 0 && (
+                                    <button
+                                        onClick={() => markAllMutation.mutate()}
+                                        disabled={markAllMutation.isPending}
+                                        title="Tümünü okundu işaretle"
+                                        className="flex items-center gap-1 whitespace-nowrap text-xs text-brand-600 hover:text-brand-800 disabled:opacity-50"
+                                    >
+                                        <CheckCheck className="h-3.5 w-3.5" />
+                                        Tümünü oku
+                                    </button>
+                                )}
                                 <button
-                                    onClick={() => markAllMutation.mutate()}
-                                    disabled={markAllMutation.isPending}
-                                    title="Tümünü okundu işaretle"
-                                    className="text-xs text-brand-600 hover:text-brand-800 flex items-center gap-1 disabled:opacity-50"
+                                    onClick={() => setOpen(false)}
+                                    aria-label="Kapat"
+                                    className="p-0.5 text-gray-400 hover:text-gray-600"
                                 >
-                                    <CheckCheck className="h-3.5 w-3.5" />
-                                    Tümünü oku
+                                    <X className="h-4 w-4" />
                                 </button>
-                            )}
-                            <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600">
-                                <X className="h-4 w-4" />
-                            </button>
+                            </div>
+                        </div>
+
+                        {/* Filtre sekmeleri — belirgin chip'ler, tek satır, taşarsa yatay scroll */}
+                        <div className="flex flex-nowrap items-center gap-2 overflow-x-auto whitespace-nowrap px-4 pb-3 min-h-[40px] scrollbar-thin">
+                            {FILTER_TABS.map((tab) => (
+                                <button
+                                    key={tab.key}
+                                    onClick={() => setActiveFilter(tab.key)}
+                                    className={cn(
+                                        'inline-flex shrink-0 items-center whitespace-nowrap rounded-full border px-3 py-1.5 min-h-[32px] text-[13px] font-medium transition-colors',
+                                        activeFilter === tab.key
+                                            ? 'border-brand-600 bg-brand-600 text-white shadow-sm'
+                                            : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                    )}
+                                >
+                                    {tab.label}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Filtre sekmeleri */}
-                    <div className="flex gap-1 overflow-x-auto px-3 py-2 border-b border-gray-100 scrollbar-hide">
-                        {FILTER_TABS.map((tab) => (
-                            <button
-                                key={tab.key}
-                                onClick={() => setActiveFilter(tab.key)}
-                                className={cn(
-                                    'shrink-0 rounded-full px-2.5 py-1 text-xs font-medium transition-colors',
-                                    activeFilter === tab.key
-                                        ? 'bg-brand-600 text-white'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                )}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Bildirim listesi */}
-                    <div className="overflow-y-auto flex-1">
+                    {/* Bildirim listesi — her bildirim ayrı kart, dikey scroll */}
+                    <div className="flex-1 space-y-2 overflow-y-auto bg-gray-50/50 p-2">
                         {isLoading && (
                             <div className="flex justify-center items-center py-8">
                                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
@@ -202,7 +209,7 @@ export const NotificationBell: React.FC = () => {
                         {!isLoading && notifications.length === 0 && (
                             <div className="flex flex-col items-center justify-center py-10 text-gray-400">
                                 <Bell className="h-8 w-8 mb-2 opacity-30" />
-                                <p className="text-sm">Bildirim bulunamadı</p>
+                                <p className="text-sm">Bildirim yok</p>
                             </div>
                         )}
 
@@ -211,8 +218,10 @@ export const NotificationBell: React.FC = () => {
                                 key={n.id}
                                 onClick={() => handleNotifClick(n)}
                                 className={cn(
-                                    'w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors',
-                                    !n.isRead && 'bg-blue-50/40'
+                                    'w-full rounded-xl border p-3.5 text-left transition-colors',
+                                    !n.isRead
+                                        ? 'border-blue-200 bg-blue-50/60 hover:bg-blue-50'
+                                        : 'border-gray-100 bg-white hover:bg-gray-50'
                                 )}
                             >
                                 <div className="flex items-start gap-3">
@@ -224,24 +233,27 @@ export const NotificationBell: React.FC = () => {
                                     </div>
 
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-0.5">
+                                        <div className="mb-1 flex items-center gap-2">
                                             <span className={cn(
-                                                'inline-block shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold',
+                                                'inline-block shrink-0 rounded px-2 py-0.5 text-[11px] font-semibold',
                                                 TYPE_COLORS[n.type]
                                             )}>
-                                                {TYPE_LABELS[n.type]}
+                                                {notificationTypeLabels[n.type] ?? formatNotificationType(n.type)}
                                             </span>
                                         </div>
-                                        <p className={cn(
-                                            'text-sm leading-snug',
-                                            n.isRead ? 'text-gray-600 font-normal' : 'text-gray-900 font-medium'
-                                        )}>
+                                        <p
+                                            title={n.title}
+                                            className={cn(
+                                                'text-sm leading-snug break-words line-clamp-2',
+                                                n.isRead ? 'text-gray-600 font-normal' : 'text-gray-900 font-medium'
+                                            )}
+                                        >
                                             {n.title}
                                         </p>
                                         {n.message && (
-                                            <p className="mt-0.5 text-xs text-gray-500 line-clamp-2">{n.message}</p>
+                                            <p className="mt-1 text-xs text-gray-500 break-words line-clamp-3">{n.message}</p>
                                         )}
-                                        <p className="mt-1 text-[11px] text-gray-400">
+                                        <p className="mt-1.5 text-[11px] text-gray-400">
                                             {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true, locale: tr })}
                                         </p>
                                     </div>

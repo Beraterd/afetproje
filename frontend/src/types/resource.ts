@@ -7,7 +7,11 @@ export interface ResourceRequestResponse {
     requestScope: string;
     resourceType: string;
     resourceTypeLabel: string;
+    productName?: string;
     quantity?: number;
+    unit?: string;
+    priority?: string;
+    priorityLabel?: string;
     status: string;
     statusLabel: string;
     description?: string;
@@ -20,9 +24,11 @@ export interface ResourceRequestResponse {
 
 export interface CreateResourceRequestRequest {
     districtId: string;
-    neighborhoodId?: string;
+    neighborhoodId: string;
     resourceType: string;
-    quantity?: number;
+    name?: string;
+    quantity: number;
+    unit?: string;
     description?: string;
 }
 

@@ -19,6 +19,7 @@ import com.afet.koordinasyon.repository.UserRepository;
 import com.afet.koordinasyon.security.JwtTokenProvider;
 import com.afet.koordinasyon.security.UserPrincipal;
 import com.afet.koordinasyon.service.email.UserRegisteredEmailEvent;
+import com.afet.koordinasyon.util.PhoneNumberUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -72,8 +73,10 @@ public class AuthService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException("Bu e-posta adresi zaten kullanımda: " + request.getEmail());
         }
-        if (userRepository.existsByPhone(request.getPhone())) {
-            throw new ConflictException("Bu telefon numarası zaten kullanımda: " + request.getPhone());
+        // Telefon DB standardı E.164 (+905XXXXXXXXX); benzersizlik kontrolü de normalize değerle yapılır.
+        String normalizedPhone = PhoneNumberUtil.toE164(request.getPhone());
+        if (userRepository.existsByPhone(normalizedPhone)) {
+            throw new ConflictException("Bu telefon numarası zaten kullanımda: " + normalizedPhone);
         }
 
         District district = districtRepository.findById(request.getDistrictId())
@@ -85,7 +88,7 @@ public class AuthService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
-                .phone(request.getPhone())
+                .phone(normalizedPhone)
                 .bloodType(request.getBloodType())
                 .district(district)
                 .neighborhood(neighborhood)

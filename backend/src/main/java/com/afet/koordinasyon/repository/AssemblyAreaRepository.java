@@ -30,20 +30,6 @@ public interface AssemblyAreaRepository extends JpaRepository<AssemblyArea, UUID
     List<AssemblyArea> findActiveApprovedByNeighborhoodId(@Param("neighborhoodId") UUID neighborhoodId);
 
     /**
-     * Simülasyon mail gönderiminde kullanılan filtreli sorgu.
-     * Koşullar: is_active=TRUE, needs_review=FALSE, google_maps_url NOT NULL.
-     * Kaynak adından bağımsız tüm doğrulanmış kayıtları döner.
-     */
-    @Query("""
-            SELECT a FROM AssemblyArea a
-            WHERE a.neighborhood.id = :neighborhoodId
-              AND a.isActive = true
-              AND a.needsReview = false
-              AND a.googleMapsUrl IS NOT NULL
-            """)
-    List<AssemblyArea> findVerifiedByNeighborhoodId(@Param("neighborhoodId") UUID neighborhoodId);
-
-    /**
      * Admin review sayfası için filtrelenmiş sayfalı sorgu.
      * Tüm parametreler opsiyoneldir; null geçilirse filtre uygulanmaz.
      * search: name veya address üzerinde ILIKE arama yapar.
@@ -57,9 +43,9 @@ public interface AssemblyAreaRepository extends JpaRepository<AssemblyArea, UUID
               AND (:sourceName IS NULL OR a.sourceName = :sourceName)
               AND (:needsReview IS NULL OR a.needsReview = :needsReview)
               AND (:active IS NULL OR a.isActive = :active)
-              AND (:search IS NULL
-                   OR LOWER(a.name) LIKE LOWER(CONCAT('%', :search, '%'))
-                   OR LOWER(COALESCE(a.address, '')) LIKE LOWER(CONCAT('%', :search, '%')))
+              AND (:hasSearch = false
+                   OR LOWER(a.name) LIKE :pattern
+                   OR (a.address IS NOT NULL AND LOWER(a.address) LIKE :pattern))
             """,
             countQuery = """
             SELECT COUNT(a) FROM AssemblyArea a
@@ -70,9 +56,9 @@ public interface AssemblyAreaRepository extends JpaRepository<AssemblyArea, UUID
               AND (:sourceName IS NULL OR a.sourceName = :sourceName)
               AND (:needsReview IS NULL OR a.needsReview = :needsReview)
               AND (:active IS NULL OR a.isActive = :active)
-              AND (:search IS NULL
-                   OR LOWER(a.name) LIKE LOWER(CONCAT('%', :search, '%'))
-                   OR LOWER(COALESCE(a.address, '')) LIKE LOWER(CONCAT('%', :search, '%')))
+              AND (:hasSearch = false
+                   OR LOWER(a.name) LIKE :pattern
+                   OR (a.address IS NOT NULL AND LOWER(a.address) LIKE :pattern))
             """)
     Page<AssemblyArea> findWithFilters(
             @Param("districtId") UUID districtId,
@@ -80,8 +66,19 @@ public interface AssemblyAreaRepository extends JpaRepository<AssemblyArea, UUID
             @Param("sourceName") String sourceName,
             @Param("needsReview") Boolean needsReview,
             @Param("active") Boolean active,
-            @Param("search") String search,
+            @Param("hasSearch") boolean hasSearch,
+            @Param("pattern") String pattern,
             Pageable pageable);
+
+    /** Rapor: kapsamdaki aktif/onaylı toplanma alanı sayısı + toplam kapasite [count, capacity]. */
+    @Query("""
+            SELECT COUNT(a), COALESCE(SUM(a.capacity), 0) FROM AssemblyArea a
+            WHERE a.isActive = true AND a.needsReview = false
+              AND (:districtId IS NULL OR a.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR a.neighborhood.id = :neighborhoodId)
+            """)
+    Object[] reportCountAndCapacity(@Param("districtId") UUID districtId,
+                                    @Param("neighborhoodId") UUID neighborhoodId);
 
     int countByNeedsReviewTrue();
 

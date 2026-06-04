@@ -20,7 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmergencyContactService {
 
-    private static final int MAX_CONTACTS = 5;
+    private static final int MAX_CONTACTS = 3;
 
     private final EmergencyContactRepository emergencyContactRepository;
     private final UserRepository userRepository;

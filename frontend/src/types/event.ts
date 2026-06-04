@@ -19,9 +19,12 @@ export interface EventResponse {
     endsAt: string;
     closedAt?: string;
     assignedVolunteers: number;
+    acceptedCount: number;
     isParticipating: boolean;
+    currentUserJoined: boolean;
     createdAt: string;
     updatedAt: string;
+    eventTeamCode?: string;
 }
 
 export interface EventSummaryResponse {
@@ -36,6 +39,7 @@ export interface EventSummaryResponse {
     longitude?: number;
     startsAt: string;
     createdAt: string;
+    eventTeamCode?: string;
 }
 
 export interface EventCloseResponse {
@@ -57,6 +61,16 @@ export interface EventJoinResponse {
     eventVolunteerId: string;
     eventId: string;
     status: VolunteerStatus;
+    joinedAt: string;
+}
+
+export interface EventParticipantResponse {
+    userId: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    source: 'DIRECT_JOIN' | 'AI_INVITATION';
+    status: 'JOINED' | 'INVITED' | 'ACCEPTED' | 'DECLINED' | 'CANCELLED';
     joinedAt: string;
 }
 

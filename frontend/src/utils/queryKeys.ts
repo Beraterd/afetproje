@@ -7,6 +7,7 @@ export const queryKeys = {
         list: (filters: any) => ['events', 'list', filters] as const,
         detail: (id: string) => ['events', id] as const,
         volunteers: (id: string) => ['events', id, 'volunteers'] as const,
+        participants: (id: string) => ['events', id, 'participants'] as const,
     },
     districts: {
         all: ['districts'] as const,

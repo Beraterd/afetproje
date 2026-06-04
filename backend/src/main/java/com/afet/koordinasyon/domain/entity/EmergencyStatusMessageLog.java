@@ -29,8 +29,11 @@ public class EmergencyStatusMessageLog {
     @JoinColumn(name = "recipient_user_id", nullable = false)
     private User recipient;
 
-    @Column(name = "recipient_email", nullable = false, length = 255)
+    @Column(name = "recipient_email", length = 255)
     private String recipientEmail;
+
+    @Column(name = "recipient_phone", length = 32)
+    private String recipientPhone;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
