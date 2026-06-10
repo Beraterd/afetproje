@@ -3,12 +3,14 @@ package com.afet.koordinasyon.service;
 import com.afet.koordinasyon.config.SmsProperties;
 import com.afet.koordinasyon.domain.entity.AssemblyArea;
 import com.afet.koordinasyon.domain.entity.EarthquakeEvent;
+import com.afet.koordinasyon.domain.entity.SmsDeliveryLog;
 import com.afet.koordinasyon.domain.entity.User;
 import com.afet.koordinasyon.domain.enums.SmsDeliveryStatus;
 import com.afet.koordinasyon.domain.enums.SmsDeliveryType;
 import com.afet.koordinasyon.notification.SmsNotificationProvider;
 import com.afet.koordinasyon.repository.AssemblyAreaRepository;
 import com.afet.koordinasyon.repository.EarthquakeEventRepository;
+import com.afet.koordinasyon.repository.SmsDeliveryLogRepository;
 import com.afet.koordinasyon.repository.UserRepository;
 import com.afet.koordinasyon.util.PhoneNumberUtil;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +34,7 @@ public class AfadEarthquakeSmsNotificationService {
     private final UserRepository userRepository;
     private final AssemblyAreaRepository assemblyAreaRepository;
     private final SmsNotificationProvider smsNotificationProvider;
-    private final SmsAuthService smsAuthService;
+    private final SmsDeliveryLogRepository smsDeliveryLogRepository;
     private final SmsProperties smsProperties;
 
     private static final int MAX_AREAS_IN_SMS = 3;
@@ -38,7 +42,6 @@ public class AfadEarthquakeSmsNotificationService {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleNewEarthquake(EarthquakeAlertCreatedEvent event) {
-        // SMS yalnızca gerçek deprem için gönderilir; simülasyon SMS göndermez.
         if (event.alert().isSimulation()) {
             return;
         }
@@ -64,21 +67,17 @@ public class AfadEarthquakeSmsNotificationService {
 
         int successCount = 0;
         for (User user : users) {
+            String maskedPhone = PhoneNumberUtil.mask(user.getPhone());
             try {
                 List<AssemblyArea> areas = loadAreasForUser(user);
                 String smsText = buildSmsText(eq, areas);
-                String phone = user.getPhone();
-                String maskedPhone = PhoneNumberUtil.mask(phone);
 
-                smsNotificationProvider.send(phone, null, smsText);
-                smsAuthService.saveDeliveryLog(user.getId(), maskedPhone, SmsDeliveryType.EARTHQUAKE_ALERT,
-                        SmsDeliveryStatus.SENT, null, null, eq.getId());
+                smsNotificationProvider.send(user.getPhone(), null, smsText);
+                saveDeliveryLog(user.getId(), maskedPhone, SmsDeliveryStatus.SENT, null, null, eq.getId());
                 successCount++;
                 log.info("Deprem SMS gönderildi: externalId={}, alıcı={}", eq.getExternalId(), maskedPhone);
             } catch (Exception e) {
-                String maskedPhone = PhoneNumberUtil.mask(user.getPhone());
-                smsAuthService.saveDeliveryLog(user.getId(), maskedPhone, SmsDeliveryType.EARTHQUAKE_ALERT,
-                        SmsDeliveryStatus.FAILED, null, e.getMessage(), eq.getId());
+                saveDeliveryLog(user.getId(), maskedPhone, SmsDeliveryStatus.FAILED, null, e.getMessage(), eq.getId());
                 log.error("Deprem SMS gönderilemedi: externalId={}, alıcı={}, hata={}",
                         eq.getExternalId(), maskedPhone, e.getMessage());
             }
@@ -86,6 +85,25 @@ public class AfadEarthquakeSmsNotificationService {
 
         log.info("Deprem SMS bildirimi tamamlandı: externalId={}, başarılı={}/{}",
                 eq.getExternalId(), successCount, users.size());
+    }
+
+    private void saveDeliveryLog(UUID userId, String phoneMasked, SmsDeliveryStatus status,
+                                 String providerMessageId, String errorMessage, UUID earthquakeEventId) {
+        try {
+            smsDeliveryLogRepository.save(SmsDeliveryLog.builder()
+                    .userId(userId)
+                    .phoneMasked(phoneMasked)
+                    .type(SmsDeliveryType.EARTHQUAKE_ALERT)
+                    .provider(smsProperties.getProvider())
+                    .providerMessageId(providerMessageId)
+                    .status(status)
+                    .errorMessage(errorMessage)
+                    .earthquakeEventId(earthquakeEventId)
+                    .sentAt(status == SmsDeliveryStatus.SENT ? OffsetDateTime.now() : null)
+                    .build());
+        } catch (Exception e) {
+            log.error("SMS delivery log kaydedilemedi (userId={}): {}", userId, e.getMessage());
+        }
     }
 
     private List<AssemblyArea> loadAreasForUser(User user) {

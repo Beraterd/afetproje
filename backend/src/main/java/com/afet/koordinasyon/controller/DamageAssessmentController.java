@@ -11,6 +11,7 @@ import com.afet.koordinasyon.dto.response.DamagePointResponse;
 import com.afet.koordinasyon.dto.response.PagedResponse;
 import com.afet.koordinasyon.security.UserPrincipal;
 import com.afet.koordinasyon.service.DamageAssessmentService;
+import com.afet.koordinasyon.service.ai.DamageAiBatchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,6 +37,7 @@ import java.util.UUID;
 public class DamageAssessmentController {
 
     private final DamageAssessmentService damageAssessmentService;
+    private final DamageAiBatchService damageAiBatchService;
 
     @GetMapping
     @Operation(summary = "List damage assessments (role-filtered)")
@@ -144,10 +146,18 @@ public class DamageAssessmentController {
 
     @PostMapping("/{id}/ai-analysis")
     @PreAuthorize("hasAnyRole('ADMIN','DISTRICT_COORDINATOR','NEIGHBORHOOD_COORDINATOR')")
-    @Operation(summary = "Trigger AI pre-assessment for a damage assessment (async, returns 202)")
+    @Operation(summary = "Trigger AI pre-assessment for a damage assessment (background queue, returns 202)")
     public ResponseEntity<DamageAssessmentAiTriggerResponse> triggerAiAnalysis(
             @PathVariable UUID id,
             @AuthenticationPrincipal UserPrincipal principal) {
         return ResponseEntity.accepted().body(damageAssessmentService.triggerAiAnalysis(id, principal));
+    }
+
+    @PostMapping("/ai/enqueue-missing")
+    @PreAuthorize("hasAnyRole('ADMIN','DISTRICT_COORDINATOR','NEIGHBORHOOD_COORDINATOR')")
+    @Operation(summary = "Enqueue all records missing AI analysis into the background queue (idempotent)")
+    public ResponseEntity<java.util.Map<String, Object>> enqueueMissing() {
+        int enqueued = damageAiBatchService.enqueueAllMissing();
+        return ResponseEntity.accepted().body(java.util.Map.of("enqueued", enqueued));
     }
 }

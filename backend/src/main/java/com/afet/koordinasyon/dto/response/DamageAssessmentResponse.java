@@ -49,6 +49,9 @@ public class DamageAssessmentResponse {
     private String aiModel;
     private OffsetDateTime aiAnalyzedAt;
     private String aiAnalysisStatus;
+    private Integer aiPriority;
+    private String aiRecommendations;
+    private Integer aiRiskScore;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 }

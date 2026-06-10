@@ -40,13 +40,14 @@ public class MyTaskService {
     @Value("${app.storage.local-path:.local-storage}")
     private String localStoragePath;
 
-    @Value("${app.base-url:http://localhost:8080}")
+    @Value("${app.base-url}")
     private String baseUrl;
 
     private final DamageAssessmentAssignmentRepository assignmentRepository;
     private final DamageAssessmentRepository damageAssessmentRepository;
     private final DamageAssessmentPhotoRepository photoRepository;
     private final DamageAssessmentAiService damageAssessmentAiService;
+    private final com.afet.koordinasyon.service.ai.DamageAiQueueService damageAiQueueService;
 
     @Transactional(readOnly = true)
     public List<DamageAssessmentTaskResponse> getMyTasks(UserPrincipal principal) {
@@ -78,10 +79,11 @@ public class MyTaskService {
         }
 
         final UUID assessmentId = assessment.getId();
+        final com.afet.koordinasyon.domain.enums.DamageLevel assessmentLevel = assessment.getDamageLevel();
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                damageAssessmentAiService.generateAiAssessment(assessmentId);
+                damageAiQueueService.enqueue(assessmentId, assessmentLevel);
             }
         });
     }

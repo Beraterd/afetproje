@@ -140,6 +140,25 @@ public class DamageAssessment {
     @Column(name = "ai_analysis_status", length = 30)
     private AiAnalysisStatus aiAnalysisStatus;
 
+    @Column(name = "ai_priority")
+    private Integer aiPriority;
+
+    @Column(name = "ai_recommendations", columnDefinition = "TEXT")
+    private String aiRecommendations;
+
+    @Column(name = "ai_risk_score")
+    private Integer aiRiskScore;
+
+    @Column(name = "damage_hash", length = 64)
+    private String damageHash;
+
+    @Column(name = "ai_retry_count")
+    @Builder.Default
+    private Integer aiRetryCount = 0;
+
+    @Column(name = "ai_next_retry_at")
+    private OffsetDateTime aiNextRetryAt;
+
     @Column(name = "client_generated_id", length = 36, unique = true)
     private String clientGeneratedId;
 

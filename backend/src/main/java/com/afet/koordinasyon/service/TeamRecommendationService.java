@@ -53,7 +53,7 @@ public class TeamRecommendationService {
     @Value("${ai.model:claude-sonnet-4-6}")
     private String model;
 
-    @Value("${app.frontend-url:http://localhost:5173}")
+    @Value("${app.frontend-url}")
     private String frontendBaseUrl;
 
     private final TeamRecommendationRepository recommendationRepository;
@@ -223,8 +223,7 @@ public class TeamRecommendationService {
         for (User u : volunteers) {
             String uid = u.getEmail();
 
-            // STEP 2-3: already filtered at query level (active + verified)
-            log.debug("[SCORING] USER={} role={} active={} verified={}", uid, u.getRole(), u.isActive(), u.isEmailVerified());
+            log.debug("[SCORING] USER={} role={} active={}", uid, u.getRole(), u.isActive());
 
             // STEP 4: completed same task history
             List<EventVolunteer> evHistory = eventVolunteerRepository.findByUserIdAll(u.getId());
@@ -461,7 +460,6 @@ public class TeamRecommendationService {
             entry.put("role",          u.getRole().name());
             entry.put("roleCheck",        u.getRole() == UserRole.VOLUNTEER);
             entry.put("activeCheck",      u.isActive());
-            entry.put("emailVerified",    u.isEmailVerified()); // bilgi amaçlı — eligibility kararında kullanılmaz
             entry.put("hasEmail",         u.getEmail() != null && !u.getEmail().isBlank());
 
             if (u.getRole() != UserRole.VOLUNTEER) {

@@ -105,35 +105,44 @@ public class EarthquakeAlertEmailBuilder {
     }
 
     /**
-     * §4/§8 — "Yakınlarıma Mesaj Gönder" bölümü. Her hazır mesaj, güvenli token taşıyan
-     * tıklanabilir bir butondur. messageActionBaseUrl null ise bölüm hiç eklenmez.
+     * "Yakınlarıma Mesaj Gönder" bölümü. Üç hazır mesaj, güvenli token taşıyan tıklanabilir
+     * butonlardır. Her tip için farklı renk kullanılır. messageActionBaseUrl null ise eklenmez.
      */
     private String buildEmergencyMessageSection(String messageActionBaseUrl) {
         if (messageActionBaseUrl == null || messageActionBaseUrl.isBlank()) {
             return "";
         }
         StringBuilder sb = new StringBuilder();
-        sb.append("<div style=\"margin-top:24px;padding:16px 18px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;\">");
-        sb.append("<p style=\"font-weight:700;margin:0 0 4px;color:#9a3412;font-size:15px;\">Yakınlarıma Mesaj Gönder</p>");
-        sb.append("<p style=\"margin:0 0 14px;font-size:13px;color:#7c2d12;\">")
-          .append("Aşağıdaki hazır mesajlardan birine tıklayarak kayıtlı yakınlarınıza (en fazla 3 kişi) durum bildirebilirsiniz.")
+        sb.append("<div style=\"margin-top:24px;padding:20px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;\">");
+        sb.append("<p style=\"font-weight:700;margin:0 0 6px;color:#0c4a6e;font-size:15px;\">Yakınlarıma Durum Bildirimi Gönder</p>");
+        sb.append("<p style=\"margin:0 0 16px;font-size:13px;color:#075985;\">")
+          .append("Tek tıkla durum bilginizi kayıtlı yakınlarınıza (en fazla 3 kişi) iletebilirsiniz.")
           .append("</p>");
         sb.append("<table style=\"border-collapse:collapse;width:100%;\"><tbody>");
         for (EmergencyMessageType type : EmergencyMessageType.values()) {
-            String href = messageActionBaseUrl + "&type=" + type.name();
-            sb.append("<tr><td style=\"padding:4px 0;\">")
+            String href = messageActionBaseUrl + "?type=" + type.name();
+            String btnColor = buttonColor(type);
+            sb.append("<tr><td style=\"padding:5px 0;\">")
               .append("<a href=\"").append(href).append("\" ")
-              .append("style=\"display:block;text-align:center;background:#ea580c;color:#ffffff;")
-              .append("text-decoration:none;padding:11px 16px;border-radius:6px;font-size:14px;font-weight:600;\">")
+              .append("style=\"display:block;text-align:center;background:").append(btnColor).append(";color:#ffffff;")
+              .append("text-decoration:none;padding:12px 16px;border-radius:7px;font-size:14px;font-weight:600;letter-spacing:0.3px;\">")
               .append(escapeHtml(type.getLabel()))
               .append("</a></td></tr>");
         }
         sb.append("</tbody></table>");
-        sb.append("<p style=\"margin:12px 0 0;font-size:11px;color:#9a3412;\">")
-          .append("Bu bağlantılar güvenlik amacıyla 24 saat geçerlidir ve yalnızca bir kez kullanılabilir.")
+        sb.append("<p style=\"margin:14px 0 0;font-size:11px;color:#0369a1;\">")
+          .append("&#128274; Bu bağlantılar 24 saat geçerlidir ve yalnızca bir kez kullanılabilir.")
           .append("</p>");
         sb.append("</div>");
         return sb.toString();
+    }
+
+    private String buttonColor(EmergencyMessageType type) {
+        return switch (type) {
+            case DURUMUM_IYI -> "#16a34a";
+            case TOPLANMA_ALANINA -> "#2563eb";
+            case ENKAZ_ALTINDA -> "#dc2626";
+        };
     }
 
     private String buildAreasSection(List<AssemblyArea> areas) {

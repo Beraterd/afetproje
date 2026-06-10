@@ -22,4 +22,12 @@ export interface UserResponse {
     active: boolean;
     createdAt: string;
     updatedAt: string;
+    lastKnownLatitude?: number;
+    lastKnownLongitude?: number;
+    lastKnownLocationAccuracy?: number;
+    /** GRANTED, DENIED, SKIPPED, or null if not yet asked */
+    locationPermissionStatus?: string;
+    lastKnownLocationUpdatedAt?: string;
+    /** GPS, Network, Cell */
+    locationSource?: string;
 }

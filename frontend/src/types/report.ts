@@ -173,7 +173,7 @@ export interface ReportMetaV2 {
 }
 
 export interface ReportCategoryCountV2 { code: string; label: string; count: number; }
-export interface ReportNeighborhoodMetric { neighborhoodId: string; neighborhoodName: string; value: number; }
+export interface ReportNeighborhoodMetric { neighborhoodId: string; neighborhoodName: string; districtName?: string | null; value: number; }
 
 export interface TeamModule {
     totalTeams: number; activeTeams: number; availableTeams: number;

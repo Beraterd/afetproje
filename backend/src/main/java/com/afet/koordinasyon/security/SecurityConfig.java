@@ -48,6 +48,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 "/api/event-assignments/accept",
                 "/api/event-assignments/decline",
                 "/api/emergency-message/**",
+                "/api/emergency/**",
                 "/swagger-ui/**",
                 "/swagger-ui.html",
                 "/api-docs/**",
@@ -75,7 +76,9 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:3001", "http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:3000", "http://localhost:3001", "http://localhost:5173",
+                "https://afetistanbul.online", "https://www.afetistanbul.online"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

@@ -18,8 +18,5 @@ public class SmsProperties {
     private String apiSecret = "";
     private String sender = "AFETKOORD";
     private String provider = "iletimerkezi";
-    private int otpExpirySeconds = 300;
-    private int maxOtpPerHour = 3;
-    private int maxVerifyAttempts = 5;
     private String apiUrl = "https://api.iletimerkezi.com/v1/send-sms/json";
 }

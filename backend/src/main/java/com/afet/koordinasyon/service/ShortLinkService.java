@@ -36,11 +36,11 @@ public class ShortLinkService {
      * /s/{code} redirect endpoint'i backend tarafından sunulduğu için backend public
      * adresine işaret etmelidir.
      */
-    @Value("${app.short-link.base-url:http://localhost:8080}")
+    @Value("${app.short-link.base-url}")
     private String shortLinkBaseUrl;
 
     /** Kısa linkin yönlendireceği frontend uygulamasının ana adresi. */
-    @Value("${app.frontend-url:http://localhost:5173}")
+    @Value("${app.frontend-url}")
     private String frontendUrl;
 
     /**

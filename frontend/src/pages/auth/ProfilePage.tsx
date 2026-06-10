@@ -11,7 +11,9 @@ import { Button, FormField, Badge, LoadingSpinner } from '@/components/ui';
 import { UserResponse, DistrictResponse, NeighborhoodSummaryResponse, NotificationPreferences } from '@/types';
 import { ApiError } from '@/utils/errorParser';
 import { isValidTurkishMobile, PHONE_HINT, PHONE_PLACEHOLDER } from '@/utils/phone';
-import { Bell } from 'lucide-react';
+import { updateLocationPermission } from '@/api/users.api';
+import { Bell, MapPin, AlertTriangle } from 'lucide-react';
+import { getHighAccuracyPosition, ACCURACY_REJECT_M, ACCURACY_WARNING_M } from '@/utils/geolocation';
 
 const ROLE_TR: Record<string, string> = {
     ADMIN: 'Yönetici',
@@ -50,6 +52,8 @@ export const ProfilePage: React.FC = () => {
     const [hasLoadedInitialData, setHasLoadedInitialData] = useState(false);
     const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
     const [savingPrefs, setSavingPrefs] = useState(false);
+    const [updatingLocation, setUpdatingLocation] = useState(false);
+    const [locationWarning, setLocationWarning] = useState<string | null>(null);
 
     const {
         register,
@@ -172,6 +176,46 @@ export const ProfilePage: React.FC = () => {
             toast.error(apiError.message || 'Profil güncellenemedi');
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleUpdateLocation = async () => {
+        setUpdatingLocation(true);
+        setLocationWarning(null);
+
+        try {
+            const pos = await getHighAccuracyPosition();
+
+            if (pos.accuracy > ACCURACY_WARNING_M) {
+                setLocationWarning(
+                    `Konum hassasiyeti düşük (±${Math.round(pos.accuracy)} m). GPS'i açık tutun.`,
+                );
+            }
+
+            const updated = await updateLocationPermission({
+                permissionStatus: 'GRANTED',
+                latitude: pos.latitude,
+                longitude: pos.longitude,
+                accuracy: pos.accuracy,
+                locationSource: pos.source,
+            });
+            setProfile(updated);
+            toast.success(`Konum güncellendi (±${Math.round(pos.accuracy)} m, ${pos.source})`);
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : '';
+            if (msg.startsWith('ACCURACY_TOO_LOW:')) {
+                const meters = msg.split(':')[1];
+                setLocationWarning(
+                    `Konum çok düşük hassasiyetli olduğu için kaydedilmedi (±${meters} m). ` +
+                    `Lütfen cihazınızda GPS'i açın, tarayıcı konum iznini kontrol edin ve tekrar deneyin.`,
+                );
+            } else if (msg) {
+                setLocationWarning(msg);
+            } else {
+                toast.error('Konum alınamadı. Lütfen tarayıcı konum iznini kontrol edin.');
+            }
+        } finally {
+            setUpdatingLocation(false);
         }
     };
 
@@ -366,6 +410,153 @@ export const ProfilePage: React.FC = () => {
                                 }}
                             >
                                 Tercihleri Kaydet
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Konum Bilgisi */}
+            {profile && (
+                <div className="mt-6 bg-white shadow sm:rounded-lg overflow-hidden border border-gray-200">
+                    <div className="px-4 py-5 sm:px-6 border-b border-gray-200 flex items-center gap-2">
+                        <MapPin className="h-5 w-5 text-blue-600" />
+                        <div>
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">Konum Bilgisi</h3>
+                            <p className="mt-0.5 text-sm text-gray-500">
+                                Acil mesajlarda paylaşılan konum bilgileriniz.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="px-4 py-5 sm:p-6 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-700">İzin Durumu</span>
+                            <span
+                                className={`text-sm font-semibold ${
+                                    profile.locationPermissionStatus === 'GRANTED'
+                                        ? 'text-green-600'
+                                        : profile.locationPermissionStatus === 'DENIED'
+                                          ? 'text-red-600'
+                                          : profile.locationPermissionStatus === 'SKIPPED'
+                                            ? 'text-yellow-600'
+                                            : 'text-gray-400'
+                                }`}
+                            >
+                                {profile.locationPermissionStatus === 'GRANTED'
+                                    ? 'İzin Verildi'
+                                    : profile.locationPermissionStatus === 'DENIED'
+                                      ? 'Reddedildi'
+                                      : profile.locationPermissionStatus === 'SKIPPED'
+                                        ? 'Atlandı'
+                                        : 'Henüz Sorulmadı'}
+                            </span>
+                        </div>
+
+                        {profile.lastKnownLatitude != null && profile.lastKnownLongitude != null && (() => {
+                            const acc = Number(profile.lastKnownLocationAccuracy ?? 9999);
+                            const isUnusable = acc > ACCURACY_REJECT_M;
+                            const isLow = !isUnusable && acc > ACCURACY_WARNING_M;
+
+                            return (
+                                <>
+                                    {isUnusable && (
+                                        <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                                            <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                                            <p className="text-xs text-red-700">
+                                                Kayıtlı konum çok düşük hassasiyetli (±{Math.round(acc)} m) ve kullanılamaz.
+                                                Lütfen GPS'i açık tutarak "Konumu Güncelle"ye basın.
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-gray-700">Koordinat</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className={`text-xs font-mono ${isUnusable ? 'text-red-400 line-through' : 'text-gray-500'}`}>
+                                                {Number(profile.lastKnownLatitude).toFixed(6)},&nbsp;
+                                                {Number(profile.lastKnownLongitude).toFixed(6)}
+                                            </span>
+                                            {!isUnusable && (
+                                                <a
+                                                    href={`https://www.google.com/maps?q=${profile.lastKnownLatitude},${profile.lastKnownLongitude}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-xs text-blue-600 hover:underline"
+                                                >
+                                                    Harita
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {profile.lastKnownLocationAccuracy != null && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm text-gray-700">Hassasiyet</span>
+                                            <div className="flex items-center gap-2">
+                                                <span
+                                                    className={`text-sm font-medium ${
+                                                        isUnusable
+                                                            ? 'text-red-600'
+                                                            : isLow
+                                                              ? 'text-amber-600'
+                                                              : 'text-green-600'
+                                                    }`}
+                                                >
+                                                    {isUnusable
+                                                        ? `±${Math.round(acc)} m — Kullanılamaz`
+                                                        : isLow
+                                                          ? `±${Math.round(acc)} m — Düşük`
+                                                          : `±${Math.round(acc)} m`}
+                                                </span>
+                                                <span className={`text-xs px-1.5 py-0.5 rounded ${
+                                                    isUnusable ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'
+                                                }`}>
+                                                    {profile.locationSource ?? 'Unknown'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {profile.lastKnownLocationUpdatedAt && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm text-gray-700">Son Güncelleme</span>
+                                            <span className="text-sm text-gray-600">
+                                                {new Date(profile.lastKnownLocationUpdatedAt).toLocaleString('tr-TR')}
+                                            </span>
+                                        </div>
+                                    )}
+                                </>
+                            );
+                        })()}
+
+                        {!profile.lastKnownLatitude && profile.lastKnownLocationUpdatedAt && (
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm text-gray-700">Son Güncelleme</span>
+                                <span className="text-sm text-gray-600">
+                                    {new Date(profile.lastKnownLocationUpdatedAt).toLocaleString('tr-TR')}
+                                </span>
+                            </div>
+                        )}
+
+                        {locationWarning && (
+                            <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                                <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                <p className="text-xs text-amber-700">{locationWarning}</p>
+                            </div>
+                        )}
+
+                        {profile.locationPermissionStatus === 'GRANTED' &&
+                            !profile.lastKnownLatitude && !updatingLocation && (
+                            <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                                <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                <p className="text-xs text-amber-700">
+                                    Konum henüz alınamadı. GPS'i açık tutarak "Konumu Güncelle"ye basın.
+                                </p>
+                            </div>
+                        )}
+
+                        <div className="pt-2">
+                            <Button type="button" loading={updatingLocation} onClick={handleUpdateLocation}>
+                                {updatingLocation ? 'Konum güncelleniyor…' : 'Konumu Güncelle'}
                             </Button>
                         </div>
                     </div>

@@ -49,7 +49,7 @@ public class AuthService {
     @Transactional
     public LoginResponse login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+                new UsernamePasswordAuthenticationToken(request.getEmailOrUsername(), request.getPassword()));
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         String token = jwtTokenProvider.generateAccessToken(principal);
         auditLogService.logUserAction(
@@ -181,7 +181,6 @@ public class AuthService {
                 .phone(u.getPhone())
                 .bloodType(u.getBloodType())
                 .role(u.getRole())
-                .emailVerified(u.isEmailVerified())
                 .active(u.isActive())
                 .district(district != null ? DistrictSummaryResponse.builder()
                         .id(district.getId()).name(district.getName()).build() : null)
@@ -196,6 +195,12 @@ public class AuthService {
                 .profession(u.getProfession())
                 .createdAt(u.getCreatedAt())
                 .updatedAt(u.getUpdatedAt())
+                .lastKnownLatitude(u.getLastKnownLatitude())
+                .lastKnownLongitude(u.getLastKnownLongitude())
+                .lastKnownLocationAccuracy(u.getLastKnownLocationAccuracy())
+                .locationPermissionStatus(u.getLocationPermissionStatus())
+                .lastKnownLocationUpdatedAt(u.getLastKnownLocationUpdatedAt())
+                .locationSource(u.getLocationSource())
                 .build();
     }
 }

@@ -47,4 +47,9 @@ public enum AuditActionType {
 
     // Acil durum mesajı (yakınlara)
     EMERGENCY_MESSAGE_SENT,
+
+    // AI analizi
+    AI_ANALYSIS_STARTED,
+    AI_ANALYSIS_COMPLETED,
+    AI_ANALYSIS_FAILED,
 }

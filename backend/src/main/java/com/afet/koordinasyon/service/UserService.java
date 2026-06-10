@@ -5,6 +5,7 @@ import com.afet.koordinasyon.domain.entity.Neighborhood;
 import com.afet.koordinasyon.domain.entity.User;
 import com.afet.koordinasyon.domain.enums.AuditActionType;
 import com.afet.koordinasyon.domain.enums.UserRole;
+import com.afet.koordinasyon.dto.request.UpdateLocationPermissionRequest;
 import com.afet.koordinasyon.dto.request.UpdateNotificationPreferencesRequest;
 import com.afet.koordinasyon.dto.request.UpdateProfileRequest;
 import com.afet.koordinasyon.dto.response.NotificationPreferencesResponse;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Service
@@ -106,6 +108,32 @@ public class UserService {
             }
         }
 
+        return AuthService.mapUserToResponse(userRepository.save(user));
+    }
+
+    @Transactional
+    public UserResponse updateLocationPermission(UUID userId, UpdateLocationPermissionRequest req) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        if (req.getPermissionStatus() != null && !req.getPermissionStatus().isBlank()) {
+            user.setLocationPermissionStatus(req.getPermissionStatus());
+        }
+        if ("GRANTED".equals(req.getPermissionStatus())
+                && req.getLatitude() != null && req.getLongitude() != null) {
+            // 500 m veya üzeri hassasiyetsiz konumu reddet — frontend zaten göndermiyor olmalı
+            java.math.BigDecimal acc = req.getAccuracy();
+            if (acc == null || acc.compareTo(new java.math.BigDecimal("500")) > 0) {
+                long accuracyRounded = acc != null ? Math.round(acc.doubleValue()) : -1;
+                throw new BusinessRuleException(
+                        "Konum hassasiyeti yetersiz (±" + accuracyRounded + " m). Konum kaydedilmedi."
+                );
+            }
+            user.setLastKnownLatitude(req.getLatitude());
+            user.setLastKnownLongitude(req.getLongitude());
+            user.setLastKnownLocationAccuracy(acc);
+            user.setLocationSource(req.getLocationSource());
+            user.setLastKnownLocationUpdatedAt(OffsetDateTime.now());
+        }
         return AuthService.mapUserToResponse(userRepository.save(user));
     }
 

@@ -52,10 +52,10 @@ public class SimulationService {
 
         EarthquakeSimulation saved = simulationRepository.save(simulation);
 
-        // Gerçek deprem akışıyla aynı alıcı kümesi (aktif + doğrulanmış kullanıcılar) için
+        // Gerçek deprem akışıyla aynı alıcı kümesi (aktif kullanıcılar) için
         // QUEUED notification log oluştur. Bildirimler (mail + WhatsApp) commit sonrası
         // ortak EarthquakeAlertNotificationService tarafından async gönderilir.
-        List<User> recipients = userRepository.findActiveVerifiedWithNeighborhood();
+        List<User> recipients = userRepository.findActiveWithNeighborhood();
         int userCount = 0;
         for (User user : recipients) {
             notificationLogRepository.save(SimulationNotificationLog.builder()

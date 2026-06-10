@@ -17,7 +17,7 @@ public class EmailNotificationProvider implements NotificationProvider {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username:noreply@afetkoordinasyon.tr}")
+    @Value("${app.email.from:noreply@afetkoordinasyon.tr}")
     private String fromAddress;
 
     @Override
@@ -30,7 +30,9 @@ public class EmailNotificationProvider implements NotificationProvider {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom(fromAddress);
+            String effectiveFrom = (fromAddress != null && !fromAddress.isBlank())
+                    ? fromAddress : "noreply@afetkoordinasyon.tr";
+            helper.setFrom(effectiveFrom);
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(body, true);

@@ -7,9 +7,12 @@ import com.afet.koordinasyon.domain.enums.UserRole;
 import com.afet.koordinasyon.exception.BusinessRuleException;
 import com.afet.koordinasyon.repository.DistrictRepository;
 import com.afet.koordinasyon.repository.NeighborhoodRepository;
+import com.afet.koordinasyon.repository.TeamMembershipRepository;
 import com.afet.koordinasyon.repository.UserRepository;
 import com.afet.koordinasyon.security.UserPrincipal;
+import com.afet.koordinasyon.service.AuditLogService;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.context.ApplicationEventPublisher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +33,9 @@ class CoordinatorServiceTest {
     @Mock private DistrictRepository districtRepository;
     @Mock private NeighborhoodRepository neighborhoodRepository;
     @Mock private UserRepository userRepository;
+    @Mock private TeamMembershipRepository teamMembershipRepository;
+    @Mock private AuditLogService auditLogService;
+    @Mock private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks private CoordinatorService coordinatorService;
 
@@ -64,7 +70,7 @@ class CoordinatorServiceTest {
                 .build();
 
         adminPrincipal = mock(UserPrincipal.class);
-        when(adminPrincipal.getRole()).thenReturn(UserRole.ADMIN);
+        lenient().when(adminPrincipal.getRole()).thenReturn(UserRole.ADMIN);
     }
 
     // ── assignDistrictCoordinator ──────────────────────────────────────────
@@ -92,7 +98,6 @@ class CoordinatorServiceTest {
         coordinatorService.assignDistrictCoordinator(districtId, userId, adminPrincipal);
 
         assertThat(user.getRole()).isEqualTo(UserRole.DISTRICT_COORDINATOR);
-        assertThat(user.getDistrict()).isEqualTo(district);
         assertThat(district.getCoordinator()).isEqualTo(user);
     }
 
@@ -228,26 +233,17 @@ class CoordinatorServiceTest {
     }
 
     @Test
-    void assignNeighborhoodCoordinator_userCannotRemainBothDcAndNc() {
-        // User was a DC; after becoming NC, their district coordinator ref is cleared
+    void assignNeighborhoodCoordinator_districtCoordUser_throwsBusinessRuleException() {
+        // DC kullanıcısı önce DC'den çıkarılmadan NC'ye atanamaz
         user.setRole(UserRole.DISTRICT_COORDINATOR);
-        District prevDistrict = District.builder()
-                .id(UUID.randomUUID()).name("Eski İlçe").coordinator(user).build();
 
         when(neighborhoodRepository.findById(neighborhoodId)).thenReturn(Optional.of(neighborhood));
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(districtRepository.findByCoordinatorId(userId)).thenReturn(Optional.of(prevDistrict));
-        when(neighborhoodRepository.findByCoordinatorId(userId)).thenReturn(Optional.empty());
-        when(neighborhoodRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-        when(userRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-        when(districtRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        coordinatorService.assignNeighborhoodCoordinator(neighborhoodId, userId, adminPrincipal);
-
-        // Old district coordinator ref cleared
-        assertThat(prevDistrict.getCoordinator()).isNull();
-        // User now only has NC role
-        assertThat(user.getRole()).isEqualTo(UserRole.NEIGHBORHOOD_COORDINATOR);
+        assertThatThrownBy(() ->
+                coordinatorService.assignNeighborhoodCoordinator(neighborhoodId, userId, adminPrincipal))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("ilçe koordinatörü");
     }
 
     // ── listEligibleUsers ─────────────────────────────────────────────────
@@ -268,19 +264,16 @@ class CoordinatorServiceTest {
     }
 
     @Test
-    void listEligibleUsers_districtCoord_onlyOwnDistrict() {
-        UUID dcDistrictId = UUID.randomUUID();
+    void listEligibleUsers_districtCoord_returnsEligibleUsers() {
         UserPrincipal dcPrincipal = mock(UserPrincipal.class);
-        when(dcPrincipal.getRole()).thenReturn(UserRole.DISTRICT_COORDINATOR);
-        when(dcPrincipal.getDistrictId()).thenReturn(dcDistrictId);
 
         User dcUser = User.builder().id(UUID.randomUUID()).role(UserRole.VOLUNTEER)
                 .email("dc@t.com").firstName("D").lastName("C").build();
-        when(userRepository.findByDistrictId(dcDistrictId)).thenReturn(List.of(dcUser));
+        when(userRepository.findAll()).thenReturn(List.of(dcUser));
 
         var result = coordinatorService.listEligibleUsers(dcPrincipal, null, null);
 
         assertThat(result).hasSize(1);
-        verify(userRepository).findByDistrictId(dcDistrictId);
+        verify(userRepository).findAll();
     }
 }

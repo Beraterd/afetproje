@@ -17,9 +17,13 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 
+    Optional<User> findByUsername(String username);
+
     Optional<User> findByPhone(String phone);
 
     boolean existsByEmail(String email);
+
+    boolean existsByUsername(String username);
 
     boolean existsByPhone(String phone);
 
@@ -39,12 +43,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     List<User> findByNeighborhoodId(UUID neighborhoodId);
 
-    List<User> findByActiveTrueAndEmailVerifiedTrue();
+    List<User> findByActiveTrue();
 
-    /** AFAD deprem bildirimi: aktif+doğrulanmış tüm kullanıcılar; neighborhood LEFT JOIN FETCH
+    /** Deprem/simülasyon e-posta bildirimi: aktif tüm kullanıcılar; neighborhood LEFT JOIN FETCH
      *  ile yüklenir (lazy proxy hatası önlenir, mahallesi olmayanlar da dahil edilir). */
-    @Query("SELECT u FROM User u LEFT JOIN FETCH u.neighborhood WHERE u.active = true AND u.emailVerified = true")
-    List<User> findActiveVerifiedWithNeighborhood();
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.neighborhood WHERE u.active = true")
+    List<User> findActiveWithNeighborhood();
 
     @Query("SELECT u FROM User u WHERE LOWER(u.firstName) LIKE LOWER(CONCAT('%',:q,'%')) OR LOWER(u.lastName) LIKE LOWER(CONCAT('%',:q,'%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%',:q,'%'))")
     List<User> searchByQuery(@Param("q") String query, Pageable pageable);
@@ -56,14 +60,14 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByEmailNotIn(@Param("emails") List<String> emails);
 
     /** Deprem SMS bildirimi: aktif + mahalleye bağlı kullanıcılar; neighborhood JOIN FETCH. */
-    @Query("SELECT u FROM User u JOIN FETCH u.neighborhood WHERE u.active = true AND u.emailVerified = true AND u.neighborhood IS NOT NULL")
+    @Query("SELECT u FROM User u JOIN FETCH u.neighborhood WHERE u.active = true AND u.neighborhood IS NOT NULL")
     List<User> findSmsEligibleUsers();
 
-    /** Deprem WhatsApp bildirimi: aktif + doğrulanmış + telefon numarası olan kullanıcılar.
+    /** Deprem WhatsApp bildirimi: aktif + telefon numarası olan kullanıcılar.
      *  neighborhood LEFT JOIN FETCH ile yüklenir (mahallesi olmayanlar da dahil; kısa link
      *  sayfası mahalleye göre içerik gösterir). */
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.neighborhood " +
-            "WHERE u.active = true AND u.emailVerified = true AND u.phone IS NOT NULL AND u.phone <> ''")
+            "WHERE u.active = true AND u.phone IS NOT NULL AND u.phone <> ''")
     List<User> findWhatsappEligibleUsers();
 
     /** Rapor: kapsamdaki toplam gönüllü sayısı (role parametre olarak verilir — pg enum cast'ından kaçınılır). */
@@ -101,10 +105,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
                                    @Param("from") java.time.OffsetDateTime from,
                                    @Param("to") java.time.OffsetDateTime to);
 
-    /** Rapor: kapsamda onaylı (aktif + e-posta doğrulanmış) gönüllü sayısı. */
+    /** Rapor: kapsamda aktif gönüllü sayısı. */
     @Query("""
             SELECT COUNT(u) FROM User u
-            WHERE u.role = :role AND u.active = true AND u.emailVerified = true
+            WHERE u.role = :role AND u.active = true
               AND (:districtId IS NULL OR u.district.id = :districtId)
               AND (:neighborhoodId IS NULL OR u.neighborhood.id = :neighborhoodId)
             """)
@@ -126,7 +130,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT u FROM User u WHERE u.role = :role AND u.active = true")
     List<User> findAdmins(@Param("role") UserRole role);
 
-    /** Aktif VOLUNTEER kullanıcılar: AI öneri scoring için (emailVerified filtresi yok). */
+    /** Aktif VOLUNTEER kullanıcılar: AI öneri scoring için. */
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.district LEFT JOIN FETCH u.neighborhood WHERE u.role = :role AND u.active = true AND (u.email IS NOT NULL AND u.email <> '')")
     List<User> findActiveVolunteersWithEmail(@Param("role") UserRole role);
 

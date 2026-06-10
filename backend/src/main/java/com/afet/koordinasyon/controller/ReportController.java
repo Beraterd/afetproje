@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
 
@@ -172,7 +171,7 @@ public class ReportController {
         var report = advancedReportService.generateComprehensive(type, date, districtId, neighborhoodId, principal);
         byte[] pdf = advancedReportExportService.comprehensivePdf(report);
         auditExport(principal, "PDF", districtId, neighborhoodId);
-        return fileResponse(pdf, MediaType.APPLICATION_PDF, typeFileName(type.name(), "pdf"));
+        return fileResponse(pdf, MediaType.APPLICATION_PDF, typeFileName(type, date, "pdf"));
     }
 
     @GetMapping("/comprehensive/excel")
@@ -185,7 +184,7 @@ public class ReportController {
         var report = advancedReportService.generateComprehensive(type, date, districtId, neighborhoodId, principal);
         byte[] xlsx = advancedReportExportService.comprehensiveExcel(report);
         auditExport(principal, "EXCEL", districtId, neighborhoodId);
-        return fileResponse(xlsx, XLSX, typeFileName(type.name(), "xlsx"));
+        return fileResponse(xlsx, XLSX, typeFileName(type, date, "xlsx"));
     }
 
     @GetMapping("/operation/pdf")
@@ -197,7 +196,7 @@ public class ReportController {
             @AuthenticationPrincipal UserPrincipal principal) {
         var report = advancedReportService.generateOperation(date, districtId, neighborhoodId, principal);
         auditExport(principal, "PDF", districtId, neighborhoodId);
-        return fileResponse(advancedReportExportService.operationPdf(report), MediaType.APPLICATION_PDF, typeFileName("OPERATION", "pdf"));
+        return fileResponse(advancedReportExportService.operationPdf(report), MediaType.APPLICATION_PDF, typeFileName(ReportType.OPERATION, date, "pdf"));
     }
 
     @GetMapping("/operation/excel")
@@ -209,7 +208,7 @@ public class ReportController {
             @AuthenticationPrincipal UserPrincipal principal) {
         var report = advancedReportService.generateOperation(date, districtId, neighborhoodId, principal);
         auditExport(principal, "EXCEL", districtId, neighborhoodId);
-        return fileResponse(advancedReportExportService.operationExcel(report), XLSX, typeFileName("OPERATION", "xlsx"));
+        return fileResponse(advancedReportExportService.operationExcel(report), XLSX, typeFileName(ReportType.OPERATION, date, "xlsx"));
     }
 
     @GetMapping("/resource/pdf")
@@ -221,7 +220,7 @@ public class ReportController {
             @AuthenticationPrincipal UserPrincipal principal) {
         var report = advancedReportService.generateResource(date, districtId, neighborhoodId, principal);
         auditExport(principal, "PDF", districtId, neighborhoodId);
-        return fileResponse(advancedReportExportService.resourcePdf(report), MediaType.APPLICATION_PDF, typeFileName("RESOURCE", "pdf"));
+        return fileResponse(advancedReportExportService.resourcePdf(report), MediaType.APPLICATION_PDF, typeFileName(ReportType.RESOURCE, date, "pdf"));
     }
 
     @GetMapping("/resource/excel")
@@ -233,7 +232,7 @@ public class ReportController {
             @AuthenticationPrincipal UserPrincipal principal) {
         var report = advancedReportService.generateResource(date, districtId, neighborhoodId, principal);
         auditExport(principal, "EXCEL", districtId, neighborhoodId);
-        return fileResponse(advancedReportExportService.resourceExcel(report), XLSX, typeFileName("RESOURCE", "xlsx"));
+        return fileResponse(advancedReportExportService.resourceExcel(report), XLSX, typeFileName(ReportType.RESOURCE, date, "xlsx"));
     }
 
     @GetMapping("/stock/pdf")
@@ -245,7 +244,7 @@ public class ReportController {
             @AuthenticationPrincipal UserPrincipal principal) {
         var report = advancedReportService.generateStock(date, districtId, neighborhoodId, principal);
         auditExport(principal, "PDF", districtId, neighborhoodId);
-        return fileResponse(advancedReportExportService.stockPdf(report), MediaType.APPLICATION_PDF, typeFileName("STOCK", "pdf"));
+        return fileResponse(advancedReportExportService.stockPdf(report), MediaType.APPLICATION_PDF, typeFileName(ReportType.STOCK, date, "pdf"));
     }
 
     @GetMapping("/stock/excel")
@@ -257,7 +256,7 @@ public class ReportController {
             @AuthenticationPrincipal UserPrincipal principal) {
         var report = advancedReportService.generateStock(date, districtId, neighborhoodId, principal);
         auditExport(principal, "EXCEL", districtId, neighborhoodId);
-        return fileResponse(advancedReportExportService.stockExcel(report), XLSX, typeFileName("STOCK", "xlsx"));
+        return fileResponse(advancedReportExportService.stockExcel(report), XLSX, typeFileName(ReportType.STOCK, date, "xlsx"));
     }
 
     @GetMapping("/damage/pdf")
@@ -269,7 +268,7 @@ public class ReportController {
             @AuthenticationPrincipal UserPrincipal principal) {
         var report = advancedReportService.generateDamage(date, districtId, neighborhoodId, principal);
         auditExport(principal, "PDF", districtId, neighborhoodId);
-        return fileResponse(advancedReportExportService.damagePdf(report), MediaType.APPLICATION_PDF, typeFileName("DAMAGE", "pdf"));
+        return fileResponse(advancedReportExportService.damagePdf(report), MediaType.APPLICATION_PDF, typeFileName(ReportType.DAMAGE, date, "pdf"));
     }
 
     @GetMapping("/damage/excel")
@@ -281,7 +280,7 @@ public class ReportController {
             @AuthenticationPrincipal UserPrincipal principal) {
         var report = advancedReportService.generateDamage(date, districtId, neighborhoodId, principal);
         auditExport(principal, "EXCEL", districtId, neighborhoodId);
-        return fileResponse(advancedReportExportService.damageExcel(report), XLSX, typeFileName("DAMAGE", "xlsx"));
+        return fileResponse(advancedReportExportService.damageExcel(report), XLSX, typeFileName(ReportType.DAMAGE, date, "xlsx"));
     }
 
     @GetMapping("/volunteer/pdf")
@@ -293,7 +292,7 @@ public class ReportController {
             @AuthenticationPrincipal UserPrincipal principal) {
         var report = advancedReportService.generateVolunteer(date, districtId, neighborhoodId, principal);
         auditExport(principal, "PDF", districtId, neighborhoodId);
-        return fileResponse(advancedReportExportService.volunteerPdf(report), MediaType.APPLICATION_PDF, typeFileName("VOLUNTEER", "pdf"));
+        return fileResponse(advancedReportExportService.volunteerPdf(report), MediaType.APPLICATION_PDF, typeFileName(ReportType.VOLUNTEER, date, "pdf"));
     }
 
     @GetMapping("/volunteer/excel")
@@ -305,11 +304,27 @@ public class ReportController {
             @AuthenticationPrincipal UserPrincipal principal) {
         var report = advancedReportService.generateVolunteer(date, districtId, neighborhoodId, principal);
         auditExport(principal, "EXCEL", districtId, neighborhoodId);
-        return fileResponse(advancedReportExportService.volunteerExcel(report), XLSX, typeFileName("VOLUNTEER", "xlsx"));
+        return fileResponse(advancedReportExportService.volunteerExcel(report), XLSX, typeFileName(ReportType.VOLUNTEER, date, "xlsx"));
     }
 
     private String typeFileName(String type, String ext) {
         return "afet-rapor-" + type.toLowerCase() + "-" + LocalDate.now() + "." + ext;
+    }
+
+    private String typeFileName(ReportType type, LocalDate date, String ext) {
+        return switch (type) {
+            case DAILY -> "gunluk-rapor-" + (date != null ? date : LocalDate.now()) + "." + ext;
+            case WEEKLY -> "haftalik-rapor-" + (date != null ? date : LocalDate.now()) + "." + ext;
+            case MONTHLY -> {
+                LocalDate d = date != null ? date : LocalDate.now();
+                yield "aylik-rapor-" + d.getYear() + "-" + String.format("%02d", d.getMonthValue()) + "." + ext;
+            }
+            case OPERATION -> "ekip-raporu." + ext;
+            case RESOURCE -> "kaynak-talep-raporu." + ext;
+            case STOCK -> "stok-raporu." + ext;
+            case DAMAGE -> "hasar-raporu." + ext;
+            case VOLUNTEER -> "gonullu-raporu." + ext;
+        };
     }
 
     private void auditExport(UserPrincipal principal, String format, UUID districtId, UUID neighborhoodId) {

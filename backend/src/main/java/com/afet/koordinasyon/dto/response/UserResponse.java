@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -22,7 +23,6 @@ public class UserResponse {
     private String phone;
     private BloodType bloodType;
     private UserRole role;
-    private boolean emailVerified;
     private boolean active;
     private DistrictSummaryResponse district;
     private NeighborhoodSummaryResponse neighborhood;
@@ -32,4 +32,12 @@ public class UserResponse {
     private String profession;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
+
+    // Konum bilgisi
+    private BigDecimal lastKnownLatitude;
+    private BigDecimal lastKnownLongitude;
+    private BigDecimal lastKnownLocationAccuracy;
+    private String locationPermissionStatus;
+    private OffsetDateTime lastKnownLocationUpdatedAt;
+    private String locationSource;
 }

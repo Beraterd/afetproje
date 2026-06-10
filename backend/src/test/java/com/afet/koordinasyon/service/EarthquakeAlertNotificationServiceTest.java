@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.OffsetDateTime;
@@ -43,6 +44,9 @@ class EarthquakeAlertNotificationServiceTest {
     // Gerçek email builder (içerik üretimini doğrulamak için)
     private final EarthquakeAlertEmailBuilder emailBuilder = new EarthquakeAlertEmailBuilder();
 
+    // Testlerde senkron (deterministic) executor — CompletableFuture'lar çağıran thread'de çalışır
+    private final TaskExecutor emailTaskExecutor = Runnable::run;
+
     private User userWithNeighborhood;
     private Neighborhood neighborhood;
 
@@ -65,7 +69,7 @@ class EarthquakeAlertNotificationServiceTest {
                 earthquakeEventRepository, simulationRepository, simulationLogRepository,
                 userRepository, assemblyAreaRepository, emailProvider, whatsAppProvider,
                 props, shortLinkService, emailBuilder, notificationService,
-                emergencyMessageTokenService);
+                emergencyMessageTokenService, emailTaskExecutor);
         ReflectionTestUtils.setField(svc, "earthquakeNotificationsEnabled", true);
         ReflectionTestUtils.setField(svc, "minMagnitude", 2.5);
         return svc;
@@ -92,7 +96,7 @@ class EarthquakeAlertNotificationServiceTest {
 
         EarthquakeEvent eq = realEvent();
         when(earthquakeEventRepository.findById(eq.getId())).thenReturn(Optional.of(eq));
-        when(userRepository.findActiveVerifiedWithNeighborhood()).thenReturn(List.of(userWithNeighborhood));
+        when(userRepository.findActiveWithNeighborhood()).thenReturn(List.of(userWithNeighborhood));
         AssemblyArea area = AssemblyArea.builder().id(UUID.randomUUID())
                 .name("Moda Parkı").address("Moda Cad.").googleMapsUrl("https://maps/abc").build();
         when(assemblyAreaRepository.findActiveApprovedByNeighborhoodId(neighborhood.getId()))
@@ -123,7 +127,7 @@ class EarthquakeAlertNotificationServiceTest {
 
         EarthquakeEvent eq = realEvent();
         when(earthquakeEventRepository.findById(eq.getId())).thenReturn(Optional.of(eq));
-        when(userRepository.findActiveVerifiedWithNeighborhood()).thenReturn(List.of(noNb));
+        when(userRepository.findActiveWithNeighborhood()).thenReturn(List.of(noNb));
 
         svc.handleAlert(new EarthquakeAlertCreatedEvent(EarthquakeAlert.fromEvent(eq)));
 
@@ -165,9 +169,11 @@ class EarthquakeAlertNotificationServiceTest {
 
         svc.handleAlert(new EarthquakeAlertCreatedEvent(EarthquakeAlert.fromSimulation(sim)));
 
-        // E-posta gönderildi + log SENT
+        // E-posta gönderildi + log SENT (paralel mimaride saveAll kullanılır)
         verify(emailProvider).send(eq("ali@example.com"), anyString(), anyString());
-        verify(simulationLogRepository).save(argThat(l -> l.getStatus() == NotificationStatus.SENT));
+        verify(simulationLogRepository).saveAll(argThat(logs ->
+                ((java.util.List<?>) logs).stream().anyMatch(l ->
+                        ((SimulationNotificationLog) l).getStatus() == NotificationStatus.SENT)));
         // WhatsApp parametreli TEMPLATE ile gönderildi (simülasyon da WhatsApp gönderiyor, text DEĞİL)
         verify(whatsApp).sendTemplate(eq("05551112233"), eq("earthquake_alert_tr"),
                 argThat(p -> p.contains("http://localhost:8080/s/abc1234")));
@@ -202,7 +208,6 @@ class EarthquakeAlertNotificationServiceTest {
 
         when(simulationLogRepository.findBySimulationIdAndStatusUnpaged(sim.getId(), NotificationStatus.QUEUED))
                 .thenReturn(List.of());
-        when(simulationRepository.findById(sim.getId())).thenReturn(Optional.of(sim));
         when(userRepository.findWhatsappEligibleUsers()).thenReturn(List.of(userWithNeighborhood));
 
         svc.handleAlert(new EarthquakeAlertCreatedEvent(EarthquakeAlert.fromSimulation(sim)));
@@ -225,7 +230,7 @@ class EarthquakeAlertNotificationServiceTest {
 
         EarthquakeEvent eq = realEvent();
         when(earthquakeEventRepository.findById(eq.getId())).thenReturn(Optional.of(eq));
-        when(userRepository.findActiveVerifiedWithNeighborhood()).thenReturn(List.of()); // e-postayı izole et
+        when(userRepository.findActiveWithNeighborhood()).thenReturn(List.of()); // e-postayı izole et
         when(userRepository.findWhatsappEligibleUsers()).thenReturn(List.of(userWithNeighborhood));
 
         svc.handleAlert(new EarthquakeAlertCreatedEvent(EarthquakeAlert.fromEvent(eq)));
@@ -244,7 +249,7 @@ class EarthquakeAlertNotificationServiceTest {
         // REAL
         EarthquakeEvent eq = realEvent();
         when(earthquakeEventRepository.findById(eq.getId())).thenReturn(Optional.of(eq));
-        when(userRepository.findActiveVerifiedWithNeighborhood()).thenReturn(List.of(userWithNeighborhood));
+        when(userRepository.findActiveWithNeighborhood()).thenReturn(List.of(userWithNeighborhood));
         when(assemblyAreaRepository.findActiveApprovedByNeighborhoodId(any())).thenReturn(List.of());
         svc.handleAlert(new EarthquakeAlertCreatedEvent(EarthquakeAlert.fromEvent(eq)));
 
@@ -255,11 +260,10 @@ class EarthquakeAlertNotificationServiceTest {
                 .triggeredAt(OffsetDateTime.now()).build();
         when(simulationLogRepository.findBySimulationIdAndStatusUnpaged(sim.getId(), NotificationStatus.QUEUED))
                 .thenReturn(List.of());
-        when(simulationRepository.findById(sim.getId())).thenReturn(Optional.of(sim));
         svc.handleAlert(new EarthquakeAlertCreatedEvent(EarthquakeAlert.fromSimulation(sim)));
 
-        // REAL email path used findActiveVerifiedWithNeighborhood; SIM used the simulation logs
-        verify(userRepository).findActiveVerifiedWithNeighborhood();
+        // REAL email path used findActiveWithNeighborhood; SIM used the simulation logs
+        verify(userRepository).findActiveWithNeighborhood();
         verify(simulationLogRepository).findBySimulationIdAndStatusUnpaged(sim.getId(), NotificationStatus.QUEUED);
     }
 }

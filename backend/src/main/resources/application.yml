@@ -71,6 +71,8 @@ server:
       force: true
 
 app:
+  demo-users-enabled: ${DEMO_USERS_ENABLED:false}
+  base-url: ${APP_BASE_URL:http://localhost:8080}
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
   jwt:
     secret: ${JWT_SECRET:afet-koordinasyon-super-secret-jwt-key-minimum-256-bits-long-2026}
@@ -82,6 +84,7 @@ app:
     local-path: ${STORAGE_LOCAL_PATH:.local-storage}
 
   email:
+    from: ${MAIL_FROM:${MAIL_USERNAME:noreply@afetkoordinasyon.tr}}
     type: ${EMAIL_TYPE:prod}
 
   short-link:
@@ -125,9 +128,6 @@ notifications:
     api-secret: ${SMS_API_SECRET:}
     sender: ${SMS_SENDER:AFETKOORD}
     provider: ${SMS_PROVIDER:iletimerkezi}
-    otp-expiry-seconds: ${SMS_OTP_EXPIRY_SECONDS:300}
-    max-otp-per-hour: ${SMS_MAX_OTP_PER_HOUR:3}
-    max-verify-attempts: ${SMS_MAX_VERIFY_ATTEMPTS:5}
     api-url: ${SMS_API_URL:https://api.iletimerkezi.com/v1/send-sms/json}
 
 ai:

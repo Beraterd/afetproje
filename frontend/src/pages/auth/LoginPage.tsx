@@ -11,7 +11,7 @@ import { ShieldAlert as ShieldIcon } from 'lucide-react';
 import { ApiError } from '@/utils/errorParser';
 
 const loginSchema = z.object({
-    email: z.string().email('Geçerli bir e-posta adresi girin'),
+    emailOrUsername: z.string().min(1, 'E-posta veya kullanıcı adı gereklidir'),
     password: z.string().min(1, 'Şifre gereklidir'),
 });
 type LoginValues = z.infer<typeof loginSchema>;
@@ -38,7 +38,7 @@ export const LoginPage: React.FC = () => {
         } catch (error) {
             const apiError = error as ApiError;
             if (apiError.status === 401) {
-                setError('root', { message: 'E-posta veya şifre hatalı' });
+                setError('root', { message: 'Kullanıcı adı/e-posta veya şifre hatalı' });
             } else if (apiError.status === 403) {
                 setError('root', { message: 'Hesabınız devre dışı bırakılmış' });
             } else {
@@ -60,11 +60,11 @@ export const LoginPage: React.FC = () => {
                 </div>
 
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                    <FormField label="E-posta Adresi" error={errors.email?.message} required>
+                    <FormField label="E-posta veya Kullanıcı Adı" error={errors.emailOrUsername?.message} required>
                         <input
-                            {...register('email')}
-                            type="email"
-                            autoComplete="email"
+                            {...register('emailOrUsername')}
+                            type="text"
+                            autoComplete="username"
                             className="block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                         />
                     </FormField>

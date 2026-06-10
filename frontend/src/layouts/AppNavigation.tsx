@@ -38,7 +38,7 @@ const navItems = [
     { name: 'Kaynak Talepleri', to: '/resource-requests', icon: PackageOpen, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR'] },
     { name: 'Belge Onayları', to: '/documents/approvals', icon: CheckSquare, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR'] },
     { name: 'Koordinasyon Merkezi', to: '/coordination-center', icon: Landmark, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR'] },
-    { name: 'Rapor Merkezi', to: '/reports', icon: FileBarChart2, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR'] },
+    { name: 'Raporlar', to: '/reports', icon: FileBarChart2, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR'] },
     { name: 'Koordinatör Atamaları', to: '/admin/coordinators', icon: UserCheck, roles: ['ADMIN', 'DISTRICT_COORDINATOR'] },
     { name: 'Kullanıcı Yönetimi', to: '/admin/users', icon: Users, roles: ['ADMIN'] },
     { name: 'İşlem Kayıtları', to: '/admin/audit', icon: ClipboardList, roles: ['ADMIN'] },

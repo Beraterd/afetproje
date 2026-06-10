@@ -22,6 +22,7 @@ export interface UserSummaryResponse {
     role: Role;
     districtId?: string;
     neighborhoodId?: string;
+    locationPermissionStatus?: string;
 }
 
 export interface AuthResponse {

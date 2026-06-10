@@ -42,7 +42,7 @@ public class DocumentService {
     @Value("${app.storage.local-path:.local-storage}")
     private String localStoragePath;
 
-    @Value("${app.base-url:http://localhost:8080}")
+    @Value("${app.base-url}")
     private String baseUrl;
 
     private final DocumentRepository documentRepository;

@@ -1,6 +1,19 @@
 import axiosInstance from './axiosInstance';
 import { PagedResponse, UserResponse } from '@/types';
 
+export interface UpdateLocationPermissionRequest {
+    permissionStatus: string;
+    latitude?: number;
+    longitude?: number;
+    accuracy?: number;
+    locationSource?: string;
+}
+
+export const updateLocationPermission = async (data: UpdateLocationPermissionRequest): Promise<UserResponse> => {
+    const res = await axiosInstance.put<UserResponse>('/users/me/location', data);
+    return res.data;
+};
+
 export const getMe = async (): Promise<UserResponse> => {
     const res = await axiosInstance.get<UserResponse>('/auth/me');
     return res.data;

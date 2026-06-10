@@ -2,6 +2,7 @@ package com.afet.koordinasyon.repository;
 
 import com.afet.koordinasyon.domain.entity.DamageAssessment;
 import com.afet.koordinasyon.domain.entity.User;
+import com.afet.koordinasyon.domain.enums.AiAnalysisStatus;
 import com.afet.koordinasyon.domain.enums.DamageLevel;
 import com.afet.koordinasyon.domain.enums.VerificationStatus;
 import org.springframework.data.domain.Page;
@@ -176,6 +177,37 @@ public interface DamageAssessmentRepository
             GROUP BY d.neighborhood.id
             """)
     List<Object[]> reportDamageCountByNeighborhood(@Param("districtId") UUID districtId);
+
+    // ── AI queue queries ─────────────────────────────────────────────────────
+
+    /** Records that have never been analyzed or are stuck in a non-terminal state (excluding PROCESSING to avoid race). */
+    @Query("""
+        SELECT d.id FROM DamageAssessment d
+        WHERE d.aiAnalysisStatus IS NULL
+           OR d.aiAnalysisStatus = :pending
+        ORDER BY d.createdAt DESC
+        """)
+    List<UUID> findIdsNeedingAiAnalysis(@Param("pending") AiAnalysisStatus pending);
+
+    /** Records with PENDING status whose retry window has elapsed. */
+    @Query("""
+        SELECT d.id FROM DamageAssessment d
+        WHERE d.aiAnalysisStatus = :pending
+          AND d.aiNextRetryAt IS NOT NULL
+          AND d.aiNextRetryAt <= :now
+        ORDER BY d.aiNextRetryAt ASC
+        """)
+    List<UUID> findIdsReadyForRetry(@Param("pending") AiAnalysisStatus pending,
+                                    @Param("now") OffsetDateTime now);
+
+    /** Records stuck in PROCESSING longer than the given threshold (e.g. crashed mid-job). */
+    @Query("""
+        SELECT d.id FROM DamageAssessment d
+        WHERE d.aiAnalysisStatus = :processing
+          AND d.updatedAt < :threshold
+        """)
+    List<UUID> findStaleProcessing(@Param("processing") AiAnalysisStatus processing,
+                                   @Param("threshold") OffsetDateTime threshold);
 
     // ── Bakım / Purge sorguları ──────────────────────────────────────────────
 

@@ -231,6 +231,7 @@ public class AdvancedReportService {
         Map<ResourceType, Long> byCategory = new LinkedHashMap<>();
         Map<UUID, long[]> byNeighborhood = new LinkedHashMap<>(); // id -> [qty]
         Map<UUID, String> nbNames = new LinkedHashMap<>();
+        Map<UUID, String> nbDistrictNames = new LinkedHashMap<>();
         for (ResourceStock st : stocks) {
             int qty = st.getQuantity();
             totalQty += qty;
@@ -244,6 +245,9 @@ public class AdvancedReportService {
                 UUID nid = st.getNeighborhood().getId();
                 byNeighborhood.computeIfAbsent(nid, k -> new long[1])[0] += qty;
                 nbNames.putIfAbsent(nid, st.getNeighborhood().getName());
+                if (st.getNeighborhood().getDistrict() != null) {
+                    nbDistrictNames.putIfAbsent(nid, st.getNeighborhood().getDistrict().getName());
+                }
             }
         }
         List<ReportModules.CategoryCount> categoryDist = byCategory.entrySet().stream()
@@ -251,7 +255,10 @@ public class AdvancedReportService {
                 .toList();
         List<ReportModules.NeighborhoodMetric> nbDist = byNeighborhood.entrySet().stream()
                 .map(e -> new ReportModules.NeighborhoodMetric(
-                        e.getKey().toString(), nbNames.getOrDefault(e.getKey(), "Bilinmeyen"), e.getValue()[0]))
+                        e.getKey().toString(),
+                        nbNames.getOrDefault(e.getKey(), "Bilinmeyen"),
+                        nbDistrictNames.get(e.getKey()),
+                        e.getValue()[0]))
                 .sorted((a, b) -> Long.compare(b.value(), a.value()))
                 .limit(10).toList();
 
@@ -474,10 +481,22 @@ public class AdvancedReportService {
                 return new Period(from, to, D_FMT.format(from));
             }
             case WEEKLY -> {
+                if (date != null) {
+                    OffsetDateTime from = date.atStartOfDay(TR).toOffsetDateTime();
+                    OffsetDateTime to = date.plusDays(7).atStartOfDay(TR).toOffsetDateTime();
+                    return new Period(from, to, D_FMT.format(from) + " - " + D_FMT.format(to.minusDays(1)));
+                }
                 OffsetDateTime from = now.minusDays(7);
                 return new Period(from, now, D_FMT.format(from) + " - " + D_FMT.format(now) + " (son 7 gün)");
             }
             case MONTHLY -> {
+                if (date != null) {
+                    LocalDate firstDay = date.withDayOfMonth(1);
+                    LocalDate nextMonth = firstDay.plusMonths(1);
+                    OffsetDateTime from = firstDay.atStartOfDay(TR).toOffsetDateTime();
+                    OffsetDateTime to = nextMonth.atStartOfDay(TR).toOffsetDateTime();
+                    return new Period(from, to, D_FMT.format(from) + " - " + D_FMT.format(to.minusDays(1)));
+                }
                 OffsetDateTime from = now.minusDays(30);
                 return new Period(from, now, D_FMT.format(from) + " - " + D_FMT.format(now) + " (son 30 gün)");
             }
@@ -529,12 +548,17 @@ public class AdvancedReportService {
         }
         if (map.isEmpty()) return List.of();
         Map<UUID, String> names = new LinkedHashMap<>();
+        Map<UUID, String> districtNames = new LinkedHashMap<>();
         for (Neighborhood nb : neighborhoodRepository.findAllById(map.keySet())) {
             names.put(nb.getId(), nb.getName());
+            if (nb.getDistrict() != null) districtNames.put(nb.getId(), nb.getDistrict().getName());
         }
         return map.entrySet().stream()
                 .map(e -> new ReportModules.NeighborhoodMetric(
-                        e.getKey().toString(), names.getOrDefault(e.getKey(), "Bilinmeyen Mahalle"), e.getValue()))
+                        e.getKey().toString(),
+                        names.getOrDefault(e.getKey(), "Bilinmeyen Mahalle"),
+                        districtNames.get(e.getKey()),
+                        e.getValue()))
                 .sorted((a, b) -> Long.compare(b.value(), a.value()))
                 .limit(limit)
                 .toList();

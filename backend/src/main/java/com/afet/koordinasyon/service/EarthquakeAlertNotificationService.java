@@ -19,7 +19,9 @@ import com.afet.koordinasyon.repository.UserRepository;
 import com.afet.koordinasyon.util.PhoneNumberUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
@@ -28,22 +30,20 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Gerçek deprem ve simülasyon için ORTAK bildirim akışı (e-posta + WhatsApp + kısa link).
  * <p>
- * Hem {@code EarthquakeEventService} (gerçek AFAD depremi) hem de {@code SimulationService}
- * (admin simülasyonu) tek bir {@link EarthquakeAlertCreatedEvent} publish eder ve bu servis
- * üzerinden geçer. Böylece iki kaynak da birebir aynı içerik ve yan etkileri üretir;
- * yalnızca başlık/log tarafında "[SİMÜLASYON]" ayrımı yapılır.
- * <p>
- * Kanallar bağımsızdır: WhatsApp başarısız olsa da e-posta gönderimi engellenmez, tersi de geçerlidir.
+ * E-posta gönderimi paralel yapılır: her kullanıcı için ayrı bir CompletableFuture
+ * emailTaskExecutor üzerinde çalışır; bir kullanıcının hatası diğerlerini bloklamaz.
  */
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class EarthquakeAlertNotificationService {
 
@@ -59,11 +59,41 @@ public class EarthquakeAlertNotificationService {
     private final EarthquakeAlertEmailBuilder emailBuilder;
     private final NotificationService notificationService;
     private final EmergencyMessageTokenService emergencyMessageTokenService;
+    private final TaskExecutor emailTaskExecutor;
+
+    public EarthquakeAlertNotificationService(
+            EarthquakeEventRepository earthquakeEventRepository,
+            EarthquakeSimulationRepository simulationRepository,
+            SimulationNotificationLogRepository simulationLogRepository,
+            UserRepository userRepository,
+            AssemblyAreaRepository assemblyAreaRepository,
+            EmailNotificationProvider emailProvider,
+            WhatsAppNotificationProvider whatsAppProvider,
+            WhatsAppProperties whatsAppProperties,
+            ShortLinkService shortLinkService,
+            EarthquakeAlertEmailBuilder emailBuilder,
+            NotificationService notificationService,
+            EmergencyMessageTokenService emergencyMessageTokenService,
+            @Qualifier("emailTaskExecutor") TaskExecutor emailTaskExecutor) {
+        this.earthquakeEventRepository = earthquakeEventRepository;
+        this.simulationRepository = simulationRepository;
+        this.simulationLogRepository = simulationLogRepository;
+        this.userRepository = userRepository;
+        this.assemblyAreaRepository = assemblyAreaRepository;
+        this.emailProvider = emailProvider;
+        this.whatsAppProvider = whatsAppProvider;
+        this.whatsAppProperties = whatsAppProperties;
+        this.shortLinkService = shortLinkService;
+        this.emailBuilder = emailBuilder;
+        this.notificationService = notificationService;
+        this.emergencyMessageTokenService = emergencyMessageTokenService;
+        this.emailTaskExecutor = emailTaskExecutor;
+    }
 
     @Value("${notifications.earthquake.enabled:true}")
     private boolean earthquakeNotificationsEnabled;
 
-    @Value("${app.base-url:http://localhost:8080}")
+    @Value("${app.base-url}")
     private String backendBaseUrl;
 
     @Value("${notifications.earthquake.min-magnitude:2.5}")
@@ -81,7 +111,6 @@ public class EarthquakeAlertNotificationService {
         log.info("Deprem bildirim akışı başlıyor: source={}, id={}, M={}",
                 alert.sourceType(), alert.alertId(), alert.magnitude());
 
-        // 1) E-POSTA — kaynağa göre alıcı çözümü/sonuç kaydı farklı; içerik aynı.
         try {
             if (alert.isSimulation()) {
                 sendSimulationEmails(alert);
@@ -92,7 +121,6 @@ public class EarthquakeAlertNotificationService {
             log.error("Deprem bildirimi e-posta aşaması hatası (id={}): {}", alert.alertId(), e.getMessage());
         }
 
-        // 2) WHATSAPP — e-posta aşamasından bağımsız çalışır.
         try {
             sendWhatsAppAlerts(alert);
         } catch (Exception e) {
@@ -100,7 +128,7 @@ public class EarthquakeAlertNotificationService {
         }
     }
 
-    // ── E-posta: gerçek deprem ───────────────────────────────────────────────
+    // ── E-posta: gerçek deprem (paralel) ────────────────────────────────────
 
     private void sendRealEarthquakeEmails(EarthquakeAlert alert) {
         if (!earthquakeNotificationsEnabled) {
@@ -120,16 +148,31 @@ public class EarthquakeAlertNotificationService {
             return;
         }
 
-        List<User> recipients = userRepository.findActiveVerifiedWithNeighborhood();
-        int sent = 0;
-        for (User user : recipients) {
-            try {
-                sendAlertEmail(alert, user);
-                sent++;
-            } catch (Exception e) {
-                log.error("Deprem e-postası gönderilemedi {}: {}", user.getEmail(), e.getMessage());
-            }
+        List<User> recipients = userRepository.findActiveWithNeighborhood();
+        if (recipients.isEmpty()) {
+            log.info("Deprem e-posta atlandı: aktif kullanıcı bulunamadı (id={})", alert.alertId());
+            return;
         }
+
+        // Paralel gönderim: her kullanıcı için ayrı CompletableFuture
+        List<CompletableFuture<Boolean>> futures = new ArrayList<>(recipients.size());
+        for (User user : recipients) {
+            futures.add(CompletableFuture.supplyAsync(() -> {
+                try {
+                    sendAlertEmail(alert, user);
+                    return true;
+                } catch (Exception e) {
+                    log.error("Deprem e-postası gönderilemedi {}: {}", user.getEmail(), e.getMessage());
+                    return false;
+                }
+            }, emailTaskExecutor));
+        }
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+        long sent = futures.stream().mapToLong(f -> {
+            try { return Boolean.TRUE.equals(f.get()) ? 1L : 0L; } catch (Exception e) { return 0L; }
+        }).sum();
 
         if (sent > 0 && eq != null) {
             eq.setNotificationSent(true);
@@ -145,32 +188,50 @@ public class EarthquakeAlertNotificationService {
         log.info("Gerçek deprem e-posta bildirimi tamamlandı: gönderilen={}/{}", sent, recipients.size());
     }
 
-    // ── E-posta: simülasyon (QUEUED loglar üzerinden) ─────────────────────────
+    // ── E-posta: simülasyon (paralel, log güncellemeli) ──────────────────────
 
     private void sendSimulationEmails(EarthquakeAlert alert) {
         List<SimulationNotificationLog> logs =
                 simulationLogRepository.findBySimulationIdAndStatusUnpaged(
                         alert.alertId(), NotificationStatus.QUEUED);
 
-        int sent = 0;
-        int failed = 0;
+        if (logs.isEmpty()) {
+            log.info("Simülasyon e-posta atlandı: QUEUED kayıt bulunamadı (id={})", alert.alertId());
+            return;
+        }
+
+        // Paralel gönderim: her log kaydı için ayrı CompletableFuture
+        List<CompletableFuture<SimulationNotificationLog>> futures = new ArrayList<>(logs.size());
         for (SimulationNotificationLog logEntry : logs) {
             User user = logEntry.getUser();
-            try {
-                sendAlertEmail(alert, user);
-                logEntry.setStatus(NotificationStatus.SENT);
-                logEntry.setSentAt(OffsetDateTime.now());
-                logEntry.setLastError(null);
-                sent++;
-            } catch (Exception e) {
-                logEntry.setStatus(NotificationStatus.FAILED);
-                logEntry.setSentAt(null);
-                logEntry.setLastError(e.getMessage());
-                failed++;
-                log.error("Simülasyon e-postası gönderilemedi {}: {}", user.getEmail(), e.getMessage());
-            }
-            simulationLogRepository.save(logEntry);
+            futures.add(CompletableFuture.supplyAsync(() -> {
+                try {
+                    sendAlertEmail(alert, user);
+                    logEntry.setStatus(NotificationStatus.SENT);
+                    logEntry.setSentAt(OffsetDateTime.now());
+                    logEntry.setLastError(null);
+                } catch (Exception e) {
+                    logEntry.setStatus(NotificationStatus.FAILED);
+                    logEntry.setSentAt(null);
+                    logEntry.setLastError(e.getMessage());
+                    log.error("Simülasyon e-postası gönderilemedi {}: {}", user.getEmail(), e.getMessage());
+                }
+                return logEntry;
+            }, emailTaskExecutor));
         }
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+        List<SimulationNotificationLog> completed = futures.stream()
+                .map(f -> { try { return f.get(); } catch (Exception e) { return null; } })
+                .filter(Objects::nonNull)
+                .toList();
+
+        simulationLogRepository.saveAll(completed);
+
+        long failed = completed.stream()
+                .filter(l -> l.getStatus() == NotificationStatus.FAILED).count();
+        long sent = completed.size() - failed;
 
         SimulationEmailStatus finalStatus = (failed == 0)
                 ? SimulationEmailStatus.COMPLETED
@@ -188,9 +249,6 @@ public class EarthquakeAlertNotificationService {
     private void sendAlertEmail(EarthquakeAlert alert, User user) {
         List<AssemblyArea> areas = loadAreasForUser(user);
         String fullName = user.getFirstName() + " " + user.getLastName();
-        // §4/§6/§8 — Her e-posta için kullanıcıya özel, süreli, tek kullanımlık güvenli token üretilir.
-        // Ham token YALNIZCA e-posta linkine yazılır; loglanmaz. Token üretimi başarısız olsa bile
-        // e-posta gönderimi engellenmez (butonsuz gönderilir).
         String messageActionBaseUrl = buildMessageActionBaseUrl(user, alert);
         emailProvider.send(
                 user.getEmail(),
@@ -198,17 +256,11 @@ public class EarthquakeAlertNotificationService {
                 emailBuilder.buildHtml(alert, fullName, areas, messageActionBaseUrl));
     }
 
-    /**
-     * "Yakınlarıma Mesaj Gönder" butonlarının taban URL'ini üretir:
-     * {backend}/api/emergency-message/send?token=XYZ (her butonda &type=ENUM eklenir).
-     * Token üretilemezse null döner → e-postada buton bölümü yer almaz.
-     */
     private String buildMessageActionBaseUrl(User user, EarthquakeAlert alert) {
         try {
             String rawToken = emergencyMessageTokenService.issueToken(user, alert.alertId());
             if (rawToken == null || rawToken.isBlank()) return null;
-            String base = backendBaseUrl != null ? backendBaseUrl.replaceAll("/+$", "") : "";
-            return base + "/api/emergency-message/send?token=" + rawToken;
+            return shortLinkService.buildFrontendUrl("/emergency-status/" + rawToken);
         } catch (Exception e) {
             log.warn("Acil mesaj token üretilemedi (userId={}): {}", user.getId(), e.getMessage());
             return null;
@@ -241,16 +293,12 @@ public class EarthquakeAlertNotificationService {
             return;
         }
 
-        // Deprem/simülasyon broadcast bildirimleri YALNIZCA approved template ile gönderilir.
-        // Meta, 24 saatlik servis penceresi dışındaki custom text mesajlarını sessizce düşürebildiği
-        // için text fallback KULLANILMAZ. (Text yalnızca yakınlara durum mesajında kullanılır.)
         String templateName = whatsAppProperties.getEarthquakeTemplateName();
         if (templateName == null || templateName.isBlank()) {
             log.error("WhatsApp template name is required for earthquake alerts.");
             return;
         }
 
-        // hello_world gibi parametresiz template'ler gövde parametresi olmadan gönderilir.
         boolean parameterless = isParameterlessTemplate(templateName);
 
         int sent = 0;
@@ -276,12 +324,10 @@ public class EarthquakeAlertNotificationService {
                 alert.sourceType(), templateName, sent, users.size());
     }
 
-    /** Gövde parametresi gerektirmeyen template'ler (örn. Meta'nın hazır hello_world'ü). */
     private boolean isParameterlessTemplate(String templateName) {
         return "hello_world".equalsIgnoreCase(templateName);
     }
 
-    /** Kısa linkin yönlendireceği frontend adresi (kaynağa göre query param farklı, sayfa aynı). */
     private String buildAssemblyAreasUrl(EarthquakeAlert alert) {
         String param = alert.isSimulation()
                 ? "?simulationId=" + alert.alertId()
@@ -289,7 +335,6 @@ public class EarthquakeAlertNotificationService {
         return shortLinkService.buildFrontendUrl("/emergency/assembly-areas" + param);
     }
 
-    /** ShortLink izleme alanı yalnızca gerçek deprem için doldurulur; simülasyon için null. */
     private UUID earthquakeIdForTracking(EarthquakeAlert alert) {
         return alert.isSimulation() ? null : alert.alertId();
     }

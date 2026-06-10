@@ -94,3 +94,8 @@ export const triggerAiAnalysis = async (damageAssessmentId: string): Promise<{ a
     );
     return res.data ?? null;
 };
+
+export const enqueueMissingAiAnalysis = async (): Promise<{ enqueued: number }> => {
+    const res = await axiosInstance.post<{ enqueued: number }>('/damage-assessments/ai/enqueue-missing');
+    return res.data;
+};

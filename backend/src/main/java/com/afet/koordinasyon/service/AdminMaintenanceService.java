@@ -43,7 +43,6 @@ public class AdminMaintenanceService {
     private final DocumentRepository documentRepository;
     private final EmergencyContactRepository emergencyContactRepository;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final EmailVerificationTokenRepository emailVerificationTokenRepository;
     private final SimulationNotificationLogRepository simulationNotificationLogRepository;
     private final EmergencyStatusMessageLogRepository emergencyStatusMessageLogRepository;
     private final EmergencyStatusMessageRepository emergencyStatusMessageRepository;
@@ -146,7 +145,6 @@ public class AdminMaintenanceService {
                 documentRepository.clearReviewedByIn(toDeleteIds);
                 documentRepository.deleteByUserIdIn(toDeleteIds);
                 refreshTokenRepository.deleteByUserIdIn(toDeleteIds);
-                emailVerificationTokenRepository.deleteByUserIdIn(toDeleteIds);
 
                 deletedUsers = toDeleteIds.size();
                 userRepository.deleteAll(toDelete);
@@ -224,7 +222,6 @@ public class AdminMaintenanceService {
         documentRepository.clearReviewedByIn(userIdList);
         documentRepository.deleteByUserIdIn(userIdList);
         refreshTokenRepository.deleteByUserIdIn(userIdList);
-        emailVerificationTokenRepository.deleteByUserIdIn(userIdList);
 
         userRepository.delete(user);
         log.info("[DeleteUser] Kullanıcı silindi: {} ({})", user.getEmail(), userId);

@@ -37,30 +37,36 @@ export const KpiGrid: React.FC<{ items: KpiItem[] }> = ({ items }) => (
 
 // ── Yatay çubuk grafik ────────────────────────────────────────────────────────
 
-export interface ChartDatum { label: string; value: number; color?: string; }
+export interface ChartDatum { label: string; sublabel?: string; value: number; color?: string; }
 
 const PALETTE = ['#2563eb', '#16a34a', '#d97706', '#dc2626', '#7c3aed', '#0891b2', '#db2777', '#65a30d'];
 
 export const BarChartH: React.FC<{ title: string; data: ChartDatum[]; unit?: string }> = ({ title, data, unit }) => {
     const valid = (data || []).filter((d) => Number.isFinite(d.value));
     const max = Math.max(1, ...valid.map((d) => d.value));
+    const hasSublabel = valid.some((d) => !!d.sublabel);
     return (
         <div className="rounded-lg border border-gray-100 p-3 bg-white/60 break-inside-avoid">
             <h4 className="text-sm font-semibold text-gray-700 mb-2">{title}</h4>
             {valid.length === 0 || valid.every((d) => d.value <= 0) ? (
                 <DataEmpty />
             ) : (
-                <div className="space-y-1.5">
+                <div className={hasSublabel ? 'space-y-3' : 'space-y-1.5'}>
                     {valid.map((d, i) => (
-                        <div key={i} className="flex items-center gap-2 text-xs">
-                            <span className="w-28 shrink-0 truncate text-gray-600" title={d.label}>{d.label}</span>
-                            <div className="flex-1 h-4 rounded bg-gray-100 overflow-hidden">
+                        <div key={i} className="flex items-center gap-3 text-xs">
+                            <div className="shrink-0 w-56">
+                                <span className="block text-gray-700 leading-snug">{d.label}</span>
+                                {d.sublabel && (
+                                    <span className="block text-[10px] text-gray-400 leading-snug mt-0.5">{d.sublabel}</span>
+                                )}
+                            </div>
+                            <div className="flex-1 min-w-0 h-4 rounded bg-gray-100 overflow-hidden">
                                 <div
                                     className="h-full rounded"
                                     style={{ width: `${Math.max(2, (d.value / max) * 100)}%`, backgroundColor: d.color ?? PALETTE[i % PALETTE.length] }}
                                 />
                             </div>
-                            <span className="w-12 text-right font-medium text-gray-800">
+                            <span className="w-10 shrink-0 text-right font-medium text-gray-800">
                                 {d.value}{unit ?? ''}
                             </span>
                         </div>

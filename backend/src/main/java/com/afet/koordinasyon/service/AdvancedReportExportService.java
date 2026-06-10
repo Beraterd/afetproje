@@ -466,7 +466,7 @@ public class AdvancedReportExportService {
             return;
         }
         barChart(doc, title, rows.stream()
-                .map(n -> new NameNum(n.neighborhoodName(), n.value())).toList());
+                .map(n -> new NameNum(n.displayLabel(), n.value())).toList());
     }
 
     private void managerSummary(Document doc, String text) {
@@ -738,7 +738,7 @@ public class AdvancedReportExportService {
             return row;
         }
         row = headerRow(s, row, header, "Mahalle", "Değer");
-        for (var n : rows) row = kvNumRow(s, row, n.neighborhoodName(), n.value());
+        for (var n : rows) row = kvNumRow(s, row, n.displayLabel(), n.value());
         return row;
     }
 

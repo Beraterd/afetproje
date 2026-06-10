@@ -1,6 +1,7 @@
 package com.afet.koordinasyon.controller;
 
 import com.afet.koordinasyon.dto.request.AssignRoleRequest;
+import com.afet.koordinasyon.dto.request.UpdateLocationPermissionRequest;
 import com.afet.koordinasyon.dto.request.UpdateNotificationPreferencesRequest;
 import com.afet.koordinasyon.dto.request.UpdateProfileRequest;
 import com.afet.koordinasyon.dto.response.AssemblyAreaResponse;
@@ -34,6 +35,14 @@ public class UserController {
     private final UserService userService;
     private final AdminMaintenanceService adminMaintenanceService;
     private final AssemblyAreaService assemblyAreaService;
+
+    @PutMapping("/api/users/me/location")
+    @Operation(summary = "Update own location permission and last known coordinates")
+    public ResponseEntity<UserResponse> updateLocationPermission(
+            @RequestBody UpdateLocationPermissionRequest request,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.ok(userService.updateLocationPermission(principal.getId(), request));
+    }
 
     @PutMapping("/api/users/me")
     @Operation(summary = "Update own profile")

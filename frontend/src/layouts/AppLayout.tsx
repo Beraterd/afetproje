@@ -4,6 +4,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useQuery } from '@tanstack/react-query';
 import { SideNav, TopBar } from './AppNavigation';
 import { CoordinationCenterSetupModal } from '@/components/shared/CoordinationCenterSetupModal';
+import { LocationPermissionModal } from '@/components/shared/LocationPermissionModal';
 import { OfflineStatusBanner } from '@/components/shared/OfflineStatusBanner';
 import { getMyCoordinationStatus } from '@/api/coordinationCenters.api';
 import { queryKeys } from '@/utils/queryKeys';
@@ -13,6 +14,7 @@ export const AppLayout: React.FC = () => {
     const { accessToken, user } = useAuthStore();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [modalDismissed, setModalDismissed] = useState(false);
+    const [locationModalDismissed, setLocationModalDismissed] = useState(false);
 
     // Close mobile menu when route changes (mirrors memoria)
     useEffect(() => {
@@ -56,6 +58,11 @@ export const AppLayout: React.FC = () => {
         isCoordinator &&
         !!centerStatus?.mustSetCenter;
 
+    const showLocationModal =
+        !locationModalDismissed &&
+        !!accessToken &&
+        user?.locationPermissionStatus == null;
+
     return (
         <div>
             <SideNav mobileOpen={mobileMenuOpen} setMobileOpen={setMobileMenuOpen} />
@@ -80,6 +87,13 @@ export const AppLayout: React.FC = () => {
                     districtName={centerStatus?.assignedDistrictName}
                     neighborhoodName={centerStatus?.assignedNeighborhoodName}
                     onDismiss={() => setModalDismissed(true)}
+                />
+            )}
+
+            {showLocationModal && (
+                <LocationPermissionModal
+                    isOpen={showLocationModal}
+                    onClose={() => setLocationModalDismissed(true)}
                 />
             )}
         </div>

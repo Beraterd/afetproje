@@ -50,6 +50,7 @@ import { NotFoundPage } from '@/pages/errors/NotFoundPage';
 import { AssignmentAcceptPage } from '@/pages/assignment/AssignmentAcceptPage';
 import { AssignmentDeclinePage } from '@/pages/assignment/AssignmentDeclinePage';
 import { EmergencyMessageResultPage } from '@/pages/emergency/EmergencyMessageResultPage';
+import { EmergencyStatusPage } from '@/pages/emergency/EmergencyStatusPage';
 
 function AppRoutes() {
     return useRoutes([
@@ -218,6 +219,7 @@ function AppRoutes() {
         { path: 'assignment/accept', element: <AssignmentAcceptPage /> },
         { path: 'assignment/decline', element: <AssignmentDeclinePage /> },
         { path: 'emergency-message-result', element: <EmergencyMessageResultPage /> },
+        { path: 'emergency-status/:token', element: <EmergencyStatusPage /> },
 
         { path: '*', element: <NotFoundPage /> },
     ]);

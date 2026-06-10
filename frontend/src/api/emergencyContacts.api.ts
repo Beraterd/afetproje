@@ -3,10 +3,6 @@ import {
     EmergencyContactResponse,
     AddEmergencyContactRequest,
     UserSearchResponse,
-    StatusMessageResponse,
-    StatusTemplateItem,
-    SendStatusMessageRequest,
-    ActiveSimulationResponse,
     MyAssemblyArea,
 } from '@/types';
 
@@ -26,28 +22,6 @@ export const removeEmergencyContact = async (contactUserId: string): Promise<voi
 
 export const searchUsers = async (query: string): Promise<UserSearchResponse[]> => {
     const res = await axiosInstance.get<UserSearchResponse[]>('/users/search', { params: { query } });
-    return res.data;
-};
-
-export const sendStatusMessage = async (data: SendStatusMessageRequest): Promise<StatusMessageResponse> => {
-    const res = await axiosInstance.post<StatusMessageResponse>('/users/me/emergency-status-messages/send', data);
-    return res.data;
-};
-
-export const getMyStatusMessages = async (simulationId?: string): Promise<StatusMessageResponse[]> => {
-    const res = await axiosInstance.get<StatusMessageResponse[]>('/users/me/emergency-status-messages', {
-        params: simulationId ? { simulationId } : undefined,
-    });
-    return res.data;
-};
-
-export const getStatusMessageTemplates = async (): Promise<StatusTemplateItem[]> => {
-    const res = await axiosInstance.get<StatusTemplateItem[]>('/users/me/emergency-status-messages/templates');
-    return res.data;
-};
-
-export const getActiveSimulation = async (): Promise<ActiveSimulationResponse | null> => {
-    const res = await axiosInstance.get<ActiveSimulationResponse | null>('/simulations/active');
     return res.data;
 };
 

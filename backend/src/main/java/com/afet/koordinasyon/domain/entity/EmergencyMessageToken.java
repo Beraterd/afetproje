@@ -5,6 +5,7 @@ import com.afet.koordinasyon.domain.enums.EmergencyMessageTokenStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -62,6 +63,23 @@ public class EmergencyMessageToken {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
+
+    // Konum bilgisi (token kullanıldığında kaydedilir)
+    @Column(name = "latitude", precision = 10, scale = 8)
+    private BigDecimal latitude;
+
+    @Column(name = "longitude", precision = 11, scale = 8)
+    private BigDecimal longitude;
+
+    @Column(name = "location_accuracy", precision = 8, scale = 2)
+    private BigDecimal locationAccuracy;
+
+    /** CURRENT veya LAST_KNOWN */
+    @Column(name = "location_source", length = 30)
+    private String locationSource;
+
+    @Column(name = "maps_url", columnDefinition = "TEXT")
+    private String mapsUrl;
 
     @PrePersist
     protected void onCreate() {

@@ -27,10 +27,10 @@ public class EmailNotificationService {
     private static final DateTimeFormatter DISPLAY_FMT =
             DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withZone(ZoneId.of("Europe/Istanbul"));
 
-    @Value("${app.frontend-url:http://localhost:5173}")
+    @Value("${app.frontend-url}")
     private String frontendBaseUrl;
 
-    @Value("${spring.mail.username:noreply@afetkoordinasyon.tr}")
+    @Value("${app.email.from:noreply@afetkoordinasyon.tr}")
     private String fromAddress;
 
     private final EmailNotificationProvider emailProvider;
@@ -364,7 +364,7 @@ public class EmailNotificationService {
         List<User> users = userRepository.findByDistrictId(districtId);
         for (User user : users) {
             try {
-                if (!user.isActive() || !user.isEmailVerified()) continue;
+                if (!user.isActive()) continue;
                 if (!user.isEmailSystemNotificationsEnabled()) continue;
                 String body = buildHtml(subject, content, "", frontendBaseUrl, "Sisteme Git");
                 sendAndLog(user, subject, body, EmailNotificationType.COORDINATION_CENTER_SET,
@@ -408,7 +408,7 @@ public class EmailNotificationService {
         List<User> users = userRepository.findByNeighborhoodId(neighborhoodId);
         for (User user : users) {
             try {
-                if (!user.isActive() || !user.isEmailVerified()) continue;
+                if (!user.isActive()) continue;
                 if (!user.isEmailSystemNotificationsEnabled()) continue;
                 String body = buildHtml(subject, content, "", frontendBaseUrl, "Sisteme Git");
                 sendAndLog(user, subject, body, EmailNotificationType.COORDINATION_CENTER_SET,

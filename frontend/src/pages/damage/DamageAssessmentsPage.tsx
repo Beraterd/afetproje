@@ -3,13 +3,13 @@ import { Building2, Plus, MapPin, BadgeCheck, Navigation, X, Eye, Image, UserPlu
 import { AuthenticatedImage } from '@/components/shared/AuthenticatedImage';
 import {
     getDamageAssessments,
-    getDamageAssessmentById,
     createDamageAssessment,
     verifyDamageAssessment,
     assignDamageAssessment,
     removeDamageAssignment,
     getEligibleAssignees,
     triggerAiAnalysis,
+    enqueueMissingAiAnalysis,
 } from '@/api/damageAssessments.api';
 import { getDistricts } from '@/api/districts.api';
 import { getNeighborhoods } from '@/api/neighborhoods.api';
@@ -76,22 +76,6 @@ export function DamageAssessmentsPage() {
     const [totalPages, setTotalPages] = useState(0);
 
     const [aiRefreshing, setAiRefreshing] = useState(false);
-    const [aiPolling, setAiPolling] = useState(false);
-    const [aiTimedOut, setAiTimedOut] = useState(false);
-    const aiPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-    const aiPollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    const stopAiPolling = useCallback(() => {
-        if (aiPollRef.current !== null) {
-            clearInterval(aiPollRef.current);
-            aiPollRef.current = null;
-        }
-        if (aiPollTimeoutRef.current !== null) {
-            clearTimeout(aiPollTimeoutRef.current);
-            aiPollTimeoutRef.current = null;
-        }
-        setAiPolling(false);
-    }, []);
 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showVerifyModal, setShowVerifyModal] = useState<DamageAssessmentResponse | null>(null);
@@ -121,83 +105,19 @@ export function DamageAssessmentsPage() {
     const [verifyNote, setVerifyNote] = useState('');
     const [verifying, setVerifying] = useState(false);
 
-    useEffect(() => () => { stopAiPolling(); }, [stopAiPolling]);
-
-    // Status rank: higher rank = more advanced state. Never regress to a lower rank during polling.
-    const AI_STATUS_RANK: Record<string, number> = {
-        NOT_STARTED: 0, PENDING: 1, PROCESSING: 2, FAILED: 3, COMPLETED: 4,
-    };
-
-    // §2 — Salt-okunur AI durum polling'i. Yeni bir AI çağrısı YAPMAZ; yalnızca mevcut
-    // (otomatik tetiklenmiş) analizin durumunu izler ve sonuç gelince kayda yansıtır.
-    const beginAiPoll = (assessmentId: string) => {
-        stopAiPolling();
-        setAiPolling(true);
-
-        aiPollTimeoutRef.current = setTimeout(() => {
-            stopAiPolling();
-            setAiTimedOut(true);
-        }, 40000);
-
-        aiPollRef.current = setInterval(async () => {
-            try {
-                const updated = await getDamageAssessmentById(assessmentId);
-
-                // Never regress status backward (e.g. PROCESSING → NOT_STARTED) during active polling.
-                // The async AI service may keep the TX open during the AI call, so the DB can still
-                // show an earlier status until COMPLETED commits.
-                setShowDetailModal(prev => {
-                    if (!prev || prev.id !== updated.id) return prev;
-                    const prevRank = AI_STATUS_RANK[prev.aiAnalysisStatus ?? 'NOT_STARTED'] ?? 0;
-                    const nextRank = AI_STATUS_RANK[updated.aiAnalysisStatus ?? 'NOT_STARTED'] ?? 0;
-                    if (nextRank < prevRank) {
-                        return { ...updated, aiAnalysisStatus: prev.aiAnalysisStatus };
-                    }
-                    return updated;
-                });
-
-                const s = updated.aiAnalysisStatus;
-                if (s === 'COMPLETED' || s === 'FAILED' || updated.aiComment) {
-                    stopAiPolling();
-                }
-            } catch (err: any) {
-                // Only stop on definitive client errors (4xx). Transient errors → keep polling.
-                if (err?.response?.status && err.response.status < 500) {
-                    stopAiPolling();
-                }
-            }
-        }, 2000);
-    };
-
-    // Manuel "AI Yorumunu Yenile" — yeni analiz tetikler, ardından durumu izler.
+    // Manuel "AI Yorumu Yenile" — kuyruğa ekler, sonuç arka planda gelir.
     const handleAiRefresh = async (assessmentId: string) => {
         setAiRefreshing(true);
-        setAiTimedOut(false);
         try {
             await triggerAiAnalysis(assessmentId);
-            setShowDetailModal(prev => prev ? { ...prev, aiAnalysisStatus: 'PROCESSING' } : null);
-            beginAiPoll(assessmentId);
+            setShowDetailModal(prev => prev ? { ...prev, aiAnalysisStatus: 'PENDING' } : null);
+            toastSuccess('AI analizi kuyruğa eklendi. Sonuç arka planda işlenecek.');
         } catch (err: any) {
             toastError(err?.response?.data?.message || 'AI analizi başlatılamadı');
         } finally {
             setAiRefreshing(false);
         }
     };
-
-    // §2 — Detay modalı açıldığında, AI otomatik üretimi devam ediyorsa (veya yeni kayıtta
-    // henüz tamamlanmamışsa) otomatik salt-okunur polling başlat. Böylece kullanıcı butona
-    // basmadan loading görür ve yorum geldiğinde kayıtta otomatik belirir.
-    useEffect(() => {
-        if (!showDetailModal) return;
-        const s = showDetailModal.aiAnalysisStatus;
-        const running = s === 'PENDING' || s === 'PROCESSING';
-        const freshNoComment = (!s || s === 'NOT_STARTED') && !showDetailModal.aiComment;
-        if ((running || freshNoComment) && aiPollRef.current === null) {
-            setAiTimedOut(false);
-            beginAiPoll(showDetailModal.id);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [showDetailModal?.id]);
 
     const loadAssessments = useCallback(async () => {
         setLoading(true);
@@ -213,6 +133,11 @@ export function DamageAssessmentsPage() {
     }, [page, toastError]);
 
     useEffect(() => { loadAssessments(); }, [loadAssessments]);
+
+    // On first load: ask backend to enqueue any records missing AI analysis (fire-and-forget).
+    useEffect(() => {
+        enqueueMissingAiAnalysis().catch(() => {});
+    }, []);
 
     useEffect(() => {
         if (!showCreateModal) return;
@@ -428,6 +353,7 @@ export function DamageAssessmentsPage() {
                                     <th className="text-left px-4 py-3 font-medium text-gray-600">Mahalle / İlçe</th>
                                     <th className="text-left px-4 py-3 font-medium text-gray-600">Hasar Düzeyi</th>
                                     <th className="text-left px-4 py-3 font-medium text-gray-600">Durum</th>
+                                    <th className="text-left px-4 py-3 font-medium text-gray-600">AI Durumu</th>
                                     <th className="text-left px-4 py-3 font-medium text-gray-600">Raporlayan</th>
                                     <th className="px-4 py-3"></th>
                                 </tr>
@@ -466,6 +392,23 @@ export function DamageAssessmentsPage() {
                                             <span className={`px-2 py-0.5 rounded-full text-xs ${verificationStatusColor(a.verificationStatus)}`}>
                                                 {a.verificationStatusLabel}
                                             </span>
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            {a.aiAnalysisStatus === 'COMPLETED' && (
+                                                <span className="px-2 py-0.5 rounded-full text-xs bg-purple-100 text-purple-700">Hazır</span>
+                                            )}
+                                            {(a.aiAnalysisStatus === 'PROCESSING') && (
+                                                <span className="px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700 animate-pulse">Analiz Ediliyor</span>
+                                            )}
+                                            {(a.aiAnalysisStatus === 'PENDING') && (
+                                                <span className="px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-700">Kuyrukta</span>
+                                            )}
+                                            {a.aiAnalysisStatus === 'FAILED' && (
+                                                <span className="px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-600">Hata</span>
+                                            )}
+                                            {(!a.aiAnalysisStatus || a.aiAnalysisStatus === 'NOT_STARTED') && (
+                                                <span className="px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-400">—</span>
+                                            )}
                                         </td>
                                         <td className="px-4 py-3 text-gray-500 text-xs">{a.reportedBy || '-'}</td>
                                         <td className="px-4 py-3 flex items-center gap-1">
@@ -520,7 +463,7 @@ export function DamageAssessmentsPage() {
                     <div className="bg-white rounded-xl w-full max-w-2xl my-6 p-6 space-y-5">
                         <div className="flex items-start justify-between">
                             <h2 className="text-lg font-semibold text-gray-900">Hasar Tespiti Detayı</h2>
-                            <button onClick={() => { setShowDetailModal(null); stopAiPolling(); setAiTimedOut(false); }} className="text-gray-400 hover:text-gray-600">
+                            <button onClick={() => setShowDetailModal(null)} className="text-gray-400 hover:text-gray-600">
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
@@ -687,43 +630,80 @@ export function DamageAssessmentsPage() {
                                     <Brain className="h-4 w-4 text-purple-600" />
                                     <h3 className="text-sm font-medium text-gray-700">Yapay Zeka Ön Değerlendirmesi</h3>
                                 </div>
-                                {canVerify && (() => {
-                                    const inProgress = aiRefreshing || aiPolling
-                                        || showDetailModal.aiAnalysisStatus === 'PROCESSING'
-                                        || showDetailModal.aiAnalysisStatus === 'PENDING';
-                                    return (
-                                        <button
-                                            onClick={() => handleAiRefresh(showDetailModal.id)}
-                                            disabled={inProgress}
-                                            className="flex items-center gap-1.5 text-xs text-purple-600 hover:text-purple-800 disabled:opacity-50 transition-colors"
-                                        >
-                                            <RefreshCw className={`h-3.5 w-3.5 ${inProgress ? 'animate-spin' : ''}`} />
-                                            {inProgress ? 'Analiz ediliyor...' : 'AI Yorumu Yenile'}
-                                        </button>
-                                    );
-                                })()}
+                                {canVerify && (
+                                    <button
+                                        onClick={() => handleAiRefresh(showDetailModal.id)}
+                                        disabled={aiRefreshing || showDetailModal.aiAnalysisStatus === 'PROCESSING'}
+                                        className="flex items-center gap-1.5 text-xs text-purple-600 hover:text-purple-800 disabled:opacity-50 transition-colors"
+                                    >
+                                        <RefreshCw className={`h-3.5 w-3.5 ${aiRefreshing ? 'animate-spin' : ''}`} />
+                                        {aiRefreshing ? 'Ekleniyor...' : 'AI Yorumu Yenile'}
+                                    </button>
+                                )}
                             </div>
 
-                            {(showDetailModal.aiAnalysisStatus === 'PROCESSING' || showDetailModal.aiAnalysisStatus === 'PENDING') && (
-                                <div className="bg-purple-50 rounded-lg px-4 py-3 text-sm text-purple-700 animate-pulse">
-                                    Yapay zeka analiz ediliyor, lütfen bekleyin...
+                            {showDetailModal.aiAnalysisStatus === 'PROCESSING' && (
+                                <div className="bg-purple-50 rounded-lg px-4 py-3 text-sm text-purple-700 flex items-center gap-2">
+                                    <RefreshCw className="h-3.5 w-3.5 animate-spin flex-shrink-0" />
+                                    Analiz ediliyor...
+                                </div>
+                            )}
+
+                            {showDetailModal.aiAnalysisStatus === 'PENDING' && (
+                                <div className="bg-yellow-50 rounded-lg px-4 py-3 text-sm text-yellow-700">
+                                    AI analizi kuyrukta, arka planda işlenecek.
                                 </div>
                             )}
 
                             {showDetailModal.aiAnalysisStatus === 'COMPLETED' && showDetailModal.aiComment && (
                                 <div className="space-y-3">
-                                    <div className="bg-purple-50 rounded-lg p-4">
+                                    <div className="bg-purple-50 rounded-lg p-4 space-y-2">
                                         <p className="text-sm text-gray-800">{showDetailModal.aiComment}</p>
-                                        {showDetailModal.aiConfidence && (
-                                            <div className="mt-2 flex items-center gap-2">
-                                                <span className="text-xs text-gray-500">Güven Skoru:</span>
-                                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${aiConfidenceBadgeColor(showDetailModal.aiConfidence)}`}>
-                                                    {showDetailModal.aiConfidenceLabel || showDetailModal.aiConfidence}
-                                                </span>
+                                        <div className="flex flex-wrap items-center gap-3 mt-2">
+                                            {showDetailModal.aiConfidence && (
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="text-xs text-gray-500">Güven:</span>
+                                                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${aiConfidenceBadgeColor(showDetailModal.aiConfidence)}`}>
+                                                        {showDetailModal.aiConfidenceLabel || showDetailModal.aiConfidence}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {showDetailModal.aiRiskScore != null && (
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="text-xs text-gray-500">Risk Skoru:</span>
+                                                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                                        showDetailModal.aiRiskScore >= 70 ? 'bg-red-100 text-red-700'
+                                                        : showDetailModal.aiRiskScore >= 40 ? 'bg-orange-100 text-orange-700'
+                                                        : 'bg-green-100 text-green-700'
+                                                    }`}>
+                                                        {showDetailModal.aiRiskScore}/100
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {showDetailModal.aiPriority != null && (
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="text-xs text-gray-500">Öncelik:</span>
+                                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                                        {showDetailModal.aiPriority}/5
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        {showDetailModal.aiRecommendations && (
+                                            <div className="mt-2">
+                                                <p className="text-xs text-gray-500 mb-1">Önerilen Aksiyonlar:</p>
+                                                <ul className="space-y-0.5">
+                                                    {showDetailModal.aiRecommendations.split(',').map((r, i) => (
+                                                        <li key={i} className="text-xs text-gray-700 flex items-start gap-1">
+                                                            <span className="text-purple-400 flex-shrink-0 mt-0.5">•</span>
+                                                            {r.trim()}
+                                                        </li>
+                                                    ))}
+                                                </ul>
                                             </div>
                                         )}
                                         {showDetailModal.aiAnalyzedAt && (
-                                            <p className="text-xs text-gray-400 mt-2">
+                                            <p className="text-xs text-gray-400 mt-1">
                                                 {new Date(showDetailModal.aiAnalyzedAt).toLocaleString('tr-TR')}
                                                 {showDetailModal.aiModel && ` · ${showDetailModal.aiModel}`}
                                             </p>
@@ -740,29 +720,21 @@ export function DamageAssessmentsPage() {
 
                             {showDetailModal.aiAnalysisStatus === 'FAILED' && (
                                 <div className="bg-red-50 rounded-lg px-4 py-3 text-sm text-red-600">
-                                    AI yorumu şu anda oluşturulamadı, daha sonra tekrar deneyebilirsiniz.
-                                    {canVerify && ' Yeniden denemek için "AI Yorumu Yenile" butonunu kullanabilirsiniz.'}
+                                    AI yorumu oluşturulamadı.
+                                    {canVerify && ' "AI Yorumu Yenile" ile yeniden deneyebilirsiniz.'}
                                 </div>
                             )}
 
-                            {aiTimedOut && showDetailModal.aiAnalysisStatus !== 'COMPLETED' && showDetailModal.aiAnalysisStatus !== 'FAILED' && (
-                                <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-700">
-                                    AI analizi devam ediyor, lütfen birazdan tekrar kontrol edin.
-                                </div>
-                            )}
-
-                            {!showDetailModal.aiAnalysisStatus && !aiTimedOut && (
+                            {(!showDetailModal.aiAnalysisStatus || showDetailModal.aiAnalysisStatus === 'NOT_STARTED') && (
                                 <p className="text-sm text-gray-400 italic">
-                                    {canVerify
-                                        ? 'Henüz AI analizi yapılmamış. "AI Yorumu Yenile" ile başlatabilirsiniz.'
-                                        : 'Yapay zeka analizi henüz yapılmamış.'}
+                                    AI analizi henüz yapılmamış; arka planda kuyruğa alındı.
                                 </p>
                             )}
                         </div>
 
                         <div className="flex justify-end pt-2">
                             <button
-                                onClick={() => { setShowDetailModal(null); stopAiPolling(); setAiTimedOut(false); }}
+                                onClick={() => setShowDetailModal(null)}
                                 className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
                             >
                                 Kapat

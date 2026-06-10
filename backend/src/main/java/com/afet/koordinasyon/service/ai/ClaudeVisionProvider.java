@@ -29,12 +29,15 @@ public class ClaudeVisionProvider implements AiDamageAssessmentProvider {
 
             KURALLAR:
             - Yanıtın YALNIZCA aşağıdaki JSON formatında olmalı, başka hiçbir metin içermemeli.
-            - Yorum 1-2 cümle, Türkçe olmalı.
+            - comment: 1-2 cümle, Türkçe ön değerlendirme yorumu.
             - Kesin yargılar kullanma: "Kesinlikle yıkılmalı", "Kesin güvenli", "Resmi karar" ifadelerini kesinlikle kullanma.
-            - Güven skoru: LOW (görsel yetersiz veya hasar belirsiz), MEDIUM (orta düzey hasar işaretleri görülüyor), HIGH (net ve ciddi hasar belirtileri mevcut)
+            - confidence: LOW (görsel yetersiz veya hasar belirsiz), MEDIUM (orta düzey hasar işaretleri), HIGH (net ve ciddi hasar)
+            - priority: Müdahale önceliği 1 (en acil) - 5 (en az acil). Yıkık/çökmüş binalar 1, hafif hasar 4-5.
+            - riskScore: 0-100 arası risk skoru. Yıkık=90-100, ağır hasar=70-89, orta=40-69, hafif=10-39.
+            - recommendations: Virgülle ayrılmış kısa aksiyon önerileri (maks 3 madde, Türkçe).
 
             Yanıtını tam olarak bu JSON formatında ver:
-            {"comment": "Kısa Türkçe ön değerlendirme yorumu.", "confidence": "LOW|MEDIUM|HIGH"}
+            {"comment": "...", "confidence": "LOW|MEDIUM|HIGH", "priority": 1, "riskScore": 75, "recommendations": "Tahliye önerilebilir, Statik inceleme gerekli, Acil destek ekibi çağırılmalı"}
             """;
 
     @Value("${ai.claude-api-key:}")
@@ -49,7 +52,7 @@ public class ClaudeVisionProvider implements AiDamageAssessmentProvider {
     public AiAssessmentResult analyze(List<PhotoData> photos) throws Exception {
         ObjectNode body = objectMapper.createObjectNode();
         body.put("model", model);
-        body.put("max_tokens", 300);
+        body.put("max_tokens", 500);
         // System prompt goes in the top-level "system" field, not inside the user message
         body.put("system", SYSTEM_PROMPT);
 
@@ -113,6 +116,10 @@ public class ClaudeVisionProvider implements AiDamageAssessmentProvider {
             confidence = AiConfidence.LOW;
         }
 
-        return new AiAssessmentResult(comment, confidence, model);
+        Integer priority = result.hasNonNull("priority") ? result.path("priority").asInt() : null;
+        Integer riskScore = result.hasNonNull("riskScore") ? result.path("riskScore").asInt() : null;
+        String recommendations = result.hasNonNull("recommendations") ? result.path("recommendations").asText() : null;
+
+        return new AiAssessmentResult(comment, confidence, model, priority, recommendations, riskScore);
     }
 }

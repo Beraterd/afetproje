@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -29,15 +30,11 @@ public class User {
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
+    @Column(unique = true, length = 50)
+    private String username;
+
     @Column(nullable = false, unique = true, length = 255)
     private String email;
-
-    @Column(name = "email_verified", nullable = false)
-    @Builder.Default
-    private boolean emailVerified = false;
-
-    @Column(name = "pending_email", length = 255)
-    private String pendingEmail;
 
     @Column(nullable = false, unique = true, length = 20)
     private String phone;
@@ -92,6 +89,27 @@ public class User {
 
     @Column(name = "email_system_notifications_enabled", nullable = false)
     @Builder.Default private boolean emailSystemNotificationsEnabled = true;
+
+    // ── Konum bilgisi ─────────────────────────────────────────────────────────
+    @Column(name = "last_known_latitude", precision = 10, scale = 8)
+    private BigDecimal lastKnownLatitude;
+
+    @Column(name = "last_known_longitude", precision = 11, scale = 8)
+    private BigDecimal lastKnownLongitude;
+
+    @Column(name = "last_known_location_accuracy", precision = 8, scale = 2)
+    private BigDecimal lastKnownLocationAccuracy;
+
+    /** GRANTED, DENIED veya SKIPPED */
+    @Column(name = "location_permission_status", length = 10)
+    private String locationPermissionStatus;
+
+    @Column(name = "last_known_location_updated_at")
+    private OffsetDateTime lastKnownLocationUpdatedAt;
+
+    /** GPS, Network veya Cell — frontend tarafından accuracy'den türetilir */
+    @Column(name = "location_source", length = 30)
+    private String locationSource;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;

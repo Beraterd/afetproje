@@ -19,7 +19,14 @@ public final class ReportModules {
     public record CategoryCount(String code, String label, long count) {}
 
     /** Mahalle bazlı tekil metrik (dağılım/yoğunluk tabloları için). */
-    public record NeighborhoodMetric(String neighborhoodId, String neighborhoodName, long value) {}
+    public record NeighborhoodMetric(String neighborhoodId, String neighborhoodName, String districtName, long value) {
+        /** Görüntüleme etiketi: "Mahalle - İlçe" veya sadece mahalle adı. */
+        public String displayLabel() {
+            return (districtName != null && !districtName.isBlank())
+                    ? neighborhoodName + " - " + districtName
+                    : neighborhoodName;
+        }
+    }
 
     /** Ekip / Operasyon modülü. */
     @Builder

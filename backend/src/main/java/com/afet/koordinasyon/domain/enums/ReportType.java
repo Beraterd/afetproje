@@ -14,7 +14,7 @@ public enum ReportType {
     DAILY("Günlük Rapor"),
     WEEKLY("Haftalık Rapor"),
     MONTHLY("Aylık Rapor"),
-    OPERATION("Operasyon / Ekip Raporu"),
+    OPERATION("Ekip Raporu"),
     RESOURCE("Kaynak Talep Raporu"),
     STOCK("Stok Raporu"),
     DAMAGE("Hasar Raporu"),

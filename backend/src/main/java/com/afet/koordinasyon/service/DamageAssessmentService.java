@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.afet.koordinasyon.exception.ResourceNotFoundException;
 import com.afet.koordinasyon.repository.*;
 import com.afet.koordinasyon.security.UserPrincipal;
+import com.afet.koordinasyon.service.ai.DamageAiQueueService;
 import com.afet.koordinasyon.service.email.DamageReportCreatedEmailEvent;
 import com.afet.koordinasyon.service.email.DamageReportStatusChangedEmailEvent;
 import com.afet.koordinasyon.service.email.DamageReportFieldTeamAssignedEmailEvent;
@@ -62,7 +63,7 @@ public class DamageAssessmentService {
     @Value("${app.storage.local-path:.local-storage}")
     private String localStoragePath;
 
-    @Value("${app.base-url:http://localhost:8080}")
+    @Value("${app.base-url}")
     private String baseUrl;
 
     private final DamageAssessmentRepository damageAssessmentRepository;
@@ -73,6 +74,7 @@ public class DamageAssessmentService {
     private final UserRepository userRepository;
     private final EventVolunteerRepository eventVolunteerRepository;
     private final DamageAssessmentAiService damageAssessmentAiService;
+    private final DamageAiQueueService damageAiQueueService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
@@ -199,13 +201,14 @@ public class DamageAssessmentService {
             saved.getPhotos().add(photoEntity);
         }
 
-        // AI analizi transaction commit sonrası async olarak başlat
+        // AI analizi: transaction commit sonrası öncelik kuyruğuna ekle
         final UUID savedId = saved.getId();
+        final DamageLevel savedLevel = saved.getDamageLevel();
         final UUID reporterIdFinal = reporter.getId();
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                damageAssessmentAiService.generateAiAssessment(savedId);
+                damageAiQueueService.enqueue(savedId, savedLevel);
             }
         });
 
@@ -218,25 +221,32 @@ public class DamageAssessmentService {
     public DamageAssessmentAiTriggerResponse triggerAiAnalysis(UUID id, UserPrincipal principal) {
         DamageAssessment assessment = findById(id);
 
-        // Prevent duplicate parallel jobs: if a job is already running, return current state.
+        // If already running, return current state without re-queuing
         if (assessment.getAiAnalysisStatus() == AiAnalysisStatus.PROCESSING) {
-            log.info("AI trigger: assessment {} already PROCESSING — returning without starting new job", id);
+            log.info("AI trigger: assessment {} already PROCESSING — returning without re-queuing", id);
             return DamageAssessmentAiTriggerResponse.builder()
                     .assessmentId(id)
                     .aiAnalysisStatus(AiAnalysisStatus.PROCESSING.name())
                     .build();
         }
 
+        // Clear hash to force re-analysis even if data is unchanged (manual refresh)
+        assessment.setDamageHash(null);
+        assessment.setAiRetryCount(0);
+        assessment.setAiNextRetryAt(null);
+        damageAssessmentRepository.save(assessment);
+
+        final DamageLevel level = assessment.getDamageLevel();
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                damageAssessmentAiService.generateAiAssessment(id);
+                damageAiQueueService.enqueue(id, level);
             }
         });
 
         return DamageAssessmentAiTriggerResponse.builder()
                 .assessmentId(id)
-                .aiAnalysisStatus(AiAnalysisStatus.PROCESSING.name())
+                .aiAnalysisStatus(AiAnalysisStatus.PENDING.name())
                 .build();
     }
 
@@ -631,6 +641,9 @@ public class DamageAssessmentService {
                 .aiModel(a.getAiModel())
                 .aiAnalyzedAt(a.getAiAnalyzedAt())
                 .aiAnalysisStatus(a.getAiAnalysisStatus() != null ? a.getAiAnalysisStatus().name() : null)
+                .aiPriority(a.getAiPriority())
+                .aiRecommendations(a.getAiRecommendations())
+                .aiRiskScore(a.getAiRiskScore())
                 .createdAt(a.getCreatedAt())
                 .updatedAt(a.getUpdatedAt())
                 .build();

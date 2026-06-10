@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * §4/§6/§7 — Deprem bildirimi e-postasındaki "Yakınlarıma Mesaj Gönder" hazır mesaj tipleri.
+ * Deprem bildirimi e-postasındaki "Yakınlarıma Mesaj Gönder" hazır mesaj tipleri.
  * Mesaj metni SABİT'tir ve yalnızca bu enum üzerinden belirlenir; serbest metin link üzerinden
  * KABUL EDİLMEZ (güvenlik). {@code label} e-postadaki buton metnidir, {@code messageText}
  * yakınlara giden hazır cümledir.
@@ -12,12 +12,15 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum EmergencyMessageType {
-    DURUMUM_IYI("Durumum iyi", "Durumum iyi."),
-    GUVENDEYIM("Güvendeyim", "Güvendeyim, endişelenmeyin."),
-    YARDIM_LAZIM("Yardıma ihtiyacım var", "Yardıma ihtiyacım var."),
-    ENKAZ_ALTINDA("Enkaz altındayım", "Enkaz altındayım."),
-    TOPLANMA_ALANINA("Toplanma alanına gidiyorum", "Toplanma alanına gidiyorum."),
-    TELEFON_KAPANABILIR("Telefonum kapanabilir", "Telefonum kapanabilir, konumumu takip edin.");
+    DURUMUM_IYI(
+        "Durumum İyi 👍",
+        "Ben güvendeyim, endişelenmeyin."),
+    TOPLANMA_ALANINA(
+        "Toplanma Alanına Gidiyorum 📍",
+        "Belirlenen toplanma alanına gidiyorum, gerekirse ulaşabilirsiniz."),
+    ENKAZ_ALTINDA(
+        "Enkaz Altındayım 🚨",
+        "Enkaz altında kaldım, lütfen yardım isteyin!");
 
     private final String label;
     private final String messageText;

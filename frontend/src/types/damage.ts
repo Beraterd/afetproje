@@ -39,6 +39,9 @@ export interface DamageAssessmentResponse {
     aiModel?: string;
     aiAnalyzedAt?: string;
     aiAnalysisStatus?: 'NOT_STARTED' | 'PROCESSING' | 'PENDING' | 'COMPLETED' | 'FAILED';
+    aiPriority?: number;
+    aiRecommendations?: string;
+    aiRiskScore?: number;
     createdAt: string;
     updatedAt: string;
 }
