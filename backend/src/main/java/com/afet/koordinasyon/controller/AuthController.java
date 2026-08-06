@@ -37,6 +37,12 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
+    @PostMapping("/demo-login")
+    @Operation(summary = "Start a read-only demo admin session — no credentials required")
+    public ResponseEntity<LoginResponse> demoLogin() {
+        return ResponseEntity.ok(authService.demoLogin());
+    }
+
     @PostMapping("/register")
     @Operation(summary = "Register a new volunteer account")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request) {

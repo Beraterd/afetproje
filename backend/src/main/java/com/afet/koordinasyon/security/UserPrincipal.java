@@ -25,6 +25,7 @@ public class UserPrincipal implements UserDetails {
     private UUID districtId;
     private UUID neighborhoodId;
     private boolean active;
+    private boolean demo;
     private Collection<? extends GrantedAuthority> authorities;
 
     public static UserPrincipal create(User user) {
@@ -40,6 +41,7 @@ public class UserPrincipal implements UserDetails {
                 user.getDistrict() != null ? user.getDistrict().getId() : null,
                 user.getNeighborhood() != null ? user.getNeighborhood().getId() : null,
                 user.isActive(),
+                user.isDemo(),
                 authorities);
     }
 

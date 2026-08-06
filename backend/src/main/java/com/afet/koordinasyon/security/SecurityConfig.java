@@ -28,6 +28,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint unauthorizedHandler;
+    private final DemoModeWriteGuardFilter demoModeWriteGuardFilter;
 
     @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -61,6 +62,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         );
 
     http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    http.addFilterAfter(demoModeWriteGuardFilter, JwtAuthenticationFilter.class);
     return http.build();
 }
     @Bean

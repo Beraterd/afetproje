@@ -23,6 +23,8 @@ export interface UserSummaryResponse {
     districtId?: string;
     neighborhoodId?: string;
     locationPermissionStatus?: string;
+    /** True for the read-only "Admin Demo Modu" visitor account */
+    demo?: boolean;
 }
 
 export interface AuthResponse {

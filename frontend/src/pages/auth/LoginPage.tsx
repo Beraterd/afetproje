@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { login } from '@/api/auth.api';
+import { login, demoLogin } from '@/api/auth.api';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/components/shared/ToastProvider';
 import { Button, FormField } from '@/components/ui';
-import { ShieldAlert as ShieldIcon } from 'lucide-react';
+import { ShieldAlert as ShieldIcon, Eye as EyeIcon } from 'lucide-react';
 import { ApiError } from '@/utils/errorParser';
 
 const loginSchema = z.object({
@@ -20,6 +20,7 @@ export const LoginPage: React.FC = () => {
     const navigate = useNavigate();
     const { setAuth } = useAuthStore();
     const toast = useToast();
+    const [isDemoLoading, setIsDemoLoading] = useState(false);
 
     const {
         register,
@@ -44,6 +45,23 @@ export const LoginPage: React.FC = () => {
             } else {
                 setError('root', { message: apiError.message || 'Giriş başarısız oldu' });
             }
+        }
+    };
+
+    const handleDemoLogin = async () => {
+        if (isDemoLoading) return; // arka arkaya tıklamayı engelle
+        setIsDemoLoading(true);
+        try {
+            const res = await demoLogin();
+            setAuth(res.token, res.user);
+            localStorage.setItem('afet_token', res.token);
+            toast.info('Demo modundasınız. Bu oturumda yapılan değişiklikler kaydedilmez ve düzenleme işlemleri devre dışıdır.');
+            navigate('/dashboard');
+        } catch (error) {
+            const apiError = error as ApiError;
+            toast.error(apiError.message || 'Demo modu şu anda başlatılamadı.');
+        } finally {
+            setIsDemoLoading(false);
         }
     };
 
@@ -94,6 +112,34 @@ export const LoginPage: React.FC = () => {
                         Giriş Yap
                     </Button>
                 </form>
+
+                <div className="mt-6">
+                    <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-dashed border-gray-300" />
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="bg-white px-2 text-gray-500">veya</span>
+                        </div>
+                    </div>
+                    <div className="mt-4">
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            size="lg"
+                            className="w-full border-dashed"
+                            leftIcon={<EyeIcon className="h-4 w-4" />}
+                            loading={isDemoLoading}
+                            onClick={handleDemoLogin}
+                            aria-label="Giriş yapmadan salt okunur admin demo modunu başlat"
+                        >
+                            Giriş Yapmadan Admin Olarak Siteyi Gez
+                        </Button>
+                        <p className="mt-2 text-center text-xs text-gray-400">
+                            Salt okunur demo modu — hiçbir veri değiştirilemez.
+                        </p>
+                    </div>
+                </div>
 
                 <div className="mt-6">
                     <div className="relative">

@@ -62,12 +62,12 @@ class ResourceStockServiceTest {
         actor.setFirstName("Admin");
         actor.setLastName("User");
         admin = new UserPrincipal(actor.getId(), "Admin", "User", "a@x.com",
-                null, UserRole.ADMIN, null, null, true, List.of());
+                null, UserRole.ADMIN, null, null, true, false, List.of());
     }
 
     private UserPrincipal districtCoord(UUID districtId) {
         return new UserPrincipal(UUID.randomUUID(), "DC", "User", "dc@x.com",
-                null, UserRole.DISTRICT_COORDINATOR, districtId, null, true, List.of());
+                null, UserRole.DISTRICT_COORDINATOR, districtId, null, true, false, List.of());
     }
 
     // ── Hesaplama testleri ─────────────────────────────────────────────────────

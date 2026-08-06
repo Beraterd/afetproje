@@ -24,6 +24,7 @@ public class UserResponse {
     private BloodType bloodType;
     private UserRole role;
     private boolean active;
+    private boolean demo;
     private DistrictSummaryResponse district;
     private NeighborhoodSummaryResponse neighborhood;
     private UUID districtId;

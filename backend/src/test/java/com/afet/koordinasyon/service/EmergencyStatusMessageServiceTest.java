@@ -67,7 +67,7 @@ class EmergencyStatusMessageServiceTest {
         contactUser.setPhone("05551112233");
 
         principal = new UserPrincipal(senderId, "Ali", "Veli", "ali@example.com",
-                null, null, null, null, true, List.of());
+                null, null, null, null, true, false, List.of());
     }
 
     private void commonStubs(EmergencyStatusTemplateKey key, String text) {

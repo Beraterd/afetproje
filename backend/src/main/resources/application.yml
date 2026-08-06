@@ -72,6 +72,8 @@ server:
 
 app:
   demo-users-enabled: ${DEMO_USERS_ENABLED:false}
+  # Salt okunur "Admin Demo Modu" ziyaretçi hesabı — varsayılan olarak açık.
+  demo-admin-enabled: ${DEMO_ADMIN_ENABLED:true}
   base-url: ${APP_BASE_URL:http://localhost:8080}
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
   jwt:

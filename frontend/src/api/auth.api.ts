@@ -6,6 +6,11 @@ export const login = async (data: any): Promise<AuthResponse> => {
     return res.data;
 };
 
+export const demoLogin = async (): Promise<AuthResponse> => {
+    const res = await axiosInstance.post<AuthResponse>('/auth/demo-login');
+    return res.data;
+};
+
 export const register = async (data: any): Promise<MessageResponse> => {
     const res = await axiosInstance.post<MessageResponse>('/auth/register', data);
     return res.data;

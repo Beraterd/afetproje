@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import { createPortal } from 'react-dom';
 import { X, CheckCircle, AlertTriangle, AlertCircle, Info } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { DEMO_MODE_BLOCKED_EVENT } from '@/api/axiosInstance';
 
 type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -143,6 +144,17 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const removeToast = useCallback((id: string) => {
         setToasts((prev) => prev.filter((t) => t.id !== id));
     }, []);
+
+    // Demo modda backend'in reddettiği yazma istekleri, sayfa/aksiyon fark etmeksizin
+    // buradan tek bir uyarı toast'ı olarak gösterilir (bkz. axiosInstance.ts).
+    useEffect(() => {
+        const handler = (e: Event) => {
+            const message = (e as CustomEvent<string>).detail || 'Bu işlem demo modunda kullanılamaz.';
+            addToast('warning', message);
+        };
+        window.addEventListener(DEMO_MODE_BLOCKED_EVENT, handler);
+        return () => window.removeEventListener(DEMO_MODE_BLOCKED_EVENT, handler);
+    }, [addToast]);
 
     const val: ToastContextValue = {
         success: (m) => addToast('success', m),

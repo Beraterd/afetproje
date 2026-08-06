@@ -24,7 +24,7 @@ class ReportServiceIT {
 
     private UserPrincipal principal(UserRole role, UUID districtId, UUID neighborhoodId) {
         return new UserPrincipal(UUID.randomUUID(), "Test", "Yönetici", "t@x.com",
-                null, role, districtId, neighborhoodId, true, List.of());
+                null, role, districtId, neighborhoodId, true, false, List.of());
     }
 
     @Test

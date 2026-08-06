@@ -6,6 +6,7 @@ import { SideNav, TopBar } from './AppNavigation';
 import { CoordinationCenterSetupModal } from '@/components/shared/CoordinationCenterSetupModal';
 import { LocationPermissionModal } from '@/components/shared/LocationPermissionModal';
 import { OfflineStatusBanner } from '@/components/shared/OfflineStatusBanner';
+import { DemoModeBanner } from '@/components/shared/DemoModeBanner';
 import { getMyCoordinationStatus } from '@/api/coordinationCenters.api';
 import { queryKeys } from '@/utils/queryKeys';
 
@@ -55,11 +56,13 @@ export const AppLayout: React.FC = () => {
 
     const showSetupModal =
         !modalDismissed &&
+        !user?.demo &&
         isCoordinator &&
         !!centerStatus?.mustSetCenter;
 
     const showLocationModal =
         !locationModalDismissed &&
+        !user?.demo &&
         !!accessToken &&
         user?.locationPermissionStatus == null;
 
@@ -70,6 +73,7 @@ export const AppLayout: React.FC = () => {
             <div className="lg:pl-72 flex flex-col min-h-screen">
                 <div className={mobileMenuOpen ? 'hidden lg:block' : undefined}>
                     <TopBar onMenuClick={() => setMobileMenuOpen(true)} />
+                    <DemoModeBanner />
                     <OfflineStatusBanner />
                 </div>
 

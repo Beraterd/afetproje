@@ -56,7 +56,7 @@ class ResourceRequestServiceTest {
     void setUp() {
         UUID adminId = UUID.randomUUID();
         admin = new UserPrincipal(adminId, "Admin", "User", "a@x.com",
-                null, UserRole.ADMIN, null, null, true, List.of());
+                null, UserRole.ADMIN, null, null, true, false, List.of());
         district = District.builder().id(UUID.randomUUID()).name("Kadıköy").build();
         neighborhood = Neighborhood.builder().id(UUID.randomUUID()).name("Moda").district(district).build();
         actor = new User();
@@ -189,7 +189,7 @@ class ResourceRequestServiceTest {
     void list_usesSpecification() {
         UUID districtId = UUID.randomUUID();
         UserPrincipal dc = new UserPrincipal(UUID.randomUUID(), "DC", "User", "dc@x.com",
-                null, UserRole.DISTRICT_COORDINATOR, districtId, null, true, List.of());
+                null, UserRole.DISTRICT_COORDINATOR, districtId, null, true, false, List.of());
         when(resourceRequestRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(Page.empty());
 

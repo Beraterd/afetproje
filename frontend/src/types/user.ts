@@ -20,6 +20,8 @@ export interface UserResponse {
     role: Role;
     /** Backend serializes boolean field "active" (not "isActive") */
     active: boolean;
+    /** True for the read-only "Admin Demo Modu" visitor account (see DemoModeWriteGuardFilter) */
+    demo: boolean;
     createdAt: string;
     updatedAt: string;
     lastKnownLatitude?: number;

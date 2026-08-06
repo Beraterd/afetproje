@@ -11,18 +11,22 @@ import com.afet.koordinasyon.dto.response.DistrictSummaryResponse;
 import com.afet.koordinasyon.dto.response.LoginResponse;
 import com.afet.koordinasyon.dto.response.NeighborhoodSummaryResponse;
 import com.afet.koordinasyon.dto.response.UserResponse;
+import com.afet.koordinasyon.exception.BusinessRuleException;
 import com.afet.koordinasyon.exception.ConflictException;
 import com.afet.koordinasyon.exception.ResourceNotFoundException;
 import com.afet.koordinasyon.repository.DistrictRepository;
 import com.afet.koordinasyon.repository.NeighborhoodRepository;
 import com.afet.koordinasyon.repository.UserRepository;
+import com.afet.koordinasyon.security.DemoModeConstants;
 import com.afet.koordinasyon.security.JwtTokenProvider;
 import com.afet.koordinasyon.security.UserPrincipal;
 import com.afet.koordinasyon.service.email.UserRegisteredEmailEvent;
 import com.afet.koordinasyon.util.PhoneNumberUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,6 +55,14 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmailOrUsername(), request.getPassword()));
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+
+        // Demo hesapları normal şifre akışıyla giriş yapamaz; yalnızca /api/auth/demo-login
+        // üzerinden oturum açılabilir. Mesaj kasıtlı olarak genel "hatalı bilgi" mesajıyla aynı —
+        // demo hesabının varlığı sızdırılmaz.
+        if (principal.isDemo()) {
+            throw new BadCredentialsException("Bad credentials");
+        }
+
         String token = jwtTokenProvider.generateAccessToken(principal);
         auditLogService.logUserAction(
                 principal.getId(),
@@ -60,6 +72,37 @@ public class AuthService {
                 principal.getFirstName() + " " + principal.getLastName() + " giriş yaptı",
                 Map.of("email", principal.getEmail()));
         // Use getCurrentUser so the response includes coordinator-aware districtId/neighborhoodId
+        return LoginResponse.builder()
+                .token(token)
+                .tokenType("Bearer")
+                .expiresIn(jwtTokenProvider.getAccessTokenExpirationMs())
+                .user(getCurrentUser(principal.getId()))
+                .build();
+    }
+
+    /**
+     * Ziyaretçilerin kimlik doğrulaması yapmadan salt okunur "Admin Demo Modu" oturumu açmasını
+     * sağlar. Sabit, seed edilmiş demo-admin hesabı dışında hiçbir kullanıcı için token üretmez.
+     * Yazma istekleri DemoModeWriteGuardFilter tarafından backend seviyesinde engellenir.
+     */
+    @Transactional
+    public LoginResponse demoLogin() {
+        User demoUser = userRepository.findByUsername(DemoModeConstants.DEMO_ADMIN_USERNAME)
+                .filter(User::isDemo)
+                .orElseThrow(() -> new BusinessRuleException(
+                        "Demo modu şu anda kullanılamıyor.", HttpStatus.SERVICE_UNAVAILABLE, "DEMO_MODE_UNAVAILABLE"));
+
+        UserPrincipal principal = UserPrincipal.create(demoUser);
+        String token = jwtTokenProvider.generateAccessToken(principal);
+
+        auditLogService.logUserAction(
+                principal.getId(),
+                principal.getFirstName() + " " + principal.getLastName(),
+                principal.getRole().name(),
+                AuditActionType.USER_LOGIN, "USER", principal.getId(),
+                "Ziyaretçi demo admin oturumu başlattı",
+                Map.of("demo", true));
+
         return LoginResponse.builder()
                 .token(token)
                 .tokenType("Bearer")
@@ -182,6 +225,7 @@ public class AuthService {
                 .bloodType(u.getBloodType())
                 .role(u.getRole())
                 .active(u.isActive())
+                .demo(u.isDemo())
                 .district(district != null ? DistrictSummaryResponse.builder()
                         .id(district.getId()).name(district.getName()).build() : null)
                 .neighborhood(neighborhood != null ? NeighborhoodSummaryResponse.builder()

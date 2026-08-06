@@ -38,6 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     districtId: me.districtId,
                     neighborhoodId: me.neighborhoodId,
                     locationPermissionStatus: me.locationPermissionStatus,
+                    demo: me.demo,
                 });
             } catch (error) {
                 console.error('Failed to recover session:', error);

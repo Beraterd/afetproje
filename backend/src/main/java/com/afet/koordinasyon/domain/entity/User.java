@@ -71,6 +71,11 @@ public class User {
     @Builder.Default
     private boolean active = true;
 
+    /** Salt okunur "Admin Demo Modu" hesabı mı? bkz. DemoAdminSeeder / DemoModeWriteGuardFilter. */
+    @Column(name = "is_demo", nullable = false)
+    @Builder.Default
+    private boolean demo = false;
+
     // ── Email bildirim tercihleri ─────────────────────────────────────────────
     @Column(name = "email_task_notifications_enabled", nullable = false)
     @Builder.Default private boolean emailTaskNotificationsEnabled = true;
