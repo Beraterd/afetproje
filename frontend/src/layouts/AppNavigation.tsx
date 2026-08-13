@@ -1,62 +1,53 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { NotificationBell } from '@/components/shared/NotificationBell';
+import { OfflineSyncIndicator } from '@/components/shared/OfflineSyncIndicator';
+import { GlobalSearch } from '@/components/shared/GlobalSearch';
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/utils/cn';
 import {
-    LayoutDashboard,
-    Map as MapIcon,
-    Calendar,
     FileText,
-    Users,
-    ShieldAlert,
-    MapPin,
-    UserCheck,
-    CheckSquare,
     LogOut,
     Menu,
     User,
     ChevronDown,
-    Briefcase,
-    Building2,
-    PackageOpen,
-    Heart,
-    Landmark,
-    Wrench,
-    Activity,
+    ChevronRight,
     ClipboardList,
-    FileBarChart2,
+    ShieldAlert as ShieldAlertLogo,
 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { clearAllOfflineData } from '@/lib/offlineDb';
-
-const navItems = [
-    { name: 'Kontrol Paneli', to: '/dashboard', icon: LayoutDashboard, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR', 'VOLUNTEER'] },
-    { name: 'Risk Haritası', to: '/map', icon: MapIcon, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR', 'VOLUNTEER'] },
-    { name: 'Ekip Durumu', to: '/events', icon: Calendar, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR', 'VOLUNTEER'] },
-    { name: 'Hasar Tespiti', to: '/damage-assessments', icon: Building2, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR', 'VOLUNTEER'] },
-    { name: 'Kaynak Talepleri', to: '/resource-requests', icon: PackageOpen, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR'] },
-    { name: 'Belge Onayları', to: '/documents/approvals', icon: CheckSquare, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR'] },
-    { name: 'Koordinasyon Merkezi', to: '/coordination-center', icon: Landmark, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR'] },
-    { name: 'Raporlar', to: '/reports', icon: FileBarChart2, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR'] },
-    { name: 'Koordinatör Atamaları', to: '/admin/coordinators', icon: UserCheck, roles: ['ADMIN', 'DISTRICT_COORDINATOR'] },
-    { name: 'Kullanıcı Yönetimi', to: '/admin/users', icon: Users, roles: ['ADMIN'] },
-    { name: 'İşlem Kayıtları', to: '/admin/audit', icon: ClipboardList, roles: ['ADMIN'] },
-    { name: 'Sistem Bakımı', to: '/admin/maintenance', icon: Wrench, roles: ['ADMIN'] },
-    { name: 'AFAD Depremleri', to: '/earthquakes', icon: Activity, roles: ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR', 'VOLUNTEER'] },
-    { name: 'Simülasyonlar', to: '/simulations', icon: ShieldAlert, roles: ['ADMIN'] },
-];
-
-const roleLabels: Record<string, string> = {
-    ADMIN: 'Yönetici',
-    DISTRICT_COORDINATOR: 'İlçe Koordinatörü',
-    NEIGHBORHOOD_COORDINATOR: 'Mahalle Koordinatörü',
-    VOLUNTEER: 'Gönüllü',
-};
+import { logout } from '@/api/auth.api';
+import { getVisibleNavGroups, findActiveGroupId } from '@/config/navigation';
+import { roleLabels } from '@/utils/labels';
 
 export const SideNav: React.FC<{ mobileOpen: boolean; setMobileOpen: (v: boolean) => void }> = ({ mobileOpen, setMobileOpen }) => {
     const user = useAuthStore((s) => s.user);
-    const filteredNav = navItems.filter((item) => user && item.roles.includes(user.role));
+    const location = useLocation();
+    const groups = useMemo(() => getVisibleNavGroups(user?.role), [user?.role]);
+    const activeGroupId = useMemo(() => findActiveGroupId(location.pathname), [location.pathname]);
+
+    // Hangi gruplar açık — ilk açılışta sadece aktif route'un grubu açık, gereksiz görsel yük yok.
+    const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
+        () => new Set(activeGroupId ? [activeGroupId] : []),
+    );
+
+    // Route değiştiğinde yeni aktif grup otomatik açılır — kullanıcının daha önce açtığı
+    // diğer gruplar kapanmaz (yalnızca ekleme yapılır, kaldırma yapılmaz).
+    useEffect(() => {
+        if (activeGroupId) {
+            setExpandedGroups((prev) => (prev.has(activeGroupId) ? prev : new Set(prev).add(activeGroupId)));
+        }
+    }, [activeGroupId]);
+
+    const toggleGroup = (groupId: string) => {
+        setExpandedGroups((prev) => {
+            const next = new Set(prev);
+            next.has(groupId) ? next.delete(groupId) : next.add(groupId);
+            return next;
+        });
+    };
 
     // Touch handling for swipe-left to close (mirrors memoria)
     const [currentTranslate, setCurrentTranslate] = useState(0);
@@ -102,37 +93,68 @@ export const SideNav: React.FC<{ mobileOpen: boolean; setMobileOpen: (v: boolean
         touchStart.current = null;
     };
 
+    const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+        cn(
+            isActive
+                ? 'bg-brand-500/15 text-brand-800 shadow-sm border border-brand-500/10'
+                : 'text-gray-600 hover:text-brand-800 hover:bg-brand-500/5',
+            'group flex gap-x-3 rounded-xl p-2 text-sm leading-6 font-semibold transition-all duration-200'
+        );
+
     const navContent = (
         <div className="flex grow flex-col gap-y-5 overflow-y-auto glass-sidebar px-6 pb-4">
             <div className="flex h-16 shrink-0 items-center">
-                <ShieldAlert className="h-8 w-8 text-brand-700 mr-3" />
+                <ShieldAlertLogo className="h-8 w-8 text-brand-700 mr-3" />
                 <span className="text-xl font-display font-bold text-brand-900 tracking-tight">AfetKoordinasyon</span>
             </div>
             <nav className="flex flex-1 flex-col">
-                <ul role="list" className="flex flex-1 flex-col gap-y-7">
-                    <li>
-                        <ul role="list" className="-mx-2 space-y-1">
-                            {filteredNav.map((item) => (
-                                <li key={item.name}>
-                                    <NavLink
-                                        to={item.to}
-                                        onClick={() => setMobileOpen(false)}
-                                        className={({ isActive }) =>
-                                            cn(
-                                                isActive
-                                                    ? 'bg-brand-500/15 text-brand-800 shadow-sm border border-brand-500/10'
-                                                    : 'text-gray-600 hover:text-brand-800 hover:bg-brand-500/5',
-                                                'group flex gap-x-3 rounded-xl p-2 text-sm leading-6 font-semibold transition-all duration-200'
-                                            )
-                                        }
+                <ul role="list" className="flex flex-1 flex-col gap-y-4">
+                    {groups.map((group) => {
+                        const isCollapsible = group.collapsible !== false;
+                        const isExpanded = !isCollapsible || expandedGroups.has(group.id);
+
+                        return (
+                            <li key={group.id}>
+                                {isCollapsible ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleGroup(group.id)}
+                                        aria-expanded={isExpanded}
+                                        aria-controls={`nav-group-${group.id}`}
+                                        className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400 hover:text-gray-600 transition-colors"
                                     >
-                                        <item.icon className="h-6 w-6 shrink-0" aria-hidden="true" />
-                                        {item.name}
-                                    </NavLink>
-                                </li>
-                            ))}
-                        </ul>
-                    </li>
+                                        <span>{group.label}</span>
+                                        {isExpanded ? (
+                                            <ChevronDown className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                                        ) : (
+                                            <ChevronRight className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                                        )}
+                                    </button>
+                                ) : (
+                                    <p className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                                        {group.label}
+                                    </p>
+                                )}
+
+                                {isExpanded && (
+                                    <ul id={`nav-group-${group.id}`} role="list" className="mt-1 -mx-2 space-y-1">
+                                        {group.items.map((item) => (
+                                            <li key={item.label}>
+                                                <NavLink
+                                                    to={item.to}
+                                                    onClick={() => setMobileOpen(false)}
+                                                    className={navLinkClass}
+                                                >
+                                                    <item.icon className="h-6 w-6 shrink-0" aria-hidden="true" />
+                                                    {item.label}
+                                                </NavLink>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </li>
+                        );
+                    })}
                 </ul>
             </nav>
         </div>
@@ -186,6 +208,13 @@ export const TopBar: React.FC<{ onMenuClick: () => void }> = ({ onMenuClick }) =
     }, []);
 
     const handleLogout = async () => {
+        // Best-effort: refresh token'ı sunucu tarafında iptal et. Ağ hatası olsa bile
+        // yerel oturumu temizlemeye devam ederiz — kullanıcı her durumda çıkış yapabilmeli.
+        try {
+            await logout();
+        } catch {
+            // ignore — local session is cleared below regardless
+        }
         clearAuth();
         localStorage.removeItem('afet_token');
         queryClient.clear();
@@ -208,8 +237,15 @@ export const TopBar: React.FC<{ onMenuClick: () => void }> = ({ onMenuClick }) =
 
             <div className="h-6 w-px bg-gray-200 lg:hidden" aria-hidden="true" />
 
-            <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 justify-end items-center">
-                <NotificationBell />
+            <ErrorBoundary level="inline" sectionName="Genel Arama">
+                <GlobalSearch className="relative flex-1 max-w-xs sm:max-w-sm lg:max-w-md" />
+            </ErrorBoundary>
+
+            <div className="flex gap-x-4 self-stretch lg:gap-x-6 justify-end items-center ml-auto">
+                <OfflineSyncIndicator />
+                <ErrorBoundary level="inline" sectionName="Bildirimler">
+                    <NotificationBell />
+                </ErrorBoundary>
                 <div className="relative" ref={dropdownRef}>
                     <button
                         onClick={() => setDropdownOpen((v) => !v)}
@@ -240,20 +276,6 @@ export const TopBar: React.FC<{ onMenuClick: () => void }> = ({ onMenuClick }) =
                                 >
                                     <User className="h-4 w-4 text-gray-400" />
                                     Profilim
-                                </button>
-                                <button
-                                    onClick={() => go('/my-tasks')}
-                                    className="flex w-full items-center gap-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                >
-                                    <Briefcase className="h-4 w-4 text-gray-400" />
-                                    Görevlerim
-                                </button>
-                                <button
-                                    onClick={() => go('/emergency-contacts')}
-                                    className="flex w-full items-center gap-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                >
-                                    <Heart className="h-4 w-4 text-gray-400" />
-                                    Yakınlarım
                                 </button>
                                 <button
                                     onClick={() => go('/documents')}

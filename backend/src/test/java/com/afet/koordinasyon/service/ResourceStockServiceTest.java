@@ -5,13 +5,16 @@ import com.afet.koordinasyon.domain.entity.Neighborhood;
 import com.afet.koordinasyon.domain.entity.ResourceStock;
 import com.afet.koordinasyon.domain.entity.ResourceStockMovement;
 import com.afet.koordinasyon.domain.entity.User;
+import com.afet.koordinasyon.domain.enums.AuditActionType;
 import com.afet.koordinasyon.domain.enums.ResourceStockMovementType;
 import com.afet.koordinasyon.domain.enums.ResourceStockStatus;
 import com.afet.koordinasyon.domain.enums.ResourceType;
 import com.afet.koordinasyon.domain.enums.UserRole;
 import com.afet.koordinasyon.dto.request.CreateResourceStockRequest;
+import com.afet.koordinasyon.dto.request.TransferStockRequest;
 import com.afet.koordinasyon.dto.request.UpdateStockQuantityRequest;
 import com.afet.koordinasyon.dto.response.ResourceStockResponse;
+import com.afet.koordinasyon.exception.BusinessRuleException;
 import com.afet.koordinasyon.repository.DistrictRepository;
 import com.afet.koordinasyon.repository.NeighborhoodRepository;
 import com.afet.koordinasyon.repository.ResourceStockMovementRepository;
@@ -26,6 +29,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
@@ -45,6 +50,7 @@ class ResourceStockServiceTest {
     @Mock private DistrictRepository districtRepository;
     @Mock private NeighborhoodRepository neighborhoodRepository;
     @Mock private UserRepository userRepository;
+    @Mock private AuditLogService auditLogService;
 
     @InjectMocks private ResourceStockService service;
 
@@ -298,5 +304,156 @@ class ResourceStockServiceTest {
         assertThat(resp.getTotalQuantity()).isEqualTo(100);
         assertThat(resp.getDaysRemaining()).isEqualTo(10.0);
         assertThat(resp.getMessage()).contains("Talep edilen miktar mevcut stoktan fazla");
+    }
+
+    // ── Kaynak transfer önerisi + atomic transfer ───────────────────────────────
+    //
+    // Gerçek eşzamanlı transaction/DB-seviyesi optimistic-lock davranışı (Hibernate @Version)
+    // bu ortamda PostgreSQL olmadığı için doğrudan test edilemiyor — aşağıdaki testler servis
+    // katmanının mantığını (eşik koruması, aynı-kategori kuralı, scope/yetki) ve
+    // OptimisticLockingFailureException'ın doğru şekilde yayılıp movement/audit kaydı
+    // oluşmadan durdurulduğunu doğrular.
+
+    private District otherDistrict;
+    private ResourceStock source;
+    private ResourceStock target;
+
+    private void setUpTransferFixtures() {
+        otherDistrict = District.builder().id(UUID.randomUUID()).name("Pendik").build();
+        source = ResourceStock.builder()
+                .id(UUID.randomUUID()).name("Su").category(ResourceType.WATER)
+                .quantity(450).criticalThreshold(100).unit("koli").district(district).active(true).build();
+        target = ResourceStock.builder()
+                .id(UUID.randomUUID()).name("Su").category(ResourceType.WATER)
+                .quantity(63).criticalThreshold(100).unit("koli").district(otherDistrict).active(true).build();
+        lenient().when(stockRepository.findById(source.getId())).thenReturn(Optional.of(source));
+        lenient().when(stockRepository.findById(target.getId())).thenReturn(Optional.of(target));
+    }
+
+    private TransferStockRequest transferReq(int quantity) {
+        TransferStockRequest req = new TransferStockRequest();
+        req.setSourceStockId(source.getId());
+        req.setTargetStockId(target.getId());
+        req.setQuantity(quantity);
+        req.setReason("Test transferi");
+        return req;
+    }
+
+    @Test
+    @DisplayName("Başarılı transfer: iki stok da güncellenir, hareket ve audit kaydı oluşur")
+    void transfer_success_updatesBothStocksAndLogsAudit() {
+        setUpTransferFixtures();
+        when(userRepository.findById(any())).thenReturn(Optional.of(actor));
+        when(stockRepository.save(any(ResourceStock.class))).thenAnswer(i -> i.getArgument(0));
+
+        var response = service.transfer(transferReq(50), admin);
+
+        assertThat(response.getSource().getQuantity()).isEqualTo(400);
+        assertThat(response.getTarget().getQuantity()).isEqualTo(113);
+        verify(movementRepository, times(2)).save(any());
+        verify(auditLogService).logUserAction(any(), eq(AuditActionType.RESOURCE_STOCK_TRANSFERRED),
+                eq("ResourceStock"), eq(target.getId()), any(String.class), any());
+    }
+
+    @Test
+    @DisplayName("Kaynak kritik eşiğin altına düşecekse transfer reddedilir")
+    void transfer_wouldDropSourceBelowThreshold_rejected() {
+        setUpTransferFixtures();
+
+        assertThatThrownBy(() -> service.transfer(transferReq(400), admin))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("kritik eşiğinin altına");
+
+        verify(stockRepository, never()).save(any());
+        verifyNoInteractions(auditLogService);
+    }
+
+    @Test
+    @DisplayName("Farklı kategorideki stoklar arasında transfer yapılamaz")
+    void transfer_differentCategories_rejected() {
+        setUpTransferFixtures();
+        target.setCategory(ResourceType.BLANKET);
+
+        assertThatThrownBy(() -> service.transfer(transferReq(10), admin))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("aynı kaynak kategorisi");
+
+        verify(stockRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("İlçe koordinatörü kaynak veya hedefin kendi ilçesinde olmadığı bir transferi yapamaz")
+    void transfer_districtCoordinator_notStakeholder_throwsAccessDenied() {
+        setUpTransferFixtures();
+        UUID unrelatedDistrictId = UUID.randomUUID();
+
+        assertThatThrownBy(() -> service.transfer(transferReq(50), districtCoord(unrelatedDistrictId)))
+                .isInstanceOf(AccessDeniedException.class);
+
+        verify(stockRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("İlçe koordinatörü kaynak deposu kendi ilçesindeyse transfer yapabilir")
+    void transfer_districtCoordinator_isSourceDistrict_succeeds() {
+        setUpTransferFixtures();
+        when(userRepository.findById(any())).thenReturn(Optional.of(actor));
+        when(stockRepository.save(any(ResourceStock.class))).thenAnswer(i -> i.getArgument(0));
+
+        var response = service.transfer(transferReq(50), districtCoord(district.getId()));
+
+        assertThat(response.getSource().getQuantity()).isEqualTo(400);
+    }
+
+    @Test
+    @DisplayName("Mahalle koordinatörü transfer başlatamaz")
+    void transfer_neighborhoodCoordinator_throwsAccessDenied() {
+        setUpTransferFixtures();
+        UserPrincipal nc = new UserPrincipal(UUID.randomUUID(), "NC", "User", "nc@x.com",
+                null, UserRole.NEIGHBORHOOD_COORDINATOR, district.getId(), neighborhood.getId(), true, false, List.of());
+
+        assertThatThrownBy(() -> service.transfer(transferReq(50), nc))
+                .isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
+    @DisplayName("Eşzamanlı güncelleme çakışması (optimistic lock) hatası movement/audit kaydı oluşmadan yayılır")
+    void transfer_optimisticLockOnSecondSave_propagatesWithoutPartialSideEffects() {
+        setUpTransferFixtures();
+        when(userRepository.findById(any())).thenReturn(Optional.of(actor));
+        when(stockRepository.save(source)).thenReturn(source);
+        when(stockRepository.save(target)).thenThrow(
+                new ObjectOptimisticLockingFailureException(ResourceStock.class, target.getId()));
+
+        assertThatThrownBy(() -> service.transfer(transferReq(50), admin))
+                .isInstanceOf(OptimisticLockingFailureException.class);
+
+        verify(movementRepository, never()).save(any());
+        verifyNoInteractions(auditLogService);
+    }
+
+    @Test
+    @DisplayName("Hedef stok kritik değilse transfer önerisi boş döner")
+    void suggestTransfers_targetSufficient_returnsEmpty() {
+        setUpTransferFixtures();
+        target.setQuantity(500);
+
+        assertThat(service.suggestTransfers(target.getId(), admin)).isEmpty();
+        verify(stockRepository, never()).findByCategoryAndActiveTrueAndIdNot(any(), any());
+    }
+
+    @Test
+    @DisplayName("Hedef kritikse, güvenli fazlalığı olan aday doğru önerilen miktarla döner")
+    void suggestTransfers_targetCritical_returnsDeterministicSuggestion() {
+        setUpTransferFixtures();
+        when(stockRepository.findByCategoryAndActiveTrueAndIdNot(ResourceType.WATER, target.getId()))
+                .thenReturn(List.of(source));
+
+        var suggestions = service.suggestTransfers(target.getId(), admin);
+
+        assertThat(suggestions).hasSize(1);
+        assertThat(suggestions.get(0).getSourceStockId()).isEqualTo(source.getId());
+        assertThat(suggestions.get(0).getSuggestedQuantity()).isEqualTo(37); // need = 100-63
+        assertThat(suggestions.get(0).getAvailableQuantity()).isEqualTo(350); // 450-100
     }
 }

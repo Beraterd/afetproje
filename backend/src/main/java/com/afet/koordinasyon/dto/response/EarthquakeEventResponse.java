@@ -1,6 +1,7 @@
 package com.afet.koordinasyon.dto.response;
 
 import com.afet.koordinasyon.domain.enums.EarthquakeRiskLevel;
+import com.afet.koordinasyon.domain.enums.EarthquakeSource;
 import lombok.Builder;
 import lombok.Data;
 
@@ -17,10 +18,12 @@ public class EarthquakeEventResponse {
     private Double longitude;
     private Double depth;
     private Double magnitude;
+    /** ML/Mw/MD vb. — sağlayıcı vermiyorsa null. */
+    private String magnitudeType;
     private String location;
     private String province;
     private String district;
-    private String source;
+    private EarthquakeSource source;
     private EarthquakeRiskLevel riskLevel;
     private OffsetDateTime createdAt;
 }

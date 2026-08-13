@@ -42,8 +42,10 @@ public class AdminDocumentController {
     @GetMapping("/{id}/view-url")
     @Operation(summary = "Get a view URL for a pending document (admin/coordinator access)")
     public ResponseEntity<DocumentDownloadResponse> getViewUrl(
-            @PathVariable UUID id) {
-        return ResponseEntity.ok(documentService.getAdminDocumentViewUrl(id));
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.ok(
+                documentService.getAdminDocumentViewUrl(id, principal.getId(), principal.getRole()));
     }
 
     @PostMapping("/{id}/approve")

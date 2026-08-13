@@ -54,6 +54,10 @@ public class Document {
     @Builder.Default
     private UUID downloadToken = UUID.randomUUID();
 
+    /** Her yetkili indirme-URL isteğinde yenilenir (rotasyon) — serveFile bunu enforce eder. */
+    @Column(name = "download_token_expires_at")
+    private OffsetDateTime downloadTokenExpiresAt;
+
     @Column(name = "rejection_reason", columnDefinition = "TEXT")
     private String rejectionReason;
 

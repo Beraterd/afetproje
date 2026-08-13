@@ -2,12 +2,15 @@ package com.afet.koordinasyon.controller;
 
 import com.afet.koordinasyon.domain.enums.ResourceType;
 import com.afet.koordinasyon.dto.request.CreateResourceStockRequest;
+import com.afet.koordinasyon.dto.request.TransferStockRequest;
 import com.afet.koordinasyon.dto.request.UpdateResourceStockRequest;
 import com.afet.koordinasyon.dto.request.UpdateStockQuantityRequest;
 import com.afet.koordinasyon.dto.response.ResourceStockMovementResponse;
 import com.afet.koordinasyon.dto.response.ResourceStockResponse;
 import com.afet.koordinasyon.dto.response.ResourceStockSummaryResponse;
 import com.afet.koordinasyon.dto.response.StockLookupResponse;
+import com.afet.koordinasyon.dto.response.TransferStockResponse;
+import com.afet.koordinasyon.dto.response.TransferSuggestionResponse;
 import com.afet.koordinasyon.security.UserPrincipal;
 import com.afet.koordinasyon.service.ResourceStockService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -111,5 +114,22 @@ public class ResourceStockController {
             @AuthenticationPrincipal UserPrincipal principal) {
         stockService.deactivate(id, principal);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/transfer-suggestions")
+    @Operation(summary = "Kritik/tükenmiş stok için deterministik transfer önerileri")
+    public ResponseEntity<List<TransferSuggestionResponse>> transferSuggestions(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.ok(stockService.suggestTransfers(id, principal));
+    }
+
+    @PostMapping("/transfer")
+    @PreAuthorize("hasAnyRole('ADMIN','DISTRICT_COORDINATOR')")
+    @Operation(summary = "İki depo arasında atomic kaynak transferi")
+    public ResponseEntity<TransferStockResponse> transfer(
+            @Valid @RequestBody TransferStockRequest request,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.ok(stockService.transfer(request, principal));
     }
 }

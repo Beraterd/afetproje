@@ -35,6 +35,11 @@ public class DamageAssessment {
     @JoinColumn(name = "neighborhood_id", nullable = false)
     private Neighborhood neighborhood;
 
+    /** Nullable — yalnızca 3B bina pilotu kapsamındaki (şu an: Pendik) yeni kayıtlarda dolu olabilir. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "building_id")
+    private Building building;
+
     @Column(name = "street_name", length = 255)
     private String streetName;
 

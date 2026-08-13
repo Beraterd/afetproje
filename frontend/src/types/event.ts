@@ -74,6 +74,15 @@ export interface EventParticipantResponse {
     joinedAt: string;
 }
 
+export interface EventTimelineItemResponse {
+    id: string;
+    type: string;
+    title: string;
+    description?: string | null;
+    actorName?: string | null;
+    createdAt: string;
+}
+
 export interface UserEventResponse {
     id: string;
     title: string;

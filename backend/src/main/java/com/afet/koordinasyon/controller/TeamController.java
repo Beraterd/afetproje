@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,19 +27,20 @@ public class TeamController {
     private final TeamService teamService;
 
     @GetMapping
-    @Operation(summary = "List all teams")
+    @Operation(summary = "List all teams (authenticated users only)")
     public ResponseEntity<List<TeamResponse>> listTeams() {
         return ResponseEntity.ok(teamService.listAll());
     }
 
     @GetMapping("/types")
-    @Operation(summary = "List all team types (static enum values — no DB enum mapping involved)")
+    @Operation(summary = "List all team types (static enum values — no DB enum mapping involved, public)")
     public ResponseEntity<List<TeamTypeResponse>> listTypes() {
         return ResponseEntity.ok(teamService.listTypes());
     }
 
     @GetMapping("/{id}/members")
-    @Operation(summary = "List active members of a team")
+    @PreAuthorize("hasAnyRole('ADMIN','DISTRICT_COORDINATOR','NEIGHBORHOOD_COORDINATOR')")
+    @Operation(summary = "List active members of a team (contains personal data — admin/coordinator only)")
     public ResponseEntity<PagedResponse<TeamMemberResponse>> listMembers(
             @PathVariable UUID id,
             @RequestParam(defaultValue = "0") int page,
@@ -47,6 +49,7 @@ public class TeamController {
     }
 
     @PostMapping("/backfill-codes")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Ekip kodu olmayan ekiplere otomatik kod atar (ADMIN)")
     public ResponseEntity<Map<String, Integer>> backfillCodes() {
         int count = teamService.backfillTeamCodes();

@@ -22,5 +22,6 @@ public class MapNeighborhoodResponse {
     private long openEventCount;
     private long openResourceRequestCount;
     private long damageCount;
+    private long buildingCount;
     private JsonNode polygon;
 }

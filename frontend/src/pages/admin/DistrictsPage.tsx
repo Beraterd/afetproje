@@ -6,6 +6,7 @@ import { queryKeys } from '@/utils/queryKeys';
 import { Button, DataTable, ColumnDef, FormField, Badge, Modal, LoadingSpinner } from '@/components/ui';
 import { DistrictResponse } from '@/types';
 import { useToast } from '@/components/shared/ToastProvider';
+import { getApiErrorMessage } from '@/utils/errorParser';
 import { MapPin, Settings, User } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -175,7 +176,7 @@ const AssignCoordinatorModal: React.FC<{
             onSuccess();
         },
         onError: (err: any) =>
-            toast.error(err.response?.data?.message || err.message || 'Koordinatör atanamadı'),
+            toast.error(getApiErrorMessage(err, 'Koordinatör atanamadı')),
     });
 
     const handleSubmit = (e: React.FormEvent) => {

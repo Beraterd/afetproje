@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
-import { getEvents, getMyEvents } from '@/api/events.api';
+import { getMyEvents } from '@/api/events.api';
 import { getPendingDocuments, getMyDocuments } from '@/api/documents.api';
 import { getDamageAssessments } from '@/api/damageAssessments.api';
 import { getResourceRequests } from '@/api/resourceRequests.api';
@@ -11,6 +11,8 @@ import { Badge, LoadingSpinner } from '@/components/ui';
 import { UserResponse, EarthquakeEventResponse, EarthquakeRiskLevel } from '@/types';
 import { getLatestEarthquakes } from '@/api/earthquakes.api';
 import { getActiveEventCount } from '@/api/teamRecommendations.api';
+import { AttentionCenter } from '@/components/dashboard/AttentionCenter';
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 
 const RISK_VARIANTS: Record<EarthquakeRiskLevel, 'neutral' | 'info' | 'warning' | 'danger'> = {
     LOW: 'neutral',
@@ -41,6 +43,14 @@ export const DashboardPage: React.FC = () => {
                     Bugün bölgenizdeki son durumu buradan takip edebilirsiniz.
                 </p>
             </div>
+
+            {/* Dikkat Gerektirenler: gönüllünün ilgilenmeyeceği operasyonel uyarılar yalnızca
+                yönetici/koordinatör rollerine gösterilir. */}
+            {user.role !== 'VOLUNTEER' && (
+                <ErrorBoundary level="section" sectionName="Dikkat Gerektirenler">
+                    <AttentionCenter />
+                </ErrorBoundary>
+            )}
 
             {user.role === 'ADMIN' && <AdminDashboard />}
             {(user.role === 'DISTRICT_COORDINATOR' || user.role === 'NEIGHBORHOOD_COORDINATOR') && <CoordinatorDashboard />}
@@ -248,7 +258,7 @@ const CoordinatorDashboard = () => {
 };
 
 // ─────────────────────────────────────────────────────
-// Son AFAD Depremi Kartı — tüm roller
+// Son Deprem Kartı — tüm roller
 // ─────────────────────────────────────────────────────
 const formatNumber = (value?: number | null, digits = 1): string =>
     typeof value === 'number' && Number.isFinite(value) ? value.toFixed(digits) : '-';
@@ -281,7 +291,7 @@ const LatestEarthquakeCard = () => {
                 <div className="flex items-center justify-between mb-3">
                     <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
                         <Activity className="h-5 w-5 text-red-600" />
-                        Son AFAD Depremi
+                        Son Deprem
                     </h3>
                     <Link
                         to="/earthquakes"
@@ -304,7 +314,7 @@ const LatestEarthquakeCard = () => {
             <div className="flex items-center justify-between mb-3">
                 <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
                     <Activity className="h-5 w-5 text-red-600" />
-                    Son AFAD Depremi
+                    Son Deprem
                 </h3>
                 <Link
                     to="/earthquakes"

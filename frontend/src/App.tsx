@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, Outlet, useRoutes } from 'react-router-dom';
 
 import { AuthLayout } from '@/layouts/AuthLayout';
@@ -5,6 +6,7 @@ import { AppLayout } from '@/layouts/AppLayout';
 import { ProtectedRoute } from '@/layouts/RoleGuard';
 import { ToastProvider } from '@/components/shared/ToastProvider';
 import { AuthProvider } from '@/components/shared/AuthProvider';
+import { LoadingSpinner } from '@/components/ui';
 
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { RegisterPage } from '@/pages/auth/RegisterPage';
@@ -22,28 +24,13 @@ import { CreateEventPage } from '@/pages/events/CreateEventPage';
 import { DocumentsPage } from '@/pages/documents/DocumentsPage';
 import { DocumentApprovalPage } from '@/pages/documents/DocumentApprovalPage';
 
-import { MapPage } from '@/pages/map/MapPage';
-
-import { SimulationTriggerPage } from '@/pages/simulations/SimulationTriggerPage';
-import { SimulationDetailPage } from '@/pages/simulations/SimulationDetailPage';
-
-import { UsersPage } from '@/pages/admin/UsersPage';
-import { MaintenancePage } from '@/pages/admin/MaintenancePage';
-import { DistrictsPage } from '@/pages/admin/DistrictsPage';
-import { CoordinatorAssignmentPage } from '@/pages/admin/CoordinatorAssignmentPage';
-import { AssemblyAreaReviewPage } from '@/pages/admin/AssemblyAreaReviewPage';
-import { AuditPage } from '@/pages/admin/AuditPage';
-
 import { MyTasksPage } from '@/pages/tasks/MyTasksPage';
 import { EmergencyContactsPage } from '@/pages/profile/EmergencyContactsPage';
 import { EmergencyAssemblyAreasPage } from '@/pages/emergency/EmergencyAssemblyAreasPage';
 import { MyRecordsPage } from '@/pages/profile/MyRecordsPage';
 import { DamageAssessmentsPage } from '@/pages/damage/DamageAssessmentsPage';
 import { ResourceRequestsPage } from '@/pages/resources/ResourceRequestsPage';
-import { CoordinationCenterPage } from '@/pages/coordination/CoordinationCenterPage';
 import { EarthquakesPage } from '@/pages/earthquakes/EarthquakesPage';
-import { ReportCenterPage } from '@/pages/reports/ReportCenterPage';
-import { ReportViewPage } from '@/pages/reports/ReportViewPage';
 
 import { UnauthorizedPage } from '@/pages/errors/UnauthorizedPage';
 import { NotFoundPage } from '@/pages/errors/NotFoundPage';
@@ -51,6 +38,37 @@ import { AssignmentAcceptPage } from '@/pages/assignment/AssignmentAcceptPage';
 import { AssignmentDeclinePage } from '@/pages/assignment/AssignmentDeclinePage';
 import { EmergencyMessageResultPage } from '@/pages/emergency/EmergencyMessageResultPage';
 import { EmergencyStatusPage } from '@/pages/emergency/EmergencyStatusPage';
+
+// Ağır sayfalar (Leaflet harita, rapor grafikleri, admin/simülasyon ekranları) route-level
+// lazy load edilir — ilk yüklemede bundle'a dahil edilmezler, yalnızca route ziyaret
+// edildiğinde indirilirler. Küçük component'ler bilerek lazy yapılmadı.
+const MapPage = lazy(() => import('@/pages/map/MapPage').then((m) => ({ default: m.MapPage })));
+const Map3DPage = lazy(() => import('@/pages/map/Map3DPage').then((m) => ({ default: m.Map3DPage })));
+const SimulationTriggerPage = lazy(() =>
+    import('@/pages/simulations/SimulationTriggerPage').then((m) => ({ default: m.SimulationTriggerPage })));
+const SimulationDetailPage = lazy(() =>
+    import('@/pages/simulations/SimulationDetailPage').then((m) => ({ default: m.SimulationDetailPage })));
+const UsersPage = lazy(() => import('@/pages/admin/UsersPage').then((m) => ({ default: m.UsersPage })));
+const MaintenancePage = lazy(() => import('@/pages/admin/MaintenancePage').then((m) => ({ default: m.MaintenancePage })));
+const DistrictsPage = lazy(() => import('@/pages/admin/DistrictsPage').then((m) => ({ default: m.DistrictsPage })));
+const CoordinatorAssignmentPage = lazy(() =>
+    import('@/pages/admin/CoordinatorAssignmentPage').then((m) => ({ default: m.CoordinatorAssignmentPage })));
+const AssemblyAreaReviewPage = lazy(() =>
+    import('@/pages/admin/AssemblyAreaReviewPage').then((m) => ({ default: m.AssemblyAreaReviewPage })));
+const AuditPage = lazy(() => import('@/pages/admin/AuditPage').then((m) => ({ default: m.AuditPage })));
+const CoordinationCenterPage = lazy(() =>
+    import('@/pages/coordination/CoordinationCenterPage').then((m) => ({ default: m.CoordinationCenterPage })));
+const ReportCenterPage = lazy(() => import('@/pages/reports/ReportCenterPage').then((m) => ({ default: m.ReportCenterPage })));
+const ReportViewPage = lazy(() => import('@/pages/reports/ReportViewPage').then((m) => ({ default: m.ReportViewPage })));
+
+const PageLoadingFallback = () => (
+    <div className="flex items-center justify-center py-24">
+        <LoadingSpinner size="lg" label="Sayfa yükleniyor..." />
+    </div>
+);
+
+/** Lazy route element'lerini Suspense ile sarar — her route için ayrı ayrı yazmamak için. */
+const withSuspense = (element: JSX.Element) => <Suspense fallback={<PageLoadingFallback />}>{element}</Suspense>;
 
 function AppRoutes() {
     return useRoutes([
@@ -80,7 +98,7 @@ function AppRoutes() {
                 { path: 'dashboard', element: <DashboardPage /> },
                 {
                     path: 'coordination-center',
-                    element: (
+                    element: withSuspense(
                         <ProtectedRoute allowedRoles={['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR']}>
                             <CoordinationCenterPage />
                         </ProtectedRoute>
@@ -95,8 +113,8 @@ function AppRoutes() {
                         </ProtectedRoute>
                     ),
                     children: [
-                        { path: '', element: <ReportCenterPage /> },
-                        { path: 'view', element: <ReportViewPage /> },
+                        { path: '', element: withSuspense(<ReportCenterPage />) },
+                        { path: 'view', element: withSuspense(<ReportViewPage />) },
                     ],
                 },
 
@@ -137,7 +155,8 @@ function AppRoutes() {
                     ],
                 },
 
-                { path: 'map', element: <MapPage /> },
+                { path: 'map', element: withSuspense(<MapPage />) },
+                { path: 'map-3d', element: withSuspense(<Map3DPage />) },
                 { path: 'earthquakes', element: <EarthquakesPage /> },
 
                 {
@@ -148,8 +167,8 @@ function AppRoutes() {
                         </ProtectedRoute>
                     ),
                     children: [
-                        { path: '', element: <SimulationTriggerPage /> },
-                        { path: ':id', element: <SimulationDetailPage /> },
+                        { path: '', element: withSuspense(<SimulationTriggerPage />) },
+                        { path: ':id', element: withSuspense(<SimulationDetailPage />) },
                     ],
                 },
 
@@ -163,7 +182,7 @@ function AppRoutes() {
                     children: [
                         {
                             path: 'coordinators',
-                            element: (
+                            element: withSuspense(
                                 <ProtectedRoute allowedRoles={['ADMIN', 'DISTRICT_COORDINATOR']}>
                                     <CoordinatorAssignmentPage />
                                 </ProtectedRoute>
@@ -171,7 +190,7 @@ function AppRoutes() {
                         },
                         {
                             path: 'users',
-                            element: (
+                            element: withSuspense(
                                 <ProtectedRoute allowedRoles={['ADMIN']}>
                                     <UsersPage />
                                 </ProtectedRoute>
@@ -179,7 +198,7 @@ function AppRoutes() {
                         },
                         {
                             path: 'districts',
-                            element: (
+                            element: withSuspense(
                                 <ProtectedRoute allowedRoles={['ADMIN']}>
                                     <DistrictsPage />
                                 </ProtectedRoute>
@@ -187,7 +206,7 @@ function AppRoutes() {
                         },
                         {
                             path: 'assembly-areas',
-                            element: (
+                            element: withSuspense(
                                 <ProtectedRoute allowedRoles={['ADMIN']}>
                                     <AssemblyAreaReviewPage />
                                 </ProtectedRoute>
@@ -195,7 +214,7 @@ function AppRoutes() {
                         },
                         {
                             path: 'maintenance',
-                            element: (
+                            element: withSuspense(
                                 <ProtectedRoute allowedRoles={['ADMIN']}>
                                     <MaintenancePage />
                                 </ProtectedRoute>
@@ -203,7 +222,7 @@ function AppRoutes() {
                         },
                         {
                             path: 'audit',
-                            element: (
+                            element: withSuspense(
                                 <ProtectedRoute allowedRoles={['ADMIN']}>
                                     <AuditPage />
                                 </ProtectedRoute>

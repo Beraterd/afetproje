@@ -82,10 +82,37 @@ export interface UpdateStockQuantityRequest {
     reason?: string;
 }
 
-/** Stok durum rozet renkleri */
+export interface TransferSuggestionResponse {
+    sourceStockId: string;
+    sourceLabel: string;
+    sourceDistrictName: string;
+    sourceNeighborhoodName?: string | null;
+    availableQuantity: number;
+    suggestedQuantity: number;
+    unit: string;
+    reason: string;
+}
+
+export interface TransferStockRequest {
+    sourceStockId: string;
+    targetStockId: string;
+    quantity: number;
+    reason?: string;
+}
+
+export interface TransferStockResponse {
+    source: ResourceStockResponse;
+    target: ResourceStockResponse;
+}
+
+/**
+ * Stok durum rozet renkleri — semantic durum renk sistemine uygun (bkz. utils/statusStyles.ts):
+ * CRITICAL kırmızı olmalı; OUT_OF_STOCK ondan daha ciddi olduğu için daha koyu/bold kırmızı kullanır
+ * (damageDisplay.ts'teki HEAVY/COLLAPSED şiddet ayrımıyla aynı desen).
+ */
 export const STOCK_STATUS_BADGE: Record<string, string> = {
     SUFFICIENT: 'bg-green-100 text-green-800',
     DECREASING: 'bg-yellow-100 text-yellow-800',
-    CRITICAL: 'bg-orange-100 text-orange-800',
-    OUT_OF_STOCK: 'bg-red-100 text-red-800',
+    CRITICAL: 'bg-red-100 text-red-800',
+    OUT_OF_STOCK: 'bg-red-200 text-red-900 font-bold',
 };

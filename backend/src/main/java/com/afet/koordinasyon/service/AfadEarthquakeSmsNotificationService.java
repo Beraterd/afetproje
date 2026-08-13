@@ -118,7 +118,7 @@ public class AfadEarthquakeSmsNotificationService {
 
     private String buildSmsText(EarthquakeEvent eq, List<AssemblyArea> areas) {
         StringBuilder sb = new StringBuilder();
-        sb.append("AFAD DEPREM: M").append(String.format("%.1f", eq.getMagnitude()));
+        sb.append(eq.getSource()).append(" DEPREM: M").append(String.format("%.1f", eq.getMagnitude()));
 
         if (eq.getLocation() != null && !eq.getLocation().isBlank()) {
             sb.append(" - ").append(eq.getLocation());

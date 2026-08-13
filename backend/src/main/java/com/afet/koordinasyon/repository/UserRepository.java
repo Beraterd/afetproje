@@ -53,6 +53,23 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT u FROM User u WHERE LOWER(u.firstName) LIKE LOWER(CONCAT('%',:q,'%')) OR LOWER(u.lastName) LIKE LOWER(CONCAT('%',:q,'%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%',:q,'%'))")
     List<User> searchByQuery(@Param("q") String query, Pageable pageable);
 
+    // ── Global search ─────────────────────────────────────────────────────────
+
+    /** Global search: yalnızca ad/soyad üzerinden eşleşir (e-posta kasıtlı olarak dahil değil —
+     *  kısmi e-posta ile hesap keşfini önlemek için); districtId/neighborhoodId ile kapsamlanır. */
+    @Query("""
+            SELECT u FROM User u
+            WHERE (LOWER(u.firstName) LIKE LOWER(CONCAT('%',:q,'%'))
+                 OR LOWER(u.lastName) LIKE LOWER(CONCAT('%',:q,'%')))
+              AND (:districtId IS NULL OR u.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR u.neighborhood.id = :neighborhoodId)
+            ORDER BY u.firstName ASC
+            """)
+    List<User> searchScoped(@Param("q") String query,
+                             @Param("districtId") UUID districtId,
+                             @Param("neighborhoodId") UUID neighborhoodId,
+                             Pageable pageable);
+
     // ── Bakım / Purge sorguları ──────────────────────────────────────────────
 
     /** Protected e-posta listesi dışındaki tüm kullanıcıları döner. */

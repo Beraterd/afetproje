@@ -10,6 +10,7 @@ import com.afet.koordinasyon.dto.request.RegisterRequest;
 import com.afet.koordinasyon.dto.response.DistrictSummaryResponse;
 import com.afet.koordinasyon.dto.response.LoginResponse;
 import com.afet.koordinasyon.dto.response.NeighborhoodSummaryResponse;
+import com.afet.koordinasyon.dto.response.TokenRefreshResponse;
 import com.afet.koordinasyon.dto.response.UserResponse;
 import com.afet.koordinasyon.exception.BusinessRuleException;
 import com.afet.koordinasyon.exception.ConflictException;
@@ -22,6 +23,7 @@ import com.afet.koordinasyon.security.JwtTokenProvider;
 import com.afet.koordinasyon.security.UserPrincipal;
 import com.afet.koordinasyon.service.email.UserRegisteredEmailEvent;
 import com.afet.koordinasyon.util.PhoneNumberUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -47,11 +49,18 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenService refreshTokenService;
     private final AuditLogService auditLogService;
     private final ApplicationEventPublisher eventPublisher;
 
+    public record LoginResult(LoginResponse response, String rawRefreshToken) {
+    }
+
+    public record TokenPair(TokenRefreshResponse response, String rawRefreshToken) {
+    }
+
     @Transactional
-    public LoginResponse login(LoginRequest request) {
+    public LoginResult login(LoginRequest request, HttpServletRequest httpRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmailOrUsername(), request.getPassword()));
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
@@ -64,6 +73,9 @@ public class AuthService {
         }
 
         String token = jwtTokenProvider.generateAccessToken(principal);
+        User userRef = userRepository.getReferenceById(principal.getId());
+        RefreshTokenService.IssuedToken refreshToken = refreshTokenService.issue(userRef, httpRequest);
+
         auditLogService.logUserAction(
                 principal.getId(),
                 principal.getFirstName() + " " + principal.getLastName(),
@@ -72,12 +84,13 @@ public class AuthService {
                 principal.getFirstName() + " " + principal.getLastName() + " giriş yaptı",
                 Map.of("email", principal.getEmail()));
         // Use getCurrentUser so the response includes coordinator-aware districtId/neighborhoodId
-        return LoginResponse.builder()
+        LoginResponse response = LoginResponse.builder()
                 .token(token)
                 .tokenType("Bearer")
                 .expiresIn(jwtTokenProvider.getAccessTokenExpirationMs())
                 .user(getCurrentUser(principal.getId()))
                 .build();
+        return new LoginResult(response, refreshToken.rawToken());
     }
 
     /**
@@ -86,7 +99,7 @@ public class AuthService {
      * Yazma istekleri DemoModeWriteGuardFilter tarafından backend seviyesinde engellenir.
      */
     @Transactional
-    public LoginResponse demoLogin() {
+    public LoginResult demoLogin(HttpServletRequest httpRequest) {
         User demoUser = userRepository.findByUsername(DemoModeConstants.DEMO_ADMIN_USERNAME)
                 .filter(User::isDemo)
                 .orElseThrow(() -> new BusinessRuleException(
@@ -94,6 +107,7 @@ public class AuthService {
 
         UserPrincipal principal = UserPrincipal.create(demoUser);
         String token = jwtTokenProvider.generateAccessToken(principal);
+        RefreshTokenService.IssuedToken refreshToken = refreshTokenService.issue(demoUser, httpRequest);
 
         auditLogService.logUserAction(
                 principal.getId(),
@@ -103,12 +117,45 @@ public class AuthService {
                 "Ziyaretçi demo admin oturumu başlattı",
                 Map.of("demo", true));
 
-        return LoginResponse.builder()
+        LoginResponse response = LoginResponse.builder()
                 .token(token)
                 .tokenType("Bearer")
                 .expiresIn(jwtTokenProvider.getAccessTokenExpirationMs())
                 .user(getCurrentUser(principal.getId()))
                 .build();
+        return new LoginResult(response, refreshToken.rawToken());
+    }
+
+    /**
+     * Geçerli bir refresh token'ı rotate eder (eskisi iptal edilir, yenisi üretilir) ve yeni bir
+     * access token döner. Kullanıcı bu sırada devre dışı bırakılmışsa reddedilir.
+     */
+    @Transactional
+    public TokenPair refresh(String rawRefreshToken, HttpServletRequest httpRequest) {
+        RefreshTokenService.IssuedToken issued = refreshTokenService.rotate(rawRefreshToken, httpRequest);
+
+        User user = userRepository.findById(issued.entity().getUser().getId())
+                .orElseThrow(() -> new BusinessRuleException(
+                        "Geçersiz veya süresi dolmuş oturum. Lütfen tekrar giriş yapın.",
+                        HttpStatus.UNAUTHORIZED, "INVALID_REFRESH_TOKEN"));
+        if (!user.isActive()) {
+            throw new BusinessRuleException("Hesap devre dışı bırakılmış.",
+                    HttpStatus.UNAUTHORIZED, "INVALID_REFRESH_TOKEN");
+        }
+
+        UserPrincipal principal = UserPrincipal.create(user);
+        String accessToken = jwtTokenProvider.generateAccessToken(principal);
+        TokenRefreshResponse response = TokenRefreshResponse.builder()
+                .accessToken(accessToken)
+                .tokenType("Bearer")
+                .expiresIn(jwtTokenProvider.getAccessTokenExpirationMs())
+                .build();
+        return new TokenPair(response, issued.rawToken());
+    }
+
+    @Transactional
+    public void logout(String rawRefreshToken) {
+        refreshTokenService.revoke(rawRefreshToken);
     }
 
     @Transactional

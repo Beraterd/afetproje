@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Archive, Plus, RefreshCw, Eye, X, Filter } from 'lucide-react';
 import { getResourceRequests, createResourceRequest, updateResourceRequestStatus } from '@/api/resourceRequests.api';
 import { lookupStock } from '@/api/resourceStocks.api';
@@ -15,12 +16,25 @@ import {
 } from '@/types';
 import { useToast } from '@/components/shared/ToastProvider';
 import { useAuthStore } from '@/store/authStore';
+import { useDemoMode } from '@/hooks/useDemoMode';
+import { getApiErrorMessage } from '@/utils/errorParser';
 import { StockSection } from './StockSection';
 
 export function ResourceRequestsPage() {
     const { success: toastSuccess, error: toastError, warning: toastWarning } = useToast();
     const user = useAuthStore(s => s.user);
+    const { isDemo, disabledReason } = useDemoMode();
     const canCreate = user?.role !== 'VOLUNTEER';
+    const [searchParams] = useSearchParams();
+    const stockSectionRef = useRef<HTMLDivElement>(null);
+
+    // AttentionCenter'daki "kritik stok" öğesinden ?section=stock ile gelindiğinde
+    // doğrudan Stok Durumu bölümüne kaydır.
+    useEffect(() => {
+        if (searchParams.get('section') === 'stock') {
+            stockSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, [searchParams]);
 
     const isAdmin = user?.role === 'ADMIN';
     const isDistrictCoord = user?.role === 'DISTRICT_COORDINATOR';
@@ -175,7 +189,7 @@ export function ResourceRequestsPage() {
             closeCreateModal();
             loadRequests();
         } catch (err: any) {
-            toastError(err?.response?.data?.message || 'Oluşturma başarısız');
+            toastError(getApiErrorMessage(err, 'Oluşturma başarısız'));
         } finally {
             setCreating(false);
         }
@@ -190,7 +204,7 @@ export function ResourceRequestsPage() {
             setShowStatusModal(null);
             loadRequests();
         } catch (err: any) {
-            toastError(err?.response?.data?.message || 'Güncelleme başarısız');
+            toastError(getApiErrorMessage(err, 'Güncelleme başarısız'));
         } finally {
             setUpdatingStatus(false);
         }
@@ -221,7 +235,9 @@ export function ResourceRequestsPage() {
                 {canCreate && (
                     <button
                         onClick={() => setShowCreateModal(true)}
-                        className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        disabled={isDemo}
+                        title={disabledReason}
+                        className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none"
                     >
                         <Plus className="h-4 w-4" />
                         Yeni Talep Aç
@@ -335,6 +351,7 @@ export function ResourceRequestsPage() {
                                                 onClick={() => setShowDetailModal(r)}
                                                 className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                                                 title="Detayları Gör"
+                                                aria-label="Detayları Gör"
                                             >
                                                 <Eye className="h-4 w-4" />
                                             </button>
@@ -343,6 +360,7 @@ export function ResourceRequestsPage() {
                                                     onClick={() => { setShowStatusModal(r); setNewStatus(r.status); }}
                                                     className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                                                     title="Durumu Güncelle"
+                                                    aria-label="Durumu Güncelle"
                                                 >
                                                     <RefreshCw className="h-4 w-4" />
                                                 </button>
@@ -364,8 +382,9 @@ export function ResourceRequestsPage() {
             )}
 
             {/* ── Bölüm 2: Stok Durumu ── */}
-            <div className="pt-2 border-t border-gray-200" />
-            <StockSection />
+            <div ref={stockSectionRef} className="pt-2 border-t border-gray-200 scroll-mt-4">
+                <StockSection />
+            </div>
 
             {/* Detail Modal */}
             {showDetailModal && (
@@ -373,7 +392,7 @@ export function ResourceRequestsPage() {
                     <div className="bg-white rounded-xl w-full max-w-md p-6 space-y-4">
                         <div className="flex items-start justify-between">
                             <h2 className="text-lg font-semibold text-gray-900">Kaynak Talebi Detayı</h2>
-                            <button onClick={() => setShowDetailModal(null)} className="text-gray-400 hover:text-gray-600">
+                            <button onClick={() => setShowDetailModal(null)} aria-label="Kapat" className="text-gray-400 hover:text-gray-600">
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
@@ -579,7 +598,7 @@ export function ResourceRequestsPage() {
 
                         <div className="flex gap-3 pt-2">
                             <button onClick={closeCreateModal} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">İptal</button>
-                            <button onClick={handleCreate} disabled={creating} className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium disabled:opacity-60">
+                            <button onClick={handleCreate} disabled={creating || isDemo} title={isDemo ? disabledReason : undefined} className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium disabled:opacity-60">
                                 {creating ? 'Kaydediliyor...' : 'Kaydet'}
                             </button>
                         </div>
@@ -602,7 +621,7 @@ export function ResourceRequestsPage() {
                         </div>
                         <div className="flex gap-3">
                             <button onClick={() => setShowStatusModal(null)} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">İptal</button>
-                            <button onClick={handleUpdateStatus} disabled={updatingStatus} className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium disabled:opacity-60">
+                            <button onClick={handleUpdateStatus} disabled={updatingStatus || isDemo} title={isDemo ? disabledReason : undefined} className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium disabled:opacity-60">
                                 {updatingStatus ? 'Güncelleniyor...' : 'Güncelle'}
                             </button>
                         </div>

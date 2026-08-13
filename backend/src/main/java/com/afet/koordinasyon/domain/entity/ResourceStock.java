@@ -76,6 +76,12 @@ public class ResourceStock {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
+    /** Optimistic locking — eşzamanlı miktar güncellemelerinde lost-update'i önler. */
+    @Version
+    @Column(nullable = false)
+    @Builder.Default
+    private Long version = 0L;
+
     @PrePersist
     protected void onCreate() {
         createdAt = OffsetDateTime.now();

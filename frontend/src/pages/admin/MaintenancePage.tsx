@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { purgeOperationalData, PurgeResponse } from '@/api/users.api';
+import { importDistrictBuildings, getBuildingImportStatus } from '@/api/buildings.api';
+import { getDistricts } from '@/api/districts.api';
+import { BuildingImportResult } from '@/types/building';
 import { useToast } from '@/components/shared/ToastProvider';
-import { Wrench, AlertTriangle, CheckCircle } from 'lucide-react';
+import { getApiErrorMessage } from '@/utils/errorParser';
+import { Wrench, AlertTriangle, CheckCircle, Box } from 'lucide-react';
 
 const DEFAULT_PROTECTED_EMAILS = ['admin.gmail.com', 'admin@afetkoordinasyon.istanbul'];
 
@@ -28,7 +32,25 @@ export const MaintenancePage: React.FC = () => {
             toast.success('Temizleme işlemi tamamlandı');
         },
         onError: (err: any) => {
-            toast.error(err?.response?.data?.message || err.message || 'Temizleme işlemi başarısız');
+            toast.error(getApiErrorMessage(err, 'Temizleme işlemi başarısız'));
+        },
+    });
+
+    const districtsQuery = useQuery({ queryKey: ['districts', 'all-for-maintenance'], queryFn: getDistricts });
+    const [selectedDistrictId, setSelectedDistrictId] = useState('');
+
+    const importStatusQuery = useQuery({ queryKey: ['buildings', 'import-status'], queryFn: getBuildingImportStatus });
+
+    const [buildingImportResult, setBuildingImportResult] = useState<BuildingImportResult | null>(null);
+    const buildingImportMutation = useMutation({
+        mutationFn: (districtId: string) => importDistrictBuildings(districtId),
+        onSuccess: (data) => {
+            setBuildingImportResult(data);
+            toast.success(`${data.districtName} bina veri seti içe aktarıldı`);
+            importStatusQuery.refetch();
+        },
+        onError: (err: any) => {
+            toast.error(getApiErrorMessage(err, 'Bina import işlemi başarısız'));
         },
     });
 
@@ -59,6 +81,84 @@ export const MaintenancePage: React.FC = () => {
                 <p className="mt-1 text-sm text-gray-500">
                     Operasyonel verileri toplu temizleme işlemleri. Bu işlemler geri alınamaz.
                 </p>
+            </div>
+
+            {/* 3B bina veri seti — ilçe bazlı import */}
+            <div className="bg-white rounded-xl shadow p-6 space-y-3">
+                <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                    <Box className="h-4 w-4 text-blue-600" /> Bina Veri Seti (ilçe bazlı)
+                </h2>
+                <p className="text-sm text-gray-500">
+                    Repo'ya gömülü, ilçesine göre ayrı OpenStreetMap bina veri setini içe aktarır (idempotent —
+                    (kaynak, harici ID) çiftine göre var olan kayıtlar güncellenir, çoğaltılmaz). Bir ilçenin
+                    importu diğer ilçeleri etkilemez.
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                    <select
+                        value={selectedDistrictId}
+                        onChange={(e) => setSelectedDistrictId(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="">İlçe seçin…</option>
+                        {districtsQuery.data?.map((d) => (
+                            <option key={d.id} value={d.id}>{d.name}</option>
+                        ))}
+                    </select>
+                    <button
+                        onClick={() => selectedDistrictId && buildingImportMutation.mutate(selectedDistrictId)}
+                        disabled={!selectedDistrictId || buildingImportMutation.isPending}
+                        className="py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg text-sm transition-colors"
+                    >
+                        {buildingImportMutation.isPending ? 'İçe aktarılıyor...' : 'Seçilen İlçeyi İçe Aktar'}
+                    </button>
+                </div>
+
+                {buildingImportResult && (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm pt-2">
+                        <StatItem label="Eklendi" value={buildingImportResult.imported} />
+                        <StatItem label="Güncellendi" value={buildingImportResult.updated} />
+                        <StatItem label="Mahalle bulunamadı" value={buildingImportResult.skippedNoNeighborhood} />
+                        <StatItem label="Geçersiz kayıt" value={buildingImportResult.skippedInvalidRecord} />
+                        {buildingImportResult.unmatchedNeighborhoods.length > 0 && (
+                            <p className="col-span-full text-xs text-orange-600 bg-orange-50 rounded px-2 py-1">
+                                Eşleşmeyen mahalleler: {buildingImportResult.unmatchedNeighborhoods.join(', ')}
+                            </p>
+                        )}
+                    </div>
+                )}
+
+                {importStatusQuery.data && importStatusQuery.data.length > 0 && (
+                    <div className="pt-2 overflow-x-auto">
+                        <table className="w-full text-xs">
+                            <thead>
+                                <tr className="text-left text-gray-500 border-b border-gray-200">
+                                    <th className="py-1.5 pr-3">İlçe</th>
+                                    <th className="py-1.5 pr-3">Bina Sayısı</th>
+                                    <th className="py-1.5 pr-3">Son Import</th>
+                                    <th className="py-1.5">Durum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {importStatusQuery.data.map((row) => (
+                                    <tr key={row.districtId} className="border-b border-gray-100">
+                                        <td className="py-1.5 pr-3 font-medium text-gray-800">{row.districtName}</td>
+                                        <td className="py-1.5 pr-3">{row.buildingCount.toLocaleString('tr-TR')}</td>
+                                        <td className="py-1.5 pr-3 text-gray-500">
+                                            {row.lastImportAt ? new Date(row.lastImportAt).toLocaleString('tr-TR') : '—'}
+                                        </td>
+                                        <td className="py-1.5">
+                                            <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                                                row.status === 'HAS_DATA' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                                            }`}>
+                                                {row.status === 'HAS_DATA' ? 'Veri Var' : 'Veri Yok'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
 
             {/* Uyarı banner */}

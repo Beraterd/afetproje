@@ -1,20 +1,11 @@
 import axiosInstance from './axiosInstance';
 import axios from 'axios';
 import {
-    TeamRecommendationRequest,
     TeamRecommendationResponse,
     ApproveRecommendationRequest,
     ApproveRecommendationResponse,
     EventAssignmentResponse,
 } from '@/types';
-import { PagedResponse } from '@/types';
-
-export const createTeamRecommendation = async (
-    data: TeamRecommendationRequest
-): Promise<TeamRecommendationResponse> => {
-    const res = await axiosInstance.post<TeamRecommendationResponse>('/team-recommendations', data);
-    return res.data;
-};
 
 export const createEventTeamRecommendation = async (
     eventId: string
@@ -36,23 +27,6 @@ export const getLatestEventTeamRecommendation = async (
         `/events/${eventId}/team-recommendations/latest`
     );
     return res.status === 204 || !res.data ? null : (res.data as TeamRecommendationResponse);
-};
-
-export const listTeamRecommendations = async (params?: {
-    status?: string;
-    page?: number;
-    size?: number;
-}): Promise<PagedResponse<TeamRecommendationResponse>> => {
-    const res = await axiosInstance.get<PagedResponse<TeamRecommendationResponse>>(
-        '/team-recommendations',
-        { params }
-    );
-    return res.data;
-};
-
-export const getTeamRecommendationById = async (id: string): Promise<TeamRecommendationResponse> => {
-    const res = await axiosInstance.get<TeamRecommendationResponse>(`/team-recommendations/${id}`);
-    return res.data;
 };
 
 export const approveTeamRecommendation = async (

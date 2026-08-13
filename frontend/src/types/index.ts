@@ -17,3 +17,4 @@ export * from './notification';
 export * from './notificationPreferences';
 export * from './teamRecommendation';
 export * from './report';
+export * from './search';

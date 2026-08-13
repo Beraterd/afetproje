@@ -130,6 +130,35 @@ public interface EventRepository extends JpaRepository<Event, UUID>, JpaSpecific
                                  @Param("districtId") UUID districtId,
                                  @Param("neighborhoodId") UUID neighborhoodId);
 
+    // ── Global search ─────────────────────────────────────────────────────────
+
+    /** districtId/neighborhoodId null ise o kapsam sınırı uygulanmaz (ADMIN/VOLUNTEER için). */
+    @Query("""
+            SELECT e FROM Event e
+            WHERE LOWER(e.title) LIKE LOWER(CONCAT('%',:q,'%'))
+              AND (:districtId IS NULL OR e.neighborhood.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR e.neighborhood.id = :neighborhoodId)
+            ORDER BY e.createdAt DESC
+            """)
+    List<Event> searchByTitle(@Param("q") String query,
+                               @Param("districtId") UUID districtId,
+                               @Param("neighborhoodId") UUID neighborhoodId,
+                               Pageable pageable);
+
+    // ── Devir teslim özeti ────────────────────────────────────────────────────
+
+    @Query("""
+            SELECT COUNT(e) FROM Event e
+            WHERE e.closedAt >= :from AND e.closedAt < :to AND e.status IN :statuses
+              AND (:districtId IS NULL OR e.neighborhood.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR e.neighborhood.id = :neighborhoodId)
+            """)
+    long countByClosedAtBetweenAndStatusIn(@Param("from") java.time.OffsetDateTime from,
+                                           @Param("to") java.time.OffsetDateTime to,
+                                           @Param("statuses") List<EventStatus> statuses,
+                                           @Param("districtId") UUID districtId,
+                                           @Param("neighborhoodId") UUID neighborhoodId);
+
     // ── Operations AI context queries ────────────────────────────────────────
 
     long countByStatusIn(List<EventStatus> statuses);

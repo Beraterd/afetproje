@@ -1,5 +1,6 @@
 package com.afet.koordinasyon.service;
 
+import com.afet.koordinasyon.domain.entity.Building;
 import com.afet.koordinasyon.domain.entity.DamageAssessment;
 import com.afet.koordinasyon.domain.entity.DamageAssessmentAssignment;
 import com.afet.koordinasyon.domain.entity.DamageAssessmentPhoto;
@@ -8,6 +9,7 @@ import com.afet.koordinasyon.domain.entity.EventVolunteer;
 import com.afet.koordinasyon.domain.entity.Neighborhood;
 import com.afet.koordinasyon.domain.entity.User;
 import com.afet.koordinasyon.domain.enums.AiAnalysisStatus;
+import com.afet.koordinasyon.domain.enums.AuditActionType;
 import com.afet.koordinasyon.domain.enums.DamageLevel;
 import com.afet.koordinasyon.domain.enums.EventStatus;
 import com.afet.koordinasyon.domain.enums.PhotoType;
@@ -59,6 +61,9 @@ public class DamageAssessmentService {
     private static final Set<String> ALLOWED_PHOTO_MIME_TYPES = Set.of(
             "image/jpeg", "image/jpg", "image/png", "image/webp"
     );
+    private static final Set<String> ALLOWED_PHOTO_MIME_TYPES_CANONICAL = Set.of(
+            "image/jpeg", "image/png", "image/webp"
+    );
 
     @Value("${app.storage.local-path:.local-storage}")
     private String localStoragePath;
@@ -76,6 +81,9 @@ public class DamageAssessmentService {
     private final DamageAssessmentAiService damageAssessmentAiService;
     private final DamageAiQueueService damageAiQueueService;
     private final ApplicationEventPublisher eventPublisher;
+    private final AuditLogService auditLogService;
+    private final com.afet.koordinasyon.storage.FileUploadValidator fileUploadValidator;
+    private final BuildingRepository buildingRepository;
 
     @Transactional(readOnly = true)
     public PagedResponse<DamageAssessmentResponse> listAssessments(
@@ -148,6 +156,18 @@ public class DamageAssessmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Neighborhood", "id", req.getNeighborhoodId()));
         District district = neighborhood.getDistrict();
 
+        // Bina seçilmişse: bina, istemci tarafından belirtilen mahalleyle eşleşmeli (aksi halde
+        // istemci uyumsuz bir buildingId/neighborhoodId çifti göndererek scope kontrolünü şaşırtabilir).
+        // Building'in kendi mahalle/ilçesi kanonik kabul edilir — adres/koordinat aşağıda ondan türetilir.
+        Building building = null;
+        if (req.getBuildingId() != null) {
+            building = buildingRepository.findById(req.getBuildingId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Building", "id", req.getBuildingId()));
+            if (!building.getNeighborhood().getId().equals(neighborhood.getId())) {
+                throw new BusinessRuleException("Seçilen bina, belirtilen mahalle ile eşleşmiyor");
+            }
+        }
+
         // Yetki kontrolü — FK-based first, user.district_id fallback
         UserRole role = principal.getRole();
         if (role == UserRole.DISTRICT_COORDINATOR) {
@@ -172,13 +192,15 @@ public class DamageAssessmentService {
         DamageAssessment assessment = DamageAssessment.builder()
                 .district(district)
                 .neighborhood(neighborhood)
-                .streetName(req.getStreetName())
-                .buildingNo(req.getBuildingNo())
-                .address(req.getAddress())
-                .latitude(BigDecimal.valueOf(req.getLatitude()))
-                .longitude(BigDecimal.valueOf(req.getLongitude()))
-                .locationSource(req.getLocationSource() != null ? req.getLocationSource() : LocationSource.MAP_SELECTED)
-                .locationVerified(Boolean.TRUE.equals(req.getLocationVerified()))
+                .building(building)
+                .streetName(building != null ? building.getStreetName() : req.getStreetName())
+                .buildingNo(building != null ? building.getBuildingNumber() : req.getBuildingNo())
+                .address(building != null ? building.getDisplayAddress() : req.getAddress())
+                .latitude(building != null ? building.getLatitude() : BigDecimal.valueOf(req.getLatitude()))
+                .longitude(building != null ? building.getLongitude() : BigDecimal.valueOf(req.getLongitude()))
+                .locationSource(building != null ? LocationSource.MAP_SELECTED
+                        : (req.getLocationSource() != null ? req.getLocationSource() : LocationSource.MAP_SELECTED))
+                .locationVerified(building != null || Boolean.TRUE.equals(req.getLocationVerified()))
                 .buildingType(req.getBuildingType())
                 .floorCount(req.getFloorCount())
                 .occupancyType(req.getOccupancyType())
@@ -298,6 +320,13 @@ public class DamageAssessmentService {
 
         DamageAssessment updated = damageAssessmentRepository.save(assessment);
         VerificationStatus publishedStatus = req.getVerificationStatus();
+
+        auditLogService.logUserAction(principal, AuditActionType.DAMAGE_ASSESSMENT_VERIFIED,
+                "DamageAssessment", updated.getId(),
+                "Hasar tespiti doğrulama durumu " + publishedStatus + " olarak güncellendi",
+                Map.of("verificationStatus", publishedStatus.name(),
+                        "aiRiskScore", String.valueOf(updated.getAiRiskScore())));
+
         eventPublisher.publishEvent(new DamageReportStatusChangedEmailEvent(id, publishedStatus));
         return toResponse(updated);
     }
@@ -450,7 +479,8 @@ public class DamageAssessmentService {
         }
 
         response.setContentType(photo.getMimeType());
-        response.setHeader("Content-Disposition", "inline; filename=\"" + photo.getFileName() + "\"");
+        response.setHeader("Content-Disposition",
+                "inline; filename=\"" + fileUploadValidator.sanitizeDisplayFileName(photo.getFileName()) + "\"");
         if (photo.getFileSizeBytes() != null) {
             response.setContentLengthLong(photo.getFileSizeBytes());
         }
@@ -535,28 +565,48 @@ public class DamageAssessmentService {
 
     private DamageAssessmentPhoto savePhoto(MultipartFile photo, DamageAssessment assessment,
                                              PhotoType photoType, User uploadedBy) {
+        String mime = normalizePhotoMime(photo.getContentType());
+        byte[] content;
+        try {
+            content = photo.getBytes();
+        } catch (IOException e) {
+            throw new BusinessRuleException("Fotoğraf okunamadı");
+        }
+        fileUploadValidator.validateContent(content, mime, ALLOWED_PHOTO_MIME_TYPES_CANONICAL);
+
         String originalName = photo.getOriginalFilename() != null ? photo.getOriginalFilename() : "photo.jpg";
-        String storageKey = "damage/" + assessment.getId().toString() + "/" + UUID.randomUUID() + "_" + originalName;
-        Path target = Paths.get(localStoragePath, storageKey);
+        String displayFileName = fileUploadValidator.sanitizeDisplayFileName(originalName);
+        // Storage key TAMAMEN server-generated — kullanıcı dosya adı path'e girmez (path traversal engeli).
+        String storageKey = "damage/" + assessment.getId() + "/" + UUID.randomUUID() + fileUploadValidator.safeExtension(mime);
+        Path storageRoot = Paths.get(localStoragePath).toAbsolutePath().normalize();
+        Path target = storageRoot.resolve(storageKey).normalize();
+        if (!target.startsWith(storageRoot)) {
+            throw new BusinessRuleException("Geçersiz dosya yolu");
+        }
 
         try {
             Files.createDirectories(target.getParent());
-            Files.write(target, photo.getBytes());
+            Files.write(target, content);
         } catch (IOException e) {
-            throw new BusinessRuleException("Fotoğraf kaydedilirken hata oluştu: " + e.getMessage());
+            throw new BusinessRuleException("Fotoğraf kaydedilirken hata oluştu");
         }
 
         DamageAssessmentPhoto photoEntity = DamageAssessmentPhoto.builder()
                 .damageAssessment(assessment)
                 .storageKey(storageKey)
-                .fileName(originalName)
-                .mimeType(photo.getContentType() != null ? photo.getContentType() : "image/jpeg")
+                .fileName(displayFileName)
+                .mimeType(mime)
                 .fileSizeBytes(photo.getSize())
                 .photoType(photoType)
                 .uploadedBy(uploadedBy)
                 .build();
 
         return damageAssessmentPhotoRepository.save(photoEntity);
+    }
+
+    /** "image/jpg" bazı istemcilerin gönderdiği standart-dışı bir varyanttır — image/jpeg'e normalize edilir. */
+    private String normalizePhotoMime(String mime) {
+        return "image/jpg".equals(mime) ? "image/jpeg" : mime;
     }
 
     private DamageAssessment findById(UUID id) {
@@ -603,6 +653,7 @@ public class DamageAssessmentService {
                 .districtName(a.getDistrict().getName())
                 .neighborhoodId(a.getNeighborhood().getId())
                 .neighborhoodName(a.getNeighborhood().getName())
+                .buildingId(a.getBuilding() != null ? a.getBuilding().getId() : null)
                 .streetName(a.getStreetName())
                 .buildingNo(a.getBuildingNo())
                 .address(a.getAddress())

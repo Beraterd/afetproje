@@ -21,14 +21,17 @@ public interface DocumentRepository extends JpaRepository<Document, UUID> {
 
     Optional<Document> findByDownloadToken(UUID downloadToken);
 
-    Page<Document> findByStatus(DocumentStatus status, Pageable pageable);
+    // toPendingResponse() her satır için owner.getDistrict()/getNeighborhood() okuduğundan
+    // (N+1 kaynağı), user + district + neighborhood tek sorguda JOIN FETCH edilir.
+    @Query("SELECT d FROM Document d JOIN FETCH d.user u LEFT JOIN FETCH u.district LEFT JOIN FETCH u.neighborhood WHERE d.status = :status")
+    Page<Document> findByStatus(@Param("status") DocumentStatus status, Pageable pageable);
 
-    @Query("SELECT d FROM Document d WHERE d.status = :status AND d.user.district.id = :districtId")
+    @Query("SELECT d FROM Document d JOIN FETCH d.user u LEFT JOIN FETCH u.district LEFT JOIN FETCH u.neighborhood WHERE d.status = :status AND u.district.id = :districtId")
     Page<Document> findByStatusAndUserDistrictId(@Param("status") DocumentStatus status,
             @Param("districtId") UUID districtId,
             Pageable pageable);
 
-    @Query("SELECT d FROM Document d WHERE d.status = :status AND d.user.neighborhood.id = :neighborhoodId")
+    @Query("SELECT d FROM Document d JOIN FETCH d.user u LEFT JOIN FETCH u.district LEFT JOIN FETCH u.neighborhood WHERE d.status = :status AND u.neighborhood.id = :neighborhoodId")
     Page<Document> findByStatusAndUserNeighborhoodId(@Param("status") DocumentStatus status,
             @Param("neighborhoodId") UUID neighborhoodId,
             Pageable pageable);

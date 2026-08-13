@@ -5,6 +5,7 @@ import { queryKeys } from '@/utils/queryKeys';
 import { Button, DataTable, ColumnDef, Modal, FormField } from '@/components/ui';
 import { PendingDocumentResponse } from '@/types';
 import { useToast } from '@/components/shared/ToastProvider';
+import { useDemoMode } from '@/hooks/useDemoMode';
 import { Check, X, Eye, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -26,9 +27,10 @@ const IconBtn: React.FC<{
     <button
         type="button"
         title={title}
+        aria-label={title}
         onClick={onClick}
         disabled={disabled || loading}
-        className={`inline-flex items-center justify-center rounded-md p-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-40 disabled:pointer-events-none ${colorClass}`}
+        className={`inline-flex items-center justify-center rounded-md p-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 disabled:opacity-40 disabled:pointer-events-none ${colorClass}`}
     >
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : children}
     </button>
@@ -43,6 +45,7 @@ export const DocumentApprovalPage: React.FC = () => {
     const [rejectReason, setRejectReason] = useState('');
     const [viewingDocId, setViewingDocId] = useState<string | null>(null);
     const [approvingDocId, setApprovingDocId] = useState<string | null>(null);
+    const { isDemo, disabledReason } = useDemoMode();
 
     const { data, isLoading } = useQuery({
         queryKey: queryKeys.documents.pending({ page }),
@@ -131,28 +134,28 @@ export const DocumentApprovalPage: React.FC = () => {
 
                     {/* Onayla */}
                     <IconBtn
-                        title="Onayla"
+                        title={isDemo ? disabledReason! : 'Onayla'}
                         colorClass="text-green-600 hover:bg-green-50 hover:text-green-700 focus:ring-green-400"
                         loading={approvingDocId === row.id}
                         onClick={() => {
                             setApprovingDocId(row.id);
                             approveMutation.mutate(row.id);
                         }}
-                        disabled={viewingDocId === row.id}
+                        disabled={viewingDocId === row.id || isDemo}
                     >
                         <Check className="h-4 w-4" />
                     </IconBtn>
 
                     {/* Reddet */}
                     <IconBtn
-                        title="Reddet"
+                        title={isDemo ? disabledReason! : 'Reddet'}
                         colorClass="text-red-500 hover:bg-red-50 hover:text-red-700 focus:ring-red-400"
                         onClick={() => {
                             setSelectedDocId(row.id);
                             setRejectReason('');
                             setRejectModalOpen(true);
                         }}
-                        disabled={viewingDocId === row.id || approvingDocId === row.id}
+                        disabled={viewingDocId === row.id || approvingDocId === row.id || isDemo}
                     >
                         <X className="h-4 w-4" />
                     </IconBtn>
@@ -207,7 +210,8 @@ export const DocumentApprovalPage: React.FC = () => {
                         <Button
                             variant="danger"
                             loading={rejectMutation.isPending}
-                            disabled={!rejectReason.trim()}
+                            disabled={!rejectReason.trim() || isDemo}
+                            disabledReason={isDemo ? disabledReason : undefined}
                             onClick={() =>
                                 selectedDocId && rejectMutation.mutate({ id: selectedDocId, reason: rejectReason })
                             }

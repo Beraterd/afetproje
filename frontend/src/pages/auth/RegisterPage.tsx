@@ -52,7 +52,7 @@ export const RegisterPage: React.FC = () => {
 
     useEffect(() => {
         getDistricts().then(setDistricts).catch(() => toast.error('İlçeler yüklenemedi'));
-    }, []);
+    }, [toast]);
 
     useEffect(() => {
         if (selectedDistrict) {
@@ -63,7 +63,7 @@ export const RegisterPage: React.FC = () => {
         } else {
             setNeighborhoods([]);
         }
-    }, [selectedDistrict]);
+    }, [selectedDistrict, setValue, toast]);
 
     const onSubmit = async (data: RegisterFormValues) => {
         setIsSubmitting(true);

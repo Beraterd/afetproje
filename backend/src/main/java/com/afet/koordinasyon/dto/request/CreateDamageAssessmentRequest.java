@@ -14,6 +14,14 @@ public class CreateDamageAssessmentRequest {
     @NotNull
     private UUID neighborhoodId;
 
+    /**
+     * Opsiyonel — haritada gerçek bir bina seçildiyse. Doluysa, bu isteğin address/latitude/
+     * longitude/streetName/buildingNo alanları YOK SAYILIR: kanonik değerler Building kaydından
+     * sunucu tarafında türetilir (bkz. DamageAssessmentService.create()) — istemciden gelen
+     * konum bilgisine asla güvenilmez.
+     */
+    private UUID buildingId;
+
     private String streetName;
     private String buildingNo;
 

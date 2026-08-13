@@ -1,6 +1,7 @@
 package com.afet.koordinasyon.repository;
 
 import com.afet.koordinasyon.domain.entity.Neighborhood;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,6 +27,18 @@ public interface NeighborhoodRepository extends JpaRepository<Neighborhood, UUID
     /** Excel import için district'i JOIN FETCH ile tek sorguda yükler */
     @Query("SELECT n FROM Neighborhood n JOIN FETCH n.district")
     List<Neighborhood> findAllWithDistrict();
+
+    // ── Global search ─────────────────────────────────────────────────────────
+
+    @Query("""
+            SELECT n FROM Neighborhood n
+            WHERE LOWER(n.name) LIKE LOWER(CONCAT('%',:q,'%'))
+              AND (:districtId IS NULL OR n.district.id = :districtId)
+            ORDER BY n.name ASC
+            """)
+    List<Neighborhood> searchByName(@Param("q") String query,
+                                     @Param("districtId") UUID districtId,
+                                     Pageable pageable);
 
     // ── Bakım / Purge sorguları ──────────────────────────────────────────────
 

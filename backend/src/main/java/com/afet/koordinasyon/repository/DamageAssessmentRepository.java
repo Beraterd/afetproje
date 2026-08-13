@@ -43,6 +43,22 @@ public interface DamageAssessmentRepository
 
     List<DamageAssessment> findByLatitudeIsNotNullAndLongitudeIsNotNull();
 
+    /**
+     * Bina bazlı hasar durumu türetimi için gruplanmış sayım — building.id + verificationStatus +
+     * damageLevel kırılımında. Öncelik mantığı (3-tier: onaylı > sahada doğrulanmış > vatandaş
+     * bildirimi) Java tarafında BuildingDamageStatusService'te uygulanır, burada sadece ham sayım var.
+     */
+    @Query("""
+            SELECT d.building.id, d.verificationStatus, d.damageLevel, COUNT(d)
+            FROM DamageAssessment d
+            WHERE d.building.id IN :buildingIds
+            GROUP BY d.building.id, d.verificationStatus, d.damageLevel
+            """)
+    List<Object[]> findDamageStatusGroupsByBuildingIds(@Param("buildingIds") java.util.Collection<UUID> buildingIds);
+
+    /** Bina detay sayfası: o binaya ait en son (createdAt DESC) hasar kaydı. */
+    Optional<DamageAssessment> findFirstByBuildingIdOrderByCreatedAtDesc(UUID buildingId);
+
     @Query("SELECT d FROM DamageAssessment d WHERE d.district.id = :districtId AND d.latitude IS NOT NULL AND d.longitude IS NOT NULL")
     List<DamageAssessment> findByDistrictIdWithCoordinates(@Param("districtId") UUID districtId);
 
@@ -177,6 +193,45 @@ public interface DamageAssessmentRepository
             GROUP BY d.neighborhood.id
             """)
     List<Object[]> reportDamageCountByNeighborhood(@Param("districtId") UUID districtId);
+
+    // ── Global search ─────────────────────────────────────────────────────────
+
+    @Query("""
+            SELECT d FROM DamageAssessment d
+            WHERE (LOWER(d.address) LIKE LOWER(CONCAT('%',:q,'%'))
+                 OR LOWER(d.streetName) LIKE LOWER(CONCAT('%',:q,'%')))
+              AND (:districtId IS NULL OR d.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR d.neighborhood.id = :neighborhoodId)
+            ORDER BY d.createdAt DESC
+            """)
+    List<DamageAssessment> searchByAddress(@Param("q") String query,
+                                            @Param("districtId") UUID districtId,
+                                            @Param("neighborhoodId") UUID neighborhoodId,
+                                            Pageable pageable);
+
+    // ── Devir teslim özeti ────────────────────────────────────────────────────
+
+    @Query("""
+            SELECT COUNT(d) FROM DamageAssessment d
+            WHERE d.verificationStatus = :status AND d.damageLevel IN :levels
+              AND (:districtId IS NULL OR d.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR d.neighborhood.id = :neighborhoodId)
+            """)
+    long countByVerificationStatusAndDamageLevelIn(@Param("status") VerificationStatus status,
+                                                    @Param("levels") List<DamageLevel> levels,
+                                                    @Param("districtId") UUID districtId,
+                                                    @Param("neighborhoodId") UUID neighborhoodId);
+
+    @Query("""
+            SELECT COUNT(d) FROM DamageAssessment d
+            WHERE d.verifiedAt >= :from AND d.verifiedAt < :to
+              AND (:districtId IS NULL OR d.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR d.neighborhood.id = :neighborhoodId)
+            """)
+    long countByVerifiedAtBetween(@Param("from") OffsetDateTime from,
+                                  @Param("to") OffsetDateTime to,
+                                  @Param("districtId") UUID districtId,
+                                  @Param("neighborhoodId") UUID neighborhoodId);
 
     // ── AI queue queries ─────────────────────────────────────────────────────
 

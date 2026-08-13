@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ClipboardList, Building2, MapPin, Navigation, Eye, X, BadgeCheck } from 'lucide-react';
 import { getMyDamageAssessments } from '@/api/damageAssessments.api';
-import { DamageAssessmentResponse, DAMAGE_LEVELS, VERIFICATION_STATUSES } from '@/types';
+import { DamageAssessmentResponse } from '@/types';
 import { LoadingSpinner } from '@/components/ui';
 
 function damageLevelColor(level: string) {
@@ -161,7 +161,7 @@ export const MyRecordsPage: React.FC = () => {
                     <div className="bg-white rounded-xl w-full max-w-2xl my-6 p-6 space-y-5">
                         <div className="flex items-start justify-between">
                             <h2 className="text-lg font-semibold text-gray-900">Hasar Tespiti Detayı</h2>
-                            <button onClick={() => setShowDetail(null)} className="text-gray-400 hover:text-gray-600">
+                            <button onClick={() => setShowDetail(null)} aria-label="Kapat" className="text-gray-400 hover:text-gray-600">
                                 <X className="h-5 w-5" />
                             </button>
                         </div>

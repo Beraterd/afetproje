@@ -14,7 +14,7 @@ import { queryKeys } from '@/utils/queryKeys';
 import { AdminAssemblyAreaResponse, DistrictResponse, NeighborhoodSummaryResponse } from '@/types';
 import { useToast } from '@/components/shared/ToastProvider';
 import { Modal } from '@/components/ui/Modal';
-import { Button, Badge } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { LocationPickerMap } from '@/components/map/LocationPickerMap';
 import {
     MapPin,

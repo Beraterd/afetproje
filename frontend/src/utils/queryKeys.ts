@@ -8,6 +8,7 @@ export const queryKeys = {
         detail: (id: string) => ['events', id] as const,
         volunteers: (id: string) => ['events', id, 'volunteers'] as const,
         participants: (id: string) => ['events', id, 'participants'] as const,
+        timeline: (id: string) => ['events', id, 'timeline'] as const,
     },
     districts: {
         all: ['districts'] as const,
@@ -33,6 +34,7 @@ export const queryKeys = {
         damagePoints: (districtId?: string, neighborhoodId?: string) => ['map', 'damage-points', districtId, neighborhoodId] as const,
         districtCenters: () => ['map', 'district-centers'] as const,
         neighborhoodCenters: (districtId?: string) => ['map', 'neighborhood-centers', districtId] as const,
+        damageSummary: () => ['map', 'damage-summary'] as const,
     },
     users: {
         all: ['users'] as const,
@@ -62,5 +64,14 @@ export const queryKeys = {
     audit: {
         list: (filters: any) => ['audit', 'list', filters] as const,
         detail: (id: string) => ['audit', id] as const,
+    },
+    buildings: {
+        config: () => ['buildings', 'config'] as const,
+        detail: (id: string) => ['buildings', 'detail', id] as const,
+        search: (districtId: string, q: string) => ['buildings', 'search', districtId, q] as const,
+        /** zoomBucket: `Math.floor(zoom)` — ilçe/mahalle/bbox/zoom-bucket'ın herhangi biri
+         *  değişince eski viewport'un binaları yeni viewport'ta görünmesin diye. */
+        bbox: (districtId: string, neighborhoodId: string | undefined, bbox: string | undefined, zoomBucket: number | null) =>
+            ['buildings', 'bbox', districtId, neighborhoodId, bbox, zoomBucket] as const,
     },
 };

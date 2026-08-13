@@ -21,13 +21,15 @@ export const verifyEmail = async (token: string): Promise<MessageResponse> => {
     return res.data;
 };
 
-export const refresh = async (refreshToken: string): Promise<TokenRefreshResponse> => {
-    const res = await axiosInstance.post<TokenRefreshResponse>('/auth/refresh', { refreshToken });
+// Refresh token bir HttpOnly cookie'de tutulur (JS erişemez) — axiosInstance
+// withCredentials:true olduğu için cookie otomatik gönderilir/alınır.
+export const refresh = async (): Promise<TokenRefreshResponse> => {
+    const res = await axiosInstance.post<TokenRefreshResponse>('/auth/refresh');
     return res.data;
 };
 
-export const logout = async (refreshToken: string): Promise<void> => {
-    await axiosInstance.post('/auth/logout', { refreshToken });
+export const logout = async (): Promise<void> => {
+    await axiosInstance.post('/auth/logout');
 };
 
 export const forgotPassword = async (email: string): Promise<MessageResponse> => {

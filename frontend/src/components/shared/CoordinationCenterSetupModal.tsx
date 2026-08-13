@@ -55,6 +55,7 @@ export const CoordinationCenterSetupModal: React.FC<Props> = ({
                     </div>
                     <button
                         onClick={onDismiss}
+                        aria-label="Kapat"
                         className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
                     >
                         <X className="h-5 w-5" />

@@ -28,7 +28,6 @@ interface Props {
 export const ReportFilterBar: React.FC<Props> = ({ value, onChange, onGenerate, showDate, periodHint, loading }) => {
     const user = useAuthStore((s) => s.user);
     const role = user?.role;
-    const isAdmin = role === 'ADMIN';
     const isDistrictCoord = role === 'DISTRICT_COORDINATOR';
     const isNeighborhoodCoord = role === 'NEIGHBORHOOD_COORDINATOR';
 

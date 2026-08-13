@@ -18,6 +18,7 @@ public class ErrorResponse {
     private String message;
     private OffsetDateTime timestamp;
     private String path;
+    private String requestId;
     private List<FieldError> details;
 
     @Data

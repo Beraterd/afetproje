@@ -1,6 +1,7 @@
 package com.afet.koordinasyon.repository;
 
 import com.afet.koordinasyon.domain.entity.District;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +22,11 @@ public interface DistrictRepository extends JpaRepository<District, UUID> {
 
     /** Rapor: koordinatör atanmış ilçe sayısı (güncel snapshot). */
     long countByCoordinatorIsNotNull();
+
+    // ── Global search ─────────────────────────────────────────────────────────
+
+    @Query("SELECT d FROM District d WHERE LOWER(d.name) LIKE LOWER(CONCAT('%',:q,'%')) ORDER BY d.name ASC")
+    List<District> searchByName(@Param("q") String query, Pageable pageable);
 
     // ── Bakım / Purge sorguları ──────────────────────────────────────────────
 

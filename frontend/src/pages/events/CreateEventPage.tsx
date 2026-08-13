@@ -10,6 +10,7 @@ import { getNeighborhoods } from '@/api/neighborhoods.api';
 import { getTeamTypes } from '@/api/teams.api';
 import { useToast } from '@/components/shared/ToastProvider';
 import { useAuthStore } from '@/store/authStore';
+import { getApiErrorMessage } from '@/utils/errorParser';
 import { Button, FormField } from '@/components/ui';
 import { DistrictResponse, NeighborhoodSummaryResponse, TeamTypeResponse } from '@/types';
 
@@ -159,7 +160,7 @@ export const CreateEventPage: React.FC = () => {
             toast.success('Olay başarıyla oluşturuldu');
             navigate(`/events/${res.id}`);
         } catch (error: any) {
-            toast.error(error?.response?.data?.message || error.message || 'Olay oluşturulamadı');
+            toast.error(getApiErrorMessage(error, 'Olay oluşturulamadı'));
         } finally {
             setIsSubmitting(false);
         }

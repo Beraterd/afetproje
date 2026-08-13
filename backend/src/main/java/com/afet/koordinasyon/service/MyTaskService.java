@@ -36,6 +36,9 @@ public class MyTaskService {
     private static final Set<String> ALLOWED_MIME_TYPES = Set.of(
             "image/jpeg", "image/jpg", "image/png", "image/webp"
     );
+    private static final Set<String> ALLOWED_MIME_TYPES_CANONICAL = Set.of(
+            "image/jpeg", "image/png", "image/webp"
+    );
 
     @Value("${app.storage.local-path:.local-storage}")
     private String localStoragePath;
@@ -48,6 +51,7 @@ public class MyTaskService {
     private final DamageAssessmentPhotoRepository photoRepository;
     private final DamageAssessmentAiService damageAssessmentAiService;
     private final com.afet.koordinasyon.service.ai.DamageAiQueueService damageAiQueueService;
+    private final com.afet.koordinasyon.storage.FileUploadValidator fileUploadValidator;
 
     @Transactional(readOnly = true)
     public List<DamageAssessmentTaskResponse> getMyTasks(UserPrincipal principal) {
@@ -154,22 +158,36 @@ public class MyTaskService {
 
     private void saveFieldPhoto(MultipartFile photo, DamageAssessment assessment,
                                  com.afet.koordinasyon.domain.entity.User uploadedBy) {
+        String mime = "image/jpg".equals(photo.getContentType()) ? "image/jpeg" : photo.getContentType();
+        byte[] content;
+        try {
+            content = photo.getBytes();
+        } catch (IOException e) {
+            throw new BusinessRuleException("Fotoğraf okunamadı");
+        }
+        fileUploadValidator.validateContent(content, mime, ALLOWED_MIME_TYPES_CANONICAL);
+
         String originalName = photo.getOriginalFilename() != null ? photo.getOriginalFilename() : "photo.jpg";
-        String storageKey = "damage/" + assessment.getId() + "/field/" + UUID.randomUUID() + "_" + originalName;
-        Path target = Paths.get(localStoragePath, storageKey);
+        String displayFileName = fileUploadValidator.sanitizeDisplayFileName(originalName);
+        String storageKey = "damage/" + assessment.getId() + "/field/" + UUID.randomUUID() + fileUploadValidator.safeExtension(mime);
+        Path storageRoot = Paths.get(localStoragePath).toAbsolutePath().normalize();
+        Path target = storageRoot.resolve(storageKey).normalize();
+        if (!target.startsWith(storageRoot)) {
+            throw new BusinessRuleException("Geçersiz dosya yolu");
+        }
 
         try {
             Files.createDirectories(target.getParent());
-            Files.write(target, photo.getBytes());
+            Files.write(target, content);
         } catch (IOException e) {
-            throw new BusinessRuleException("Fotoğraf kaydedilirken hata oluştu: " + e.getMessage());
+            throw new BusinessRuleException("Fotoğraf kaydedilirken hata oluştu");
         }
 
         DamageAssessmentPhoto photoEntity = DamageAssessmentPhoto.builder()
                 .damageAssessment(assessment)
                 .storageKey(storageKey)
-                .fileName(originalName)
-                .mimeType(photo.getContentType() != null ? photo.getContentType() : "image/jpeg")
+                .fileName(displayFileName)
+                .mimeType(mime)
                 .fileSizeBytes(photo.getSize())
                 .photoType(PhotoType.ASSIGNEE_FIELD_PHOTO)
                 .uploadedBy(uploadedBy)

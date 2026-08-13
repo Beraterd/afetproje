@@ -54,4 +54,18 @@ public interface ResourceStockRepository extends JpaRepository<ResourceStock, UU
     List<ResourceStock> findForLookup(@Param("districtId") UUID districtId,
                                       @Param("neighborhoodId") UUID neighborhoodId,
                                       @Param("category") ResourceType category);
+
+    /**
+     * Transfer önerisi adayları: aynı kategori, aktif, hedef dışındaki tüm stoklar.
+     * suggestTransfers() her aday için district/neighborhood adı okuduğundan (N+1 kaynağıydı),
+     * ikisi de tek sorguda JOIN FETCH edilir.
+     */
+    @Query("""
+            SELECT s FROM ResourceStock s
+            LEFT JOIN FETCH s.district
+            LEFT JOIN FETCH s.neighborhood
+            WHERE s.category = :category AND s.active = true AND s.id <> :excludedId
+            """)
+    List<ResourceStock> findByCategoryAndActiveTrueAndIdNot(@Param("category") ResourceType category,
+                                                              @Param("excludedId") UUID excludedId);
 }

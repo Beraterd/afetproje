@@ -66,7 +66,16 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
-        
+
+        <!-- Bucket4j — tek-instance in-memory rate limiting (login/refresh/search/AI/upload).
+             Multi-instance deployment için distributed limiter (Redis vb.) gerekir, bkz.
+             docs/PRODUCTION_CHECKLIST.md. -->
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j-core</artifactId>
+            <version>8.10.1</version>
+        </dependency>
+
 
         <!-- Mail -->
         <dependency>

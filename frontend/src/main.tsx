@@ -1,24 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import App from '@/App';
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { createIDBPersister } from '@/lib/idbPersister';
 import { initSyncService } from '@/lib/syncService';
+import { queryClient } from '@/lib/queryClient';
 import './index.css';
-
-const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            staleTime: 30_000,
-            // 24 h in IndexedDB so data is available when app re-opens offline
-            gcTime: 24 * 60 * 60 * 1000,
-            retry: 1,
-            refetchOnWindowFocus: true,
-        },
-    },
-});
 
 const idbPersister = createIDBPersister();
 
@@ -39,9 +28,11 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
                 },
             }}
         >
-            <BrowserRouter>
-                <App />
-            </BrowserRouter>
+            <ErrorBoundary level="global">
+                <BrowserRouter>
+                    <App />
+                </BrowserRouter>
+            </ErrorBoundary>
         </PersistQueryClientProvider>
     </React.StrictMode>,
 );

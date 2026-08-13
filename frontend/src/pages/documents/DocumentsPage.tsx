@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMyDocuments, uploadDocument, getDocumentDownloadUrl } from '@/api/documents.api';
 import { queryKeys } from '@/utils/queryKeys';
-import { Button, Badge, DataTable, ColumnDef, FormField, Modal, LoadingSpinner } from '@/components/ui';
+import { Button, Badge, DataTable, ColumnDef, FormField, Modal } from '@/components/ui';
 import { DocumentResponse, DocumentType } from '@/types';
 import { useToast } from '@/components/shared/ToastProvider';
 import { Upload, Download } from 'lucide-react';

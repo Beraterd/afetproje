@@ -83,7 +83,7 @@ export const ProfilePage: React.FC = () => {
             .then(setNeighborhoods)
             .catch(() => toast.error('Mahalle listesi yüklenemedi'))
             .finally(() => setLoadingNeighborhoods(false));
-    }, [hasLoadedInitialData, watchedDistrictId]);
+    }, [hasLoadedInitialData, watchedDistrictId, toast]);
 
     useEffect(() => {
         let cancelled = false;
@@ -138,7 +138,7 @@ export const ProfilePage: React.FC = () => {
         return () => {
             cancelled = true;
         };
-    }, [reset]);
+    }, [reset, toast]);
 
     // İlçe select için: RHF onChange'i koru + neighborhoodId'yi sıfırla
     const districtField = register('districtId');

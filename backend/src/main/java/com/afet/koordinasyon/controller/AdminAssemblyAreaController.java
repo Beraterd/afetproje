@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,7 +29,11 @@ import java.util.UUID;
 @Tag(name = "Admin Assembly Areas", description = "Toplanma alanı doğrulama ve yönetim (Admin)")
 @SecurityRequirement(name = "bearerAuth")
 @PreAuthorize("hasRole('ADMIN')")
+@Slf4j
 public class AdminAssemblyAreaController {
+
+    private static final long MAX_EXCEL_SIZE_BYTES = 5L * 1024 * 1024;
+    private static final byte[] ZIP_MAGIC = { 0x50, 0x4B, 0x03, 0x04 }; // xlsx = zip container ("PK\3\4")
 
     private final AssemblyAreaService assemblyAreaService;
     private final AssemblyAreaExcelImportService excelImportService;
@@ -95,6 +100,24 @@ public class AdminAssemblyAreaController {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Dosya boş. Lütfen geçerli bir .xlsx dosyası yükleyin."));
         }
+        if (file.getSize() > MAX_EXCEL_SIZE_BYTES) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Dosya boyutu 5MB'ı geçemez."));
+        }
+        String originalName = file.getOriginalFilename();
+        if (originalName == null || !originalName.toLowerCase().endsWith(".xlsx")) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Yalnızca .xlsx dosyaları kabul edilir."));
+        }
+        try {
+            byte[] header = file.getInputStream().readNBytes(ZIP_MAGIC.length);
+            if (header.length < ZIP_MAGIC.length || !java.util.Arrays.equals(header, ZIP_MAGIC)) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Dosya içeriği geçerli bir .xlsx dosyasıyla eşleşmiyor."));
+            }
+        } catch (java.io.IOException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Dosya okunamadı."));
+        }
         try (var inputStream = file.getInputStream()) {
             AssemblyAreaExcelImportService.ImportResult result = excelImportService.importFromExcel(inputStream);
             Map<String, Object> body = new LinkedHashMap<>();
@@ -104,8 +127,9 @@ public class AdminAssemblyAreaController {
             body.put("unmatchedNeighborhoods", result.unmatchedNeighborhoods());
             return ResponseEntity.ok(body);
         } catch (Exception e) {
+            log.error("Toplanma alanı Excel import başarısız", e);
             return ResponseEntity.internalServerError()
-                    .body(Map.of("error", e.getMessage() != null ? e.getMessage() : "Import başarısız"));
+                    .body(Map.of("error", "Import başarısız. Dosya formatını kontrol edip tekrar deneyin."));
         }
     }
 

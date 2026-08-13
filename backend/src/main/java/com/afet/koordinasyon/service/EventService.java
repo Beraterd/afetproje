@@ -1,5 +1,6 @@
 package com.afet.koordinasyon.service;
 
+import com.afet.koordinasyon.domain.entity.AuditLog;
 import com.afet.koordinasyon.domain.entity.District;
 import com.afet.koordinasyon.domain.entity.Event;
 import com.afet.koordinasyon.domain.entity.EventAssignment;
@@ -28,6 +29,7 @@ import com.afet.koordinasyon.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -55,6 +57,17 @@ public class EventService {
     private final ApplicationEventPublisher eventPublisher;
     private final TeamCodeGeneratorService teamCodeGeneratorService;
     private final TeamRecommendationAutoTrigger teamRecommendationAutoTrigger;
+    private final AuditLogRepository auditLogRepository;
+    private final TeamRecommendationRepository teamRecommendationRepository;
+
+    /** Timeline'daki AuditActionType değerleri için Türkçe başlık — yalnızca gerçekten loglanan tipler. */
+    private static final java.util.Map<String, String> TIMELINE_TITLES = java.util.Map.of(
+            "EVENT_CREATED", "Olay oluşturuldu",
+            "EVENT_UPDATED", "Olay güncellendi",
+            "EVENT_CLOSED", "Olay tamamlandı/kapatıldı",
+            "EVENT_JOINED", "Gönüllü katıldı",
+            "EVENT_LEFT", "Gönüllü ayrıldı",
+            "TEAM_ASSIGNED", "Ekip görevlendirildi");
 
     @Transactional(readOnly = true)
     public PagedResponse<EventSummaryResponse> listEvents(
@@ -103,6 +116,48 @@ public class EventService {
             }
         }
         return toFullResponse(event, participating);
+    }
+
+    /**
+     * Olay geçmişi — mevcut AuditLog kayıtlarından türetilir, yeni bir tablo icat edilmez.
+     * Yalnızca gerçekten loglanan aksiyonlar gösterilir: doğrudan entityType="Event" olanlar
+     * (EVENT_CREATED/UPDATED/CLOSED/JOINED/LEFT) + bu olaya ait TeamRecommendation'lar
+     * üzerinden ilişkilendirilen TEAM_ASSIGNED kayıtları (AI önerisi onayı). DamageAssessment
+     * doğrulaması gibi event'e FK yolu olmayan aksiyonlar dahil edilmez (yanıltıcı olur).
+     * Erişim: getEventById ile aynı — olayı görebilen herkes timeline'ını da görebilir.
+     */
+    /** Timeline'da tek bir olay için gösterilecek en fazla madde sayısı — sınırsız büyümeyi önler. */
+    private static final int MAX_TIMELINE_ITEMS = 200;
+
+    @Transactional(readOnly = true)
+    public List<EventTimelineItemResponse> getTimeline(UUID eventId) {
+        if (!eventRepository.existsById(eventId)) {
+            throw new ResourceNotFoundException("Event", "id", eventId);
+        }
+
+        List<AuditLog> logs = new ArrayList<>(
+                auditLogRepository.findByEntityTypeAndEntityId("Event", eventId, Pageable.unpaged()).getContent());
+
+        // N+1 önlemi: her TeamRecommendation için ayrı sorgu atmak yerine, TÜM recommendation
+        // ID'lerini tek bir IN sorgusunda topluca çekiyoruz.
+        List<UUID> recommendationIds = teamRecommendationRepository.findByEventIdOrderByCreatedAtDesc(eventId)
+                .stream().map(rec -> rec.getId()).toList();
+        if (!recommendationIds.isEmpty()) {
+            logs.addAll(auditLogRepository.findByEntityTypeAndEntityIdIn("TeamRecommendation", recommendationIds));
+        }
+
+        return logs.stream()
+                .sorted(java.util.Comparator.comparing(AuditLog::getCreatedAt).reversed())
+                .limit(MAX_TIMELINE_ITEMS)
+                .map(log -> EventTimelineItemResponse.builder()
+                        .id(log.getId())
+                        .type(log.getAction())
+                        .title(TIMELINE_TITLES.getOrDefault(log.getAction(), log.getAction()))
+                        .description(log.getDescription())
+                        .actorName(log.isSystemAction() || log.getActorName() == null ? "Sistem" : log.getActorName())
+                        .createdAt(log.getCreatedAt())
+                        .build())
+                .toList();
     }
 
     @Transactional

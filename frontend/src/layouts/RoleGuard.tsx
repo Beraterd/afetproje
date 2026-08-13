@@ -6,7 +6,7 @@ import { Role } from '@/types';
 export const RoleGuard: React.FC<{ allowedRoles: Role[]; children: ReactNode }> = ({ allowedRoles, children }) => {
     const user = useAuthStore((s) => s.user);
 
-    if (!user || (!allowedRoles.includes(user.role) && !allowedRoles.includes('ADMIN'))) {
+    if (!user || !allowedRoles.includes(user.role)) {
         // Hide UI components if not allowed
         return null;
     }

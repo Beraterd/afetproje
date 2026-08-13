@@ -81,6 +81,15 @@ app:
     access-token-expiration-ms: ${JWT_ACCESS_EXPIRY_MS:3600000}
     refresh-token-expiration-ms: ${JWT_REFRESH_EXPIRY_MS:2592000000}
 
+  security:
+    # Refresh token HttpOnly cookie'nin Secure bayrağı. Localhost'ta http üzerinden çalışıldığı
+    # için varsayılan false; prod'da (application-prod.yml) true'ya çevrilir.
+    refresh-cookie-secure: ${JWT_REFRESH_COOKIE_SECURE:false}
+    # Rate limiting için gerçek client IP'sinin X-Forwarded-For'dan okunabileceği güvenilir
+    # reverse proxy IP'leri (virgülle ayrılmış). Boşsa X-Forwarded-For'a hiç güvenilmez,
+    # doğrudan bağlantı IP'si kullanılır. Nginx arkasında prod'da ayarlanmalıdır.
+    trusted-proxies: ${TRUSTED_PROXIES:}
+
   storage:
     type: ${STORAGE_TYPE:local}
     local-path: ${STORAGE_LOCAL_PATH:.local-storage}
@@ -115,6 +124,25 @@ app:
     polling-hours: ${AFAD_POLLING_HOURS:24}
     email-test-mode: ${AFAD_EMAIL_TEST_MODE:false}
     email-test-recipient: ${AFAD_EMAIL_TEST_RECIPIENT:beraterdogdu7@gmail.com}
+
+  # Boğaziçi Üniversitesi Kandilli Rasathanesi ve Deprem Araştırma Enstitüsü — resmi
+  # "Son Depremler" sayfası (JSON/XML API değil, sabit genişlikli metin tablo; 2026-08'de
+  # erişilebilirliği ve formatı manuel doğrulandı). AFAD'dan tamamen bağımsız client/scheduler.
+  kandilli:
+    base-url: ${KANDILLI_BASE_URL:http://www.koeri.boun.edu.tr/scripts/lst0.asp}
+    polling-interval-ms: ${KANDILLI_POLLING_INTERVAL_MS:60000}
+    startup-hours: ${KANDILLI_STARTUP_HOURS:48}
+    polling-hours: ${KANDILLI_POLLING_HOURS:24}
+
+  building3d:
+    # Virgülle ayrılmış District.name listesi — 3B bina katmanının aktif olduğu ilçelerin TEK
+    # doğruluk kaynağı, kod içinde district hardcode edilmemeli. Yalnızca gerçekten import
+    # edilip doğrulanmış ilçeler burada olmalı (bkz. GET /api/admin/buildings/import-status).
+    enabled-districts: ${BUILDING3D_ENABLED_DISTRICTS:Pendik,Kadıköy,Kartal}
+    level-height-m: ${BUILDING3D_LEVEL_HEIGHT_M:3.0}
+    fallback-height-m: ${BUILDING3D_FALLBACK_HEIGHT_M:6.0}
+    building-min-zoom: ${BUILDING3D_BUILDING_MIN_ZOOM:15}
+    extrusion-min-zoom: ${BUILDING3D_EXTRUSION_MIN_ZOOM:16}
 
 notifications:
   earthquake:
@@ -154,8 +182,33 @@ management:
     web:
       exposure:
         include: health,info,metrics
+  endpoint:
+    health:
+      # Anonim çağrı yalnızca UP/DOWN görür; bileşen detayları (DB, disk vb.) yalnızca
+      # ADMIN rolüne sahip authenticated kullanıcıya gösterilir.
+      show-details: when-authorized
+      roles: ADMIN
+      probes:
+        enabled: true
+      group:
+        # Liveness: yalnızca JVM/process canlı mı? DB geçici olarak erişilemez olsa bile
+        # liveness FAIL etmemeli — aksi halde orchestrator gereksiz restart loop'una girer.
+        liveness:
+          include: livenessState
+        # Readiness: gerçek trafik alabilecek durumda mıyız? DB kritik bağımlılık olduğu için
+        # dahil edilir. AI provider BİLEREK dahil edilmez — opsiyonel bağımlılık, AI anahtarı
+        # yapılandırılmamış/geçici olarak erişilemez olsa da uygulama trafik almaya devam eder.
+        readiness:
+          include: readinessState, db
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
 
 logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{requestId:-}] %logger{36} - %msg%n"
   level:
     com.afet: DEBUG
     org.hibernate.SQL: WARN

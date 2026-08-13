@@ -14,6 +14,8 @@ public class DamageAssessmentResponse {
     private String districtName;
     private UUID neighborhoodId;
     private String neighborhoodName;
+    /** Nullable — yalnızca 3B bina pilotu kapsamında (Pendik) haritadan bina seçilerek oluşturulmuş kayıtlarda dolu. */
+    private UUID buildingId;
     private String streetName;
     private String buildingNo;
     private String address;

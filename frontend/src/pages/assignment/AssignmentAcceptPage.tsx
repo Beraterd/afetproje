@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { acceptAssignmentToken } from '@/api/teamRecommendations.api';
-import { CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
+import { getApiErrorMessage } from '@/utils/errorParser';
+import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
 type ResultStatus = 'loading' | 'ACCEPTED' | 'ALREADY_ACCEPTED' | 'ALREADY_DECLINED' |
     'CANCELLED' | 'EVENT_INACTIVE' | 'TOKEN_EXPIRED' | 'error';
@@ -28,7 +29,7 @@ export const AssignmentAcceptPage: React.FC = () => {
             })
             .catch((err) => {
                 setStatus('error');
-                setMessage(err?.response?.data?.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+                setMessage(getApiErrorMessage(err, 'Bir hata oluştu. Lütfen tekrar deneyin.'));
             });
     }, [token]);
 

@@ -5,8 +5,9 @@ import { getSimulations, createSimulation } from '@/api/simulations.api';
 import { getDistricts } from '@/api/districts.api';
 import { queryKeys } from '@/utils/queryKeys';
 import { Button, DataTable, ColumnDef, FormField, Badge, Modal } from '@/components/ui';
-import { SimulationDetailResponse, DistrictResponse } from '@/types';
+import { SimulationDetailResponse } from '@/types';
 import { useToast } from '@/components/shared/ToastProvider';
+import { useDemoMode } from '@/hooks/useDemoMode';
 import { ShieldAlert, Play } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -16,6 +17,7 @@ export const SimulationTriggerPage: React.FC = () => {
     const toast = useToast();
     const [page, setPage] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
+    const { isDemo, disabledReason } = useDemoMode();
 
     const { data, isLoading } = useQuery({
         queryKey: queryKeys.simulations.all,
@@ -81,7 +83,13 @@ export const SimulationTriggerPage: React.FC = () => {
                     </p>
                 </div>
                 <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                    <Button onClick={() => setModalOpen(true)} variant="danger" leftIcon={<Play className="h-4 w-4" />}>
+                    <Button
+                        onClick={() => setModalOpen(true)}
+                        variant="danger"
+                        leftIcon={<Play className="h-4 w-4" />}
+                        disabled={isDemo}
+                        disabledReason={disabledReason}
+                    >
                         Simülasyon Başlat
                     </Button>
                 </div>

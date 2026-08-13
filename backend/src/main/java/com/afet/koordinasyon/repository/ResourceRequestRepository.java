@@ -112,6 +112,40 @@ public interface ResourceRequestRepository
             """)
     List<Object[]> reportRequestCountByNeighborhood(@Param("districtId") UUID districtId);
 
+    // ── Global search ─────────────────────────────────────────────────────────
+
+    @Query("""
+            SELECT r FROM ResourceRequest r
+            WHERE LOWER(r.title) LIKE LOWER(CONCAT('%',:q,'%'))
+              AND (:districtId IS NULL OR r.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR r.neighborhood.id = :neighborhoodId)
+            ORDER BY r.createdAt DESC
+            """)
+    List<ResourceRequest> searchByTitle(@Param("q") String query,
+                                         @Param("districtId") UUID districtId,
+                                         @Param("neighborhoodId") UUID neighborhoodId,
+                                         Pageable pageable);
+
+    // ── Devir teslim özeti ────────────────────────────────────────────────────
+
+    @Query("""
+            SELECT COUNT(r) FROM ResourceRequest r
+            WHERE r.status = 'OPEN'
+              AND (:districtId IS NULL OR r.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR r.neighborhood.id = :neighborhoodId)
+            """)
+    long countOpen(@Param("districtId") UUID districtId, @Param("neighborhoodId") UUID neighborhoodId);
+
+    @Query("""
+            SELECT COUNT(r) FROM ResourceRequest r
+            WHERE r.status = 'OPEN' AND r.priority IN :priorities
+              AND (:districtId IS NULL OR r.district.id = :districtId)
+              AND (:neighborhoodId IS NULL OR r.neighborhood.id = :neighborhoodId)
+            """)
+    long countOpenByPriorityIn(@Param("priorities") List<com.afet.koordinasyon.domain.enums.RequestPriority> priorities,
+                               @Param("districtId") UUID districtId,
+                               @Param("neighborhoodId") UUID neighborhoodId);
+
     // ── Bakım / Purge sorguları ──────────────────────────────────────────────
 
     @Modifying(clearAutomatically = true)

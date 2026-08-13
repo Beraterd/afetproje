@@ -1,17 +1,21 @@
 package com.afet.koordinasyon.service;
 
 import com.afet.koordinasyon.domain.entity.*;
+import com.afet.koordinasyon.domain.enums.AuditActionType;
 import com.afet.koordinasyon.domain.enums.ResourceStockMovementType;
 import com.afet.koordinasyon.domain.enums.ResourceStockStatus;
 import com.afet.koordinasyon.domain.enums.ResourceType;
 import com.afet.koordinasyon.domain.enums.UserRole;
 import com.afet.koordinasyon.dto.request.CreateResourceStockRequest;
+import com.afet.koordinasyon.dto.request.TransferStockRequest;
 import com.afet.koordinasyon.dto.request.UpdateResourceStockRequest;
 import com.afet.koordinasyon.dto.request.UpdateStockQuantityRequest;
 import com.afet.koordinasyon.dto.response.ResourceStockMovementResponse;
 import com.afet.koordinasyon.dto.response.ResourceStockResponse;
 import com.afet.koordinasyon.dto.response.ResourceStockSummaryResponse;
 import com.afet.koordinasyon.dto.response.StockLookupResponse;
+import com.afet.koordinasyon.dto.response.TransferStockResponse;
+import com.afet.koordinasyon.dto.response.TransferSuggestionResponse;
 import com.afet.koordinasyon.exception.BusinessRuleException;
 import com.afet.koordinasyon.exception.ResourceNotFoundException;
 import com.afet.koordinasyon.repository.DistrictRepository;
@@ -25,7 +29,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -37,6 +43,7 @@ public class ResourceStockService {
     private final DistrictRepository districtRepository;
     private final NeighborhoodRepository neighborhoodRepository;
     private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
 
     /** Ürün adının zorunlu olduğu kategoriler. Diğerlerinde isim kategori label'ından türetilir. */
     private static final java.util.Set<ResourceType> NAME_REQUIRED = java.util.EnumSet.of(
@@ -247,6 +254,137 @@ public class ResourceStockService {
         stock.setActive(false);
         stock.setUpdatedBy(currentUser(principal));
         stockRepository.save(stock);
+    }
+
+    // ── Kaynak transfer önerisi + atomic transfer ───────────────────────────────
+
+    /**
+     * Deterministik transfer önerisi: hedef stok kritik/tükenmişse, aynı kategoride başka
+     * depolarda kendi kritik eşiğinin üzerinde "güvenli fazlalığı" olan adaylar bulunur ve
+     * ihtiyaç kapanana kadar sırayla önerilir. AI kullanılmaz — saf domain kuralı.
+     */
+    @Transactional(readOnly = true)
+    public List<TransferSuggestionResponse> suggestTransfers(UUID targetStockId, UserPrincipal principal) {
+        ResourceStock target = findById(targetStockId);
+        assertCanView(principal, target);
+
+        ResourceStockStatus targetStatus = computeStatus(
+                target.getQuantity(), target.getCriticalThreshold(), target.getDailyUsageEstimate());
+        if (targetStatus != ResourceStockStatus.CRITICAL && targetStatus != ResourceStockStatus.OUT_OF_STOCK) {
+            return List.of();
+        }
+
+        int need = Math.max(target.getCriticalThreshold() - target.getQuantity(), 1);
+        List<TransferSuggestionResponse> suggestions = new ArrayList<>();
+
+        List<ResourceStock> candidates = new ArrayList<>(stockRepository
+                .findByCategoryAndActiveTrueAndIdNot(target.getCategory(), target.getId()));
+        // Fazlalığı en yüksek olandan başla — ihtiyaç en az sayıda depoyla kapatılsın.
+        candidates.sort((a, b) ->
+                (b.getQuantity() - b.getCriticalThreshold()) - (a.getQuantity() - a.getCriticalThreshold()));
+
+        for (ResourceStock candidate : candidates) {
+            if (need <= 0) break;
+            int safeSurplus = candidate.getQuantity() - candidate.getCriticalThreshold();
+            if (safeSurplus <= 0) continue;
+
+            int suggestedQuantity = Math.min(need, safeSurplus);
+            need -= suggestedQuantity;
+
+            suggestions.add(TransferSuggestionResponse.builder()
+                    .sourceStockId(candidate.getId())
+                    .sourceLabel(candidate.getName())
+                    .sourceDistrictName(candidate.getDistrict().getName())
+                    .sourceNeighborhoodName(candidate.getNeighborhood() != null
+                            ? candidate.getNeighborhood().getName() : null)
+                    .availableQuantity(safeSurplus)
+                    .suggestedQuantity(suggestedQuantity)
+                    .unit(candidate.getUnit())
+                    .reason(target.getName() + " " + Math.max(target.getCriticalThreshold() - target.getQuantity(), 0)
+                            + " " + target.getUnit() + " kritik eşik altında; "
+                            + candidate.getDistrict().getName() + " deposunda güvenli fazlalık "
+                            + safeSurplus + " " + candidate.getUnit() + ".")
+                    .build());
+        }
+
+        return suggestions;
+    }
+
+    /**
+     * Atomic transfer: kaynak stok azaltılır, hedef stok artırılır, ikisi de hareket kaydı +
+     * tek audit log ile izlenir. Kaynak kendi kritik eşiğinin altına düşecekse reddedilir.
+     * @Version sayesinde eşzamanlı bir başka güncelleme varsa save() OptimisticLockingFailureException fırlatır.
+     */
+    @Transactional
+    public TransferStockResponse transfer(TransferStockRequest req, UserPrincipal principal) {
+        ResourceStock source = findById(req.getSourceStockId());
+        ResourceStock target = findById(req.getTargetStockId());
+
+        assertCanTransfer(principal, source, target);
+
+        if (source.getId().equals(target.getId())) {
+            throw new BusinessRuleException("Kaynak ve hedef depo aynı olamaz");
+        }
+        if (source.getCategory() != target.getCategory()) {
+            throw new BusinessRuleException("Transfer yalnızca aynı kaynak kategorisi içinde yapılabilir");
+        }
+        int quantity = req.getQuantity();
+        if (quantity <= 0) {
+            throw new BusinessRuleException("Transfer miktarı sıfırdan büyük olmalıdır");
+        }
+        if (source.getQuantity() - quantity < source.getCriticalThreshold()) {
+            throw new BusinessRuleException(
+                    "Bu transfer kaynak deponun kritik eşiğinin altına düşmesine neden olur, reddedildi");
+        }
+
+        User actor = currentUser(principal);
+        int sourcePrevious = source.getQuantity();
+        int targetPrevious = target.getQuantity();
+
+        source.setQuantity(sourcePrevious - quantity);
+        source.setUpdatedBy(actor);
+        target.setQuantity(targetPrevious + quantity);
+        target.setUpdatedBy(actor);
+
+        stockRepository.save(source);
+        stockRepository.save(target);
+
+        recordMovement(source, ResourceStockMovementType.DECREASE, -quantity, sourcePrevious, source.getQuantity(),
+                "Transfer → " + target.getDistrict().getName() + (req.getReason() != null ? " (" + req.getReason() + ")" : ""),
+                actor);
+        recordMovement(target, ResourceStockMovementType.INCREASE, quantity, targetPrevious, target.getQuantity(),
+                "Transfer ← " + source.getDistrict().getName() + (req.getReason() != null ? " (" + req.getReason() + ")" : ""),
+                actor);
+
+        auditLogService.logUserAction(principal, AuditActionType.RESOURCE_STOCK_TRANSFERRED, "ResourceStock",
+                target.getId(),
+                quantity + " " + target.getUnit() + " " + source.getName() + " için "
+                        + source.getDistrict().getName() + " deposundan " + target.getDistrict().getName()
+                        + " deposuna transfer edildi",
+                Map.of("sourceStockId", source.getId().toString(), "targetStockId", target.getId().toString(),
+                        "quantity", quantity));
+
+        return TransferStockResponse.builder()
+                .source(toResponse(source))
+                .target(toResponse(target))
+                .build();
+    }
+
+    /** Transfer yetkisi: admin sınırsız; ilçe koordinatörü yalnızca kaynak VEYA hedef kendi ilçesindeyse. */
+    private void assertCanTransfer(UserPrincipal principal, ResourceStock source, ResourceStock target) {
+        UserRole role = principal.getRole();
+        if (role == UserRole.ADMIN) return;
+        if (role == UserRole.DISTRICT_COORDINATOR) {
+            UUID myDistrictId = principal.getDistrictId();
+            boolean isStakeholder = (myDistrictId != null)
+                    && (myDistrictId.equals(source.getDistrict().getId())
+                        || myDistrictId.equals(target.getDistrict().getId()));
+            if (!isStakeholder) {
+                throw new AccessDeniedException("Transfer için kaynak veya hedef deponun kendi ilçenizde olması gerekir");
+            }
+            return;
+        }
+        throw new AccessDeniedException("Kaynak transferi yetkiniz yok");
     }
 
     // ── Talep uyarısı (lookup) ────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { declineAssignmentToken } from '@/api/teamRecommendations.api';
+import { getApiErrorMessage } from '@/utils/errorParser';
 import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
 type ResultStatus = 'loading' | 'DECLINED' | 'ALREADY_ACCEPTED' | 'ALREADY_DECLINED' |
@@ -25,7 +26,7 @@ export const AssignmentDeclinePage: React.FC = () => {
             })
             .catch((err) => {
                 setStatus('error');
-                setMessage(err?.response?.data?.message || 'Bir hata oluştu.');
+                setMessage(getApiErrorMessage(err, 'Bir hata oluştu.'));
             });
     }, [token]);
 

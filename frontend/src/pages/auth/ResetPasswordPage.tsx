@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { validateResetToken, resetPassword } from '@/api/auth.api';
+import { getApiErrorMessage } from '@/utils/errorParser';
 import { Button, FormField } from '@/components/ui';
 import { ShieldAlert as ShieldIcon } from 'lucide-react';
 
@@ -50,7 +51,7 @@ export const ResetPasswordPage: React.FC = () => {
             setSuccess(true);
             setTimeout(() => navigate('/login'), 3000);
         } catch (err: any) {
-            const msg = err?.response?.data?.message || 'Bir hata oluştu. Lütfen tekrar deneyin.';
+            const msg = getApiErrorMessage(err, 'Bir hata oluştu. Lütfen tekrar deneyin.');
             setError('root', { message: msg });
         }
     };

@@ -11,6 +11,7 @@ import com.afet.koordinasyon.dto.response.MapDistrictResponse;
 import com.afet.koordinasyon.dto.response.MapNeighborhoodResponse;
 import com.afet.koordinasyon.dto.response.NeighborhoodCoordinatorMapResponse;
 import com.afet.koordinasyon.exception.ResourceNotFoundException;
+import com.afet.koordinasyon.repository.BuildingRepository;
 import com.afet.koordinasyon.repository.DamageAssessmentRepository;
 import com.afet.koordinasyon.repository.DistrictCoordinationCenterRepository;
 import com.afet.koordinasyon.repository.DistrictRepository;
@@ -39,6 +40,7 @@ public class MapService {
     private final EventRepository eventRepository;
     private final ResourceRequestRepository resourceRequestRepository;
     private final DamageAssessmentRepository damageAssessmentRepository;
+    private final BuildingRepository buildingRepository;
     private final RiskCalculationService riskCalculationService;
     private final ObjectMapper objectMapper;
     private final DistrictCoordinationCenterRepository districtCenterRepo;
@@ -141,6 +143,7 @@ public class MapService {
         long activeEvents = eventRepository.countByNeighborhoodIdAndStatusIn(n.getId(), ACTIVE_EVENT_STATUSES);
         long openResources = resourceRequestRepository.findByNeighborhoodIdAndStatus(n.getId(), ResourceRequestStatus.OPEN).size();
         long damageCount = damageAssessmentRepository.countByNeighborhoodId(n.getId());
+        long buildingCount = buildingRepository.countByNeighborhoodId(n.getId());
         BigDecimal riskScore = n.getRiskScore() != null ? n.getRiskScore() : BigDecimal.ZERO;
         return MapNeighborhoodResponse.builder()
                 .id(n.getId())
@@ -151,6 +154,7 @@ public class MapService {
                 .openEventCount(activeEvents)
                 .openResourceRequestCount(openResources)
                 .damageCount(damageCount)
+                .buildingCount(buildingCount)
                 .polygon(parseGeojson(n.getGeojsonPolygon(), n.getName()))
                 .build();
     }

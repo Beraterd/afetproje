@@ -54,6 +54,12 @@ public class EventController {
         return ResponseEntity.ok(eventService.getEventById(id, principal));
     }
 
+    @GetMapping("/{id}/timeline")
+    @Operation(summary = "Olayın zaman çizelgesi (mevcut audit log kayıtlarından)")
+    public ResponseEntity<List<EventTimelineItemResponse>> getTimeline(@PathVariable UUID id) {
+        return ResponseEntity.ok(eventService.getTimeline(id));
+    }
+
     @PostMapping
     @Operation(summary = "Create a new event")
     public ResponseEntity<EventResponse> createEvent(

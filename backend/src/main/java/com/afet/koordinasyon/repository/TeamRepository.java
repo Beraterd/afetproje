@@ -2,6 +2,7 @@ package com.afet.koordinasyon.repository;
 
 import com.afet.koordinasyon.domain.entity.Team;
 import com.afet.koordinasyon.domain.enums.TeamName;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,6 +27,19 @@ public interface TeamRepository extends JpaRepository<Team, UUID> {
 
     @Query("SELECT t FROM Team t WHERE t.district.id = :districtId ORDER BY t.teamCode ASC")
     List<Team> findByDistrictIdOrderByCode(@Param("districtId") UUID districtId);
+
+    // ── Global search ─────────────────────────────────────────────────────────
+
+    /** Team'in mahalle alanı yok — kapsam yalnızca districtId ile sınırlanır. */
+    @Query("""
+            SELECT t FROM Team t
+            WHERE LOWER(t.teamCode) LIKE LOWER(CONCAT('%',:q,'%'))
+              AND (:districtId IS NULL OR t.district.id = :districtId)
+            ORDER BY t.teamCode ASC
+            """)
+    List<Team> searchByCode(@Param("q") String query,
+                             @Param("districtId") UUID districtId,
+                             Pageable pageable);
 
     /**
      * Returns max sequential number for a combined prefix (e.g. "PEN-TAH").

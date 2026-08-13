@@ -5,7 +5,8 @@ export type NotificationType =
     | 'DAMAGE_REPORT'
     | 'NEW_EARTHQUAKE'
     | 'SIMULATION_RESULT'
-    | 'MESSAGE_DELIVERY_STATUS';
+    | 'MESSAGE_DELIVERY_STATUS'
+    | 'EMERGENCY_CONTACT_MESSAGE';
 
 export interface NotificationResponse {
     id: string;

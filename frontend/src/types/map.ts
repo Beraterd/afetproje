@@ -23,6 +23,7 @@ export interface MapNeighborhoodResponse {
     openEventCount: number;
     openResourceRequestCount: number;
     damageCount: number;
+    buildingCount: number;
     polygon: any; // GeoJSON Feature
 }
 

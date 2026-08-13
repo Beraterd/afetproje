@@ -7,6 +7,7 @@ import { queryKeys } from '@/utils/queryKeys';
 import { Button, DataTable, ColumnDef, FormField, ConfirmationDialog } from '@/components/ui';
 import { UserResponse, Role } from '@/types';
 import { useToast } from '@/components/shared/ToastProvider';
+import { getApiErrorMessage } from '@/utils/errorParser';
 import { Users, Shield, Pencil, Trash2 } from 'lucide-react';
 
 /** Bu e-postalar korunuyor — silinemez. */
@@ -82,7 +83,7 @@ export const UsersPage: React.FC = () => {
             setSelectedUserId(null);
             queryClient.invalidateQueries({ queryKey: ['users'] });
         },
-        onError: (err: any) => toast.error(err?.response?.data?.message || err.message || 'Kullanıcı silinemedi'),
+        onError: (err: any) => toast.error(getApiErrorMessage(err, 'Kullanıcı silinemedi')),
     });
 
     const editMutation = useMutation({
@@ -93,7 +94,7 @@ export const UsersPage: React.FC = () => {
             setEditUser(null);
             queryClient.invalidateQueries({ queryKey: ['users'] });
         },
-        onError: (err: any) => toast.error(err?.response?.data?.message || err.message || 'Güncelleme başarısız'),
+        onError: (err: any) => toast.error(getApiErrorMessage(err, 'Güncelleme başarısız')),
     });
 
     const handleRoleChange = (userId: string, newRole: Role) => {

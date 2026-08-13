@@ -21,13 +21,31 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  /* Dekoratif giriş/dikkat-çekme animasyonları — işlevsel geri bildirim olan
+     animate-spin (yükleniyor göstergesi) buna dahil değildir, kasıtlı olarak dokunulmaz. */
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-stagger-1,
+  .animate-stagger-2,
+  .animate-stagger-3,
+  .animate-stagger-4,
+  .animate-pulse {
+    animation: none !important;
+  }
+}
+
 @layer utilities {
   .glass-card {
     @apply bg-white/70 backdrop-blur-md border border-white/60 shadow-soft rounded-xl transition-all duration-300;
   }
   
   .glass-card:hover {
-    @apply shadow-soft-lg transform -translate-y-1 bg-white/80 border-white/80;
+    @apply shadow-soft-lg transform -translate-y-1 bg-white/80 border-white/80 motion-reduce:transform-none;
   }
   
   .glass-nav {

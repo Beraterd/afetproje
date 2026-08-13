@@ -50,7 +50,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
 
         initializeAuth();
-    }, []);
+        // accessToken/setAuth/clearAuth eklendiğinde initializeAuth kendi içindeki setAuth/
+        // clearAuth çağrısı sonrası bir kez daha tetiklenir, ama accessToken artık truthy
+        // olduğundan en baştaki guard hemen return eder — zararsız, tek seferlik ekstra çağrı.
+    }, [accessToken, setAuth, clearAuth]);
 
     if (isInitializing) {
         return (

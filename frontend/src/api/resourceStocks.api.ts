@@ -6,6 +6,9 @@ import {
     StockLookupResponse,
     CreateResourceStockRequest,
     UpdateStockQuantityRequest,
+    TransferSuggestionResponse,
+    TransferStockRequest,
+    TransferStockResponse,
 } from '@/types';
 
 export interface StockFilters {
@@ -56,4 +59,14 @@ export const updateStockQuantity = async (id: string, data: UpdateStockQuantityR
 
 export const deactivateStock = async (id: string): Promise<void> => {
     await axiosInstance.patch(`/resource-stocks/${id}/deactivate`);
+};
+
+export const getTransferSuggestions = async (stockId: string): Promise<TransferSuggestionResponse[]> => {
+    const res = await axiosInstance.get<TransferSuggestionResponse[]>(`/resource-stocks/${stockId}/transfer-suggestions`);
+    return res.data;
+};
+
+export const transferStock = async (data: TransferStockRequest): Promise<TransferStockResponse> => {
+    const res = await axiosInstance.post<TransferStockResponse>('/resource-stocks/transfer', data);
+    return res.data;
 };

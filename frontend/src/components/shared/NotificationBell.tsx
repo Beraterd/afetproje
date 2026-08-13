@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { Bell, CheckCheck, X } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { queryKeys } from '@/utils/queryKeys';
@@ -14,6 +15,7 @@ import { useAuthStore } from '@/store/authStore';
 import { formatDistanceToNow } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { notificationTypeLabels, formatNotificationType } from '@/utils/labels';
+import { getNotificationTarget } from '@/utils/notificationNavigation';
 
 const COORDINATOR_ROLES = ['ADMIN', 'DISTRICT_COORDINATOR', 'NEIGHBORHOOD_COORDINATOR'] as const;
 const POLL_INTERVAL_MS = 30_000;
@@ -26,6 +28,7 @@ const TYPE_COLORS: Record<NotificationType, string> = {
     NEW_EARTHQUAKE:          'bg-red-100 text-red-700',
     SIMULATION_RESULT:       'bg-indigo-100 text-indigo-700',
     MESSAGE_DELIVERY_STATUS: 'bg-gray-100 text-gray-600',
+    EMERGENCY_CONTACT_MESSAGE: 'bg-pink-100 text-pink-700',
 };
 
 type FilterTab = 'ALL' | NotificationType | 'UNREAD';
@@ -45,6 +48,7 @@ const FILTER_TABS: { key: FilterTab; label: string }[] = [
 export const NotificationBell: React.FC = () => {
     const user = useAuthStore((s) => s.user);
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
     const [open, setOpen] = useState(false);
     const [activeFilter, setActiveFilter] = useState<FilterTab>('ALL');
     const panelRef = useRef<HTMLDivElement>(null);
@@ -113,8 +117,15 @@ export const NotificationBell: React.FC = () => {
     const notifications = notifData?.content ?? [];
 
     const handleNotifClick = (n: NotificationResponse) => {
+        // Optimistic: okundu işaretleme isteği ayrı gider ve sonucunu beklemeyiz — başarısız
+        // olsa bile aşağıdaki deep-link yönlendirmesi engellenmemeli.
         if (!n.isRead) {
             markOneMutation.mutate(n.id);
+        }
+        const target = getNotificationTarget(n);
+        if (target) {
+            setOpen(false);
+            navigate(target);
         }
     };
 

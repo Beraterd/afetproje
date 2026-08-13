@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Clock, CheckCircle2, XCircle, RefreshCw, Trash2, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { useOfflineStore } from '@/store/offlineStore';
-import { removeQueueItem, clearQueue } from '@/lib/offlineQueue';
+import { removeQueueItem, clearQueue, updateQueueItem } from '@/lib/offlineQueue';
 import { processQueue, refreshQueueState } from '@/lib/syncService';
 import type { QueueItemStatus } from '@/lib/offlineDb';
 
 const TYPE_LABELS: Record<string, string> = {
-    USER_STATUS_REPORT: 'Durum Bildirimi',
-    DAMAGE_ASSESSMENT: 'Hasar Tespiti',
+    DAMAGE_ASSESSMENT_CREATE: 'Hasar Tespiti Oluşturma',
+    DAMAGE_ASSESSMENT_VERIFY: 'Hasar Tespiti Doğrulama',
+    TASK_FIELD_VERIFIED: 'Sahada Doğrulama',
+    TASK_COMPLETE: 'Görev Tamamlama',
+    TASK_PHOTO_UPLOAD: 'Saha Fotoğrafı',
 };
+
+const SENT_AUTO_CLEAR_MS = 5000;
 
 const StatusIcon: React.FC<{ status: QueueItemStatus }> = ({ status }) => {
     switch (status) {
@@ -21,8 +26,26 @@ const StatusIcon: React.FC<{ status: QueueItemStatus }> = ({ status }) => {
     }
 };
 
+const STATUS_LABELS: Record<QueueItemStatus, string> = {
+    PENDING: 'Bekliyor',
+    SENDING: 'Gönderiliyor',
+    SENT: 'Tamamlandı',
+    FAILED: 'Hata',
+};
+
 export const OfflineSyncPanel: React.FC = () => {
     const { queueItems, isOnline, isSyncing } = useOfflineStore();
+
+    // Başarıyla senkronize edilen kayıtlar kısa süre "Tamamlandı" olarak görünüp otomatik silinir.
+    useEffect(() => {
+        const sentIds = queueItems.filter((i) => i.status === 'SENT').map((i) => i.id);
+        if (sentIds.length === 0) return;
+        const timer = setTimeout(async () => {
+            for (const id of sentIds) await removeQueueItem(id);
+            await refreshQueueState();
+        }, SENT_AUTO_CLEAR_MS);
+        return () => clearTimeout(timer);
+    }, [queueItems]);
 
     if (queueItems.length === 0) {
         return (
@@ -33,6 +56,21 @@ export const OfflineSyncPanel: React.FC = () => {
     }
 
     const handleRetry = async () => {
+        await processQueue();
+    };
+
+    const handleRetryOne = async (id: string) => {
+        await updateQueueItem(id, { status: 'PENDING', retryCount: 0, lastError: undefined });
+        await refreshQueueState();
+        await processQueue();
+    };
+
+    const handleRetryAllFailed = async () => {
+        const failed = queueItems.filter((i) => i.status === 'FAILED');
+        for (const item of failed) {
+            await updateQueueItem(item.id, { status: 'PENDING', retryCount: 0, lastError: undefined });
+        }
+        await refreshQueueState();
         await processQueue();
     };
 
@@ -54,6 +92,7 @@ export const OfflineSyncPanel: React.FC = () => {
     };
 
     const sentCount = queueItems.filter((i) => i.status === 'SENT').length;
+    const failedCount = queueItems.filter((i) => i.status === 'FAILED').length;
 
     return (
         <div className="space-y-3">
@@ -61,7 +100,7 @@ export const OfflineSyncPanel: React.FC = () => {
                 <h4 className="text-sm font-semibold text-gray-900">
                     Çevrimdışı Kuyruk ({queueItems.length})
                 </h4>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2">
                     {isOnline && (
                         <button
                             onClick={handleRetry}
@@ -70,6 +109,16 @@ export const OfflineSyncPanel: React.FC = () => {
                         >
                             <RefreshCw className={`h-3 w-3 ${isSyncing ? 'animate-spin' : ''}`} />
                             Senkronize et
+                        </button>
+                    )}
+                    {isOnline && failedCount > 0 && (
+                        <button
+                            onClick={handleRetryAllFailed}
+                            disabled={isSyncing}
+                            className="flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-800 disabled:opacity-50"
+                        >
+                            <RefreshCw className="h-3 w-3" />
+                            Tümünü Tekrar Dene
                         </button>
                     )}
                     {sentCount > 0 && (
@@ -100,9 +149,12 @@ export const OfflineSyncPanel: React.FC = () => {
                             <StatusIcon status={item.status} />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900">
-                                {TYPE_LABELS[item.type] ?? item.type}
-                            </p>
+                            <div className="flex items-center gap-2">
+                                <p className="text-sm font-medium text-gray-900">
+                                    {TYPE_LABELS[item.type] ?? item.type}
+                                </p>
+                                <span className="text-[11px] text-gray-400">— {STATUS_LABELS[item.status]}</span>
+                            </div>
                             <p className="text-xs text-gray-500 mt-0.5">
                                 {formatDistanceToNow(new Date(item.createdAt), {
                                     addSuffix: true,
@@ -114,6 +166,15 @@ export const OfflineSyncPanel: React.FC = () => {
                                 <p className="text-xs text-red-500 mt-0.5 truncate" title={item.lastError}>
                                     {item.lastError}
                                 </p>
+                            )}
+                            {item.status === 'FAILED' && isOnline && (
+                                <button
+                                    onClick={() => handleRetryOne(item.id)}
+                                    className="mt-1 flex items-center gap-1 text-xs font-medium text-brand-600 hover:text-brand-800"
+                                >
+                                    <RefreshCw className="h-3 w-3" />
+                                    Tekrar Dene
+                                </button>
                             )}
                         </div>
                         <button

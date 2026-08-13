@@ -72,6 +72,15 @@ export default defineConfig(({ mode }) => {
                 '@': path.resolve(__dirname, 'src'),
             },
         },
+        optimizeDeps: {
+            // maplibre-gl kendi Web Worker'ını `new Worker(new URL('./maplibre-gl-worker...', import.meta.url))`
+            // ile relative olarak yükler. Vite'ın esbuild dep-optimizer'ı bu paketi
+            // node_modules/.vite/deps altına pre-bundle ederken worker dosyasının gerçek
+            // konumunu bozuyor ("does not exist ... maplibre-gl-worker.mjs") — bu maplibre-gl'in
+            // resmi bilinen bir Vite uyumsuzluğu. Çözüm: paketi optimize-dep'ten hariç tutup
+            // native ESM olarak node_modules'tan servis etmek (worker path'i böylece bozulmuyor).
+            exclude: ['maplibre-gl'],
+        },
         server: {
             port: 5173,
             proxy: {
@@ -81,6 +90,11 @@ export default defineConfig(({ mode }) => {
                     secure: false,
                 },
             },
+        },
+        test: {
+            environment: 'jsdom',
+            setupFiles: ['./src/test/setup.ts'],
+            globals: true,
         },
     };
 });

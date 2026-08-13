@@ -19,4 +19,12 @@ public class EarthquakeDebugStatusResponse {
     private int lastSyncFetchedCount;
     private int lastSyncSavedCount;
     private String serverTimezone;
+
+    // ── Kandilli (AFAD'dan bağımsız) ─────────────────────────────────────────
+    private long kandilliPollingIntervalMs;
+    private OffsetDateTime kandilliLastSyncStartedAt;
+    private OffsetDateTime kandilliLastSyncCompletedAt;
+    private int kandilliLastSyncFetchedCount;
+    private int kandilliLastSyncSavedCount;
+    private String kandilliLastError;
 }

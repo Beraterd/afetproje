@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Boxes, Plus, RefreshCw, History, AlertTriangle, X, Filter } from 'lucide-react';
+import { Boxes, Plus, RefreshCw, History, AlertTriangle, X, Filter, ArrowRightLeft } from 'lucide-react';
 import {
     getResourceStocks,
     getStockSummary,
     createResourceStock,
     updateStockQuantity,
     getStockMovements,
+    getTransferSuggestions,
+    transferStock,
     StockFilters,
 } from '@/api/resourceStocks.api';
 import { getDistricts } from '@/api/districts.api';
@@ -15,6 +17,7 @@ import {
     ResourceStockSummaryResponse,
     ResourceStockMovementResponse,
     CreateResourceStockRequest,
+    TransferSuggestionResponse,
     STOCK_STATUS_BADGE,
     NAME_REQUIRED_CATEGORIES,
     PRODUCT_NAME_PLACEHOLDER,
@@ -22,6 +25,8 @@ import {
 } from '@/types';
 import { useToast } from '@/components/shared/ToastProvider';
 import { useAuthStore } from '@/store/authStore';
+import { useDemoMode } from '@/hooks/useDemoMode';
+import { getApiErrorMessage } from '@/utils/errorParser';
 
 const STATUS_OPTIONS = [
     { value: '', label: 'Tüm Durumlar' },
@@ -37,6 +42,21 @@ function daysLabel(s: ResourceStockResponse): string {
     return `${s.daysRemaining} gün`;
 }
 
+/** Kritik/tükenmiş kalemler listenin başında görünsün — "şimdi hangi kaleme müdahale etmeliyim?" */
+const STATUS_SEVERITY_RANK: Record<string, number> = {
+    OUT_OF_STOCK: 0,
+    CRITICAL: 1,
+    DECREASING: 2,
+    SUFFICIENT: 3,
+};
+
+function sortBySeverity(stocks: ResourceStockResponse[]): ResourceStockResponse[] {
+    return [...stocks].sort((a, b) => {
+        const rankDiff = (STATUS_SEVERITY_RANK[a.status] ?? 99) - (STATUS_SEVERITY_RANK[b.status] ?? 99);
+        return rankDiff !== 0 ? rankDiff : a.name.localeCompare(b.name, 'tr');
+    });
+}
+
 export function StockSection() {
     const { success: toastSuccess, error: toastError, warning: toastWarning } = useToast();
     const user = useAuthStore(s => s.user);
@@ -44,6 +64,7 @@ export function StockSection() {
     const isDistrictCoord = user?.role === 'DISTRICT_COORDINATOR';
     const isNeighborhoodCoord = user?.role === 'NEIGHBORHOOD_COORDINATOR';
     const canManage = isAdmin || isDistrictCoord || isNeighborhoodCoord;
+    const { isDemo, disabledReason } = useDemoMode();
 
     const [stocks, setStocks] = useState<ResourceStockResponse[]>([]);
     const [summary, setSummary] = useState<ResourceStockSummaryResponse | null>(null);
@@ -57,6 +78,7 @@ export function StockSection() {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showQtyModal, setShowQtyModal] = useState<ResourceStockResponse | null>(null);
     const [showMovements, setShowMovements] = useState<ResourceStockResponse | null>(null);
+    const [showTransferModal, setShowTransferModal] = useState<ResourceStockResponse | null>(null);
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -100,7 +122,9 @@ export function StockSection() {
                     {canManage && (
                         <button
                             onClick={() => setShowAddModal(true)}
-                            className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-medium"
+                            disabled={isDemo}
+                            title={isDemo ? disabledReason : undefined}
+                            className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:pointer-events-none"
                         >
                             <Plus className="h-4 w-4" /> Stok Ekle
                         </button>
@@ -183,8 +207,9 @@ export function StockSection() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                    {stocks.map(s => {
+                    {sortBySeverity(stocks).map(s => {
                         const critical = s.status === 'CRITICAL' || s.status === 'OUT_OF_STOCK';
+                        const deficit = critical ? s.criticalThreshold - s.quantity : 0;
                         return (
                             <div
                                 key={s.id}
@@ -210,6 +235,12 @@ export function StockSection() {
                                     <span className="text-gray-700 text-right">{daysLabel(s)}</span>
                                     <span className="text-gray-500">Kritik eşik</span>
                                     <span className="text-gray-700 text-right">{s.criticalThreshold} {s.unit}</span>
+                                    {deficit > 0 && (
+                                        <>
+                                            <span className="text-red-600 font-medium">Eksik</span>
+                                            <span className="text-red-600 font-semibold text-right">{deficit} {s.unit}</span>
+                                        </>
+                                    )}
                                 </div>
 
                                 <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500 space-y-0.5">
@@ -228,9 +259,21 @@ export function StockSection() {
                                     {canManage && (
                                         <button
                                             onClick={() => setShowQtyModal(s)}
-                                            className="flex items-center gap-1 text-xs text-emerald-700 hover:text-emerald-900 px-2 py-1 rounded hover:bg-emerald-50"
+                                            disabled={isDemo}
+                                            title={isDemo ? disabledReason : undefined}
+                                            className="flex items-center gap-1 text-xs text-emerald-700 hover:text-emerald-900 px-2 py-1 rounded hover:bg-emerald-50 disabled:opacity-50 disabled:pointer-events-none"
                                         >
                                             <RefreshCw className="h-3.5 w-3.5" /> Miktar Güncelle
+                                        </button>
+                                    )}
+                                    {canManage && critical && (
+                                        <button
+                                            onClick={() => setShowTransferModal(s)}
+                                            disabled={isDemo}
+                                            title={isDemo ? disabledReason : undefined}
+                                            className="flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 px-2 py-1 rounded hover:bg-blue-50 disabled:opacity-50 disabled:pointer-events-none"
+                                        >
+                                            <ArrowRightLeft className="h-3.5 w-3.5" /> Transfer Önerisi
                                         </button>
                                     )}
                                 </div>
@@ -267,6 +310,18 @@ export function StockSection() {
 
             {showMovements && (
                 <MovementsModal stock={showMovements} onClose={() => setShowMovements(null)} onError={toastError} />
+            )}
+
+            {showTransferModal && (
+                <TransferSuggestionModal
+                    stock={showTransferModal}
+                    onClose={() => setShowTransferModal(null)}
+                    onTransferred={() => { setShowTransferModal(null); load(); }}
+                    onError={toastError}
+                    onSuccess={toastSuccess}
+                    isDemo={isDemo}
+                    disabledReason={disabledReason}
+                />
             )}
         </div>
     );
@@ -333,7 +388,7 @@ function AddStockModal(props: {
             props.onSuccess('Stok kaydı oluşturuldu');
             props.onSaved();
         } catch (err: any) {
-            props.onError(err?.response?.data?.message || 'Stok eklenemedi');
+            props.onError(getApiErrorMessage(err, 'Stok eklenemedi'));
         } finally {
             setSaving(false);
         }
@@ -426,7 +481,7 @@ function QuantityModal(props: {
             props.onSuccess('Stok miktarı güncellendi');
             props.onSaved();
         } catch (err: any) {
-            props.onError(err?.response?.data?.message || 'Güncelleme başarısız');
+            props.onError(getApiErrorMessage(err, 'Güncelleme başarısız'));
         } finally {
             setSaving(false);
         }
@@ -488,6 +543,81 @@ function MovementsModal(props: { stock: ResourceStockResponse; onClose: () => vo
                             <p className="text-xs text-gray-400 mt-0.5">
                                 {new Date(m.createdAt).toLocaleString('tr-TR')}{m.createdBy ? ` — ${m.createdBy}` : ''}
                             </p>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </Modal>
+    );
+}
+
+// ── Transfer Önerisi Modalı ──────────────────────────────────────────────────
+function TransferSuggestionModal(props: {
+    stock: ResourceStockResponse;
+    onClose: () => void;
+    onTransferred: () => void;
+    onError: (m: string) => void;
+    onSuccess: (m: string) => void;
+    isDemo: boolean;
+    disabledReason?: string;
+}) {
+    const { stock } = props;
+    const [suggestions, setSuggestions] = useState<TransferSuggestionResponse[] | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [transferringId, setTransferringId] = useState<string | null>(null);
+
+    useEffect(() => {
+        getTransferSuggestions(stock.id)
+            .then(setSuggestions)
+            .catch(() => props.onError('Transfer önerileri yüklenemedi'))
+            .finally(() => setLoading(false));
+    }, [stock.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const applyTransfer = async (suggestion: TransferSuggestionResponse) => {
+        setTransferringId(suggestion.sourceStockId);
+        try {
+            await transferStock({
+                sourceStockId: suggestion.sourceStockId,
+                targetStockId: stock.id,
+                quantity: suggestion.suggestedQuantity,
+                reason: `Transfer önerisi: ${suggestion.sourceLabel}`,
+            });
+            props.onSuccess('Transfer tamamlandı');
+            props.onTransferred();
+        } catch (err: any) {
+            props.onError(getApiErrorMessage(err, 'Transfer başarısız'));
+        } finally {
+            setTransferringId(null);
+        }
+    };
+
+    return (
+        <Modal title={`Transfer Önerisi — ${stock.name}`} onClose={props.onClose}>
+            <p className="text-sm text-gray-600 mb-3">
+                {stock.name} — mevcut: {stock.quantity} {stock.unit}, kritik eşik: {stock.criticalThreshold} {stock.unit}
+            </p>
+            {loading ? (
+                <p className="text-center text-gray-500 py-6 text-sm">Yükleniyor...</p>
+            ) : !suggestions || suggestions.length === 0 ? (
+                <p className="text-center text-gray-500 py-6 text-sm">
+                    Bu kaynak için uygun bir transfer önerisi bulunamadı.
+                </p>
+            ) : (
+                <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+                    {suggestions.map(s => (
+                        <div key={s.sourceStockId} className="border border-blue-100 bg-blue-50 rounded-lg p-3">
+                            <p className="text-sm font-medium text-gray-900">
+                                {s.sourceDistrictName}{s.sourceNeighborhoodName ? `, ${s.sourceNeighborhoodName}` : ''} → {s.suggestedQuantity} {s.unit} transfer edilebilir
+                            </p>
+                            <p className="text-xs text-gray-600 mt-1">{s.reason}</p>
+                            <button
+                                onClick={() => applyTransfer(s)}
+                                disabled={props.isDemo || transferringId === s.sourceStockId}
+                                title={props.isDemo ? props.disabledReason : undefined}
+                                className="mt-2 flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg disabled:opacity-60 disabled:pointer-events-none"
+                            >
+                                {transferringId === s.sourceStockId ? 'Transfer ediliyor...' : 'Transfer Oluştur'}
+                            </button>
                         </div>
                     ))}
                 </div>

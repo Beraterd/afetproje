@@ -14,6 +14,7 @@ import com.afet.koordinasyon.repository.DocumentRepository;
 import com.afet.koordinasyon.repository.UserRepository;
 import com.afet.koordinasyon.service.email.DocumentApprovedEmailEvent;
 import com.afet.koordinasyon.service.email.DocumentRejectedEmailEvent;
+import com.afet.koordinasyon.storage.FileUploadValidator;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +34,7 @@ import java.text.Normalizer;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -45,11 +47,14 @@ public class DocumentService {
     @Value("${app.base-url}")
     private String baseUrl;
 
+    private static final Set<String> ALLOWED_MIME_TYPES = Set.of("application/pdf", "image/png", "image/jpeg");
+
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
     private final AuditLogService auditLogService;
     private final ApplicationEventPublisher eventPublisher;
+    private final FileUploadValidator fileUploadValidator;
 
     @Transactional
     public DocumentResponse uploadDocument(UUID userId, DocumentType documentType, MultipartFile file) {
@@ -60,24 +65,33 @@ public class DocumentService {
             throw new BusinessRuleException("Dosya boyutu 10MB'ı geçemez");
         }
 
-        String mime = file.getContentType();
-        if (!isAllowedMimeType(mime)) {
-            throw new BusinessRuleException("Desteklenmeyen dosya türü. Lütfen PDF, PNG veya JPEG yükleyiniz.");
+        String mime = normalizeJpegMime(file.getContentType());
+        byte[] content;
+        try {
+            content = file.getBytes();
+        } catch (IOException e) {
+            throw new BusinessRuleException("Dosya okunamadı");
         }
+        fileUploadValidator.validateContent(content, mime, ALLOWED_MIME_TYPES);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
-        String originalName = file.getOriginalFilename() != null ? file.getOriginalFilename() : "document";
-        String standardizedFileName = normalizeFileName(user, documentType, originalName);
-        String storageKey = userId.toString() + "/" + UUID.randomUUID() + "_" + originalName;
-        Path target = Paths.get(localStoragePath, storageKey);
+        String standardizedFileName = normalizeFileName(user, documentType, fileUploadValidator.safeExtension(mime));
+        // Storage key TAMAMEN server-generated: kullanıcının verdiği dosya adı asla path'e girmez
+        // (path traversal engeli). Uzantı, doğrulanmış içerik türünden whitelist ile türetilir.
+        String storageKey = userId.toString() + "/" + UUID.randomUUID() + fileUploadValidator.safeExtension(mime);
+        Path storageRoot = Paths.get(localStoragePath).toAbsolutePath().normalize();
+        Path target = storageRoot.resolve(storageKey).normalize();
+        if (!target.startsWith(storageRoot)) {
+            throw new BusinessRuleException("Geçersiz dosya yolu");
+        }
 
         try {
             Files.createDirectories(target.getParent());
-            Files.write(target, file.getBytes());
+            Files.write(target, content);
         } catch (IOException e) {
-            throw new BusinessRuleException("Dosya kaydedilirken hata oluştu: " + e.getMessage());
+            throw new BusinessRuleException("Dosya kaydedilirken hata oluştu");
         }
 
         Document doc = Document.builder()
@@ -113,28 +127,54 @@ public class DocumentService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public DocumentDownloadResponse getDownloadUrl(UUID userId, UUID documentId) {
         Document doc = documentRepository.findById(documentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Document", "id", documentId));
         if (!doc.getUser().getId().equals(userId)) {
             throw new BusinessRuleException("Bu belgeye erişim yetkiniz yok");
         }
-        String url = baseUrl + "/api/files/download/" + doc.getDownloadToken();
-        return DocumentDownloadResponse.builder()
-                .presignedUrl(url)
-                .expiresAt(OffsetDateTime.now().plusHours(24).toString())
-                .build();
+        return issueDownloadUrl(doc);
     }
 
-    @Transactional(readOnly = true)
-    public DocumentDownloadResponse getAdminDocumentViewUrl(UUID documentId) {
+    /**
+     * Coordinator/admin belge inceleme ekranı — liste uç noktası (getPendingDocuments) zaten
+     * district/mahalle'ye göre filtreliyor; bu direct-by-id uç nokta da AYNI kapsamı uygulamalı
+     * (aksi halde bir DISTRICT_COORDINATOR başka bir ilçenin belgesini id tahmin ederek görebilir).
+     */
+    @Transactional
+    public DocumentDownloadResponse getAdminDocumentViewUrl(UUID documentId, UUID actorId, UserRole actorRole) {
         Document doc = documentRepository.findById(documentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Document", "id", documentId));
+
+        if (actorRole != UserRole.ADMIN) {
+            User actor = userRepository.findById(actorId)
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "id", actorId));
+            User owner = doc.getUser();
+            boolean inScope = switch (actorRole) {
+                case NEIGHBORHOOD_COORDINATOR -> actor.getNeighborhood() != null && owner.getNeighborhood() != null
+                        && actor.getNeighborhood().getId().equals(owner.getNeighborhood().getId());
+                case DISTRICT_COORDINATOR -> actor.getDistrict() != null && owner.getDistrict() != null
+                        && actor.getDistrict().getId().equals(owner.getDistrict().getId());
+                default -> false;
+            };
+            if (!inScope) {
+                throw new BusinessRuleException("Bu belgeye erişim yetkiniz yok",
+                        org.springframework.http.HttpStatus.FORBIDDEN, "FORBIDDEN");
+            }
+        }
+        return issueDownloadUrl(doc);
+    }
+
+    /** Her yetkili istek yeni bir son kullanma zamanı üretir (rotasyon) — sızan bir eski link süresiz kalmaz. */
+    private DocumentDownloadResponse issueDownloadUrl(Document doc) {
+        OffsetDateTime expiresAt = OffsetDateTime.now().plusHours(24);
+        doc.setDownloadTokenExpiresAt(expiresAt);
+        documentRepository.save(doc);
         String url = baseUrl + "/api/files/download/" + doc.getDownloadToken();
         return DocumentDownloadResponse.builder()
                 .presignedUrl(url)
-                .expiresAt(OffsetDateTime.now().plusHours(24).toString())
+                .expiresAt(expiresAt.toString())
                 .build();
     }
 
@@ -142,13 +182,19 @@ public class DocumentService {
         Document doc = documentRepository.findByDownloadToken(downloadToken)
                 .orElseThrow(() -> new ResourceNotFoundException("Document", "downloadToken", downloadToken));
 
+        if (doc.getDownloadTokenExpiresAt() == null || doc.getDownloadTokenExpiresAt().isBefore(OffsetDateTime.now())) {
+            throw new BusinessRuleException("Bu indirme bağlantısının süresi doldu. Lütfen yeniden indirme bağlantısı isteyin.",
+                    org.springframework.http.HttpStatus.GONE, "DOWNLOAD_LINK_EXPIRED");
+        }
+
         Path filePath = Paths.get(localStoragePath, doc.getStorageKey());
         if (!Files.exists(filePath)) {
             throw new ResourceNotFoundException("Dosya", "path", doc.getStorageKey());
         }
 
         response.setContentType(doc.getMimeType());
-        response.setHeader("Content-Disposition", "inline; filename=\"" + doc.getFileName() + "\"");
+        response.setHeader("Content-Disposition",
+                "inline; filename=\"" + fileUploadValidator.sanitizeDisplayFileName(doc.getFileName()) + "\"");
         response.setContentLengthLong(doc.getFileSizeBytes());
 
         try {
@@ -224,7 +270,8 @@ public class DocumentService {
             DocumentType.OTHER,                         "diger"
     );
 
-    private String normalizeFileName(User user, DocumentType documentType, String originalFileName) {
+    /** {@code safeExtension}, FileUploadValidator tarafından doğrulanmış içerik türünden türetilir — kullanıcı girdisi değildir. */
+    private String normalizeFileName(User user, DocumentType documentType, String safeExtension) {
         String fullName = (user.getFirstName() + user.getLastName()).toLowerCase();
         // Türkçe karakter dönüşümü
         fullName = fullName
@@ -239,21 +286,12 @@ public class DocumentService {
 
         String typeSlug = DOC_TYPE_SLUG.getOrDefault(documentType, "belge");
 
-        String ext = "";
-        if (originalFileName != null && originalFileName.contains(".")) {
-            ext = originalFileName.substring(originalFileName.lastIndexOf('.'));
-        }
-
-        return fullName + "_" + typeSlug + ext;
+        return fullName + "_" + typeSlug + safeExtension;
     }
 
-    private boolean isAllowedMimeType(String mime) {
-        return mime != null && (
-                mime.equals("application/pdf") ||
-                mime.equals("image/png") ||
-                mime.equals("image/jpeg") ||
-                mime.equals("image/jpg")
-        );
+    /** "image/jpg" bazı istemcilerin gönderdiği standart-dışı bir varyanttır — image/jpeg'e normalize edilir. */
+    private String normalizeJpegMime(String mime) {
+        return "image/jpg".equals(mime) ? "image/jpeg" : mime;
     }
 
     private DocumentResponse toResponse(Document doc) {

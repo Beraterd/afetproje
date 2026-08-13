@@ -30,7 +30,9 @@ public enum AuditActionType {
 
     // Hasar / Kaynak
     DAMAGE_REPORT_CREATED,
+    DAMAGE_ASSESSMENT_VERIFIED,
     RESOURCE_REQUEST_CREATED,
+    RESOURCE_STOCK_TRANSFERRED,
 
     // Bildirim / İletişim
     NOTIFICATION_SENT,

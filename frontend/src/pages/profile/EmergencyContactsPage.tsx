@@ -11,6 +11,7 @@ import {
     UserSearchResponse,
 } from '@/types';
 import { useToast } from '@/components/shared/ToastProvider';
+import { getApiErrorMessage } from '@/utils/errorParser';
 
 /** İş kuralı: en fazla 3 yakın. Backend EmergencyContactService ile uyumludur. */
 const MAX_CONTACTS = 3;
@@ -70,7 +71,7 @@ export function EmergencyContactsPage() {
             setSearchResults([]);
             loadContacts();
         } catch (err: any) {
-            toastError(err?.response?.data?.message || 'Ekleme başarısız');
+            toastError(getApiErrorMessage(err, 'Ekleme başarısız'));
         }
     };
 
@@ -184,6 +185,7 @@ export function EmergencyContactsPage() {
                                     onClick={() => handleRemove(contact.contactUserId, `${contact.firstName} ${contact.lastName}`)}
                                     className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                     title="Çıkar"
+                                    aria-label={`${contact.firstName} ${contact.lastName} kişisini çıkar`}
                                 >
                                     <X className="h-4 w-4" />
                                 </button>

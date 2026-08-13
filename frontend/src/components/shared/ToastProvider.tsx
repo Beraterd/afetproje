@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, CheckCircle, AlertTriangle, AlertCircle, Info } from 'lucide-react';
 import { cn } from '@/utils/cn';
@@ -22,6 +22,7 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components -- context hook colocated with its Provider, standard React pattern
 export const useToast = () => {
     const context = useContext(ToastContext);
     if (!context) throw new Error('useToast must be used within a ToastProvider');
@@ -156,12 +157,14 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return () => window.removeEventListener(DEMO_MODE_BLOCKED_EVENT, handler);
     }, [addToast]);
 
-    const val: ToastContextValue = {
-        success: (m) => addToast('success', m),
-        error: (m) => addToast('error', m),
-        warning: (m) => addToast('warning', m),
-        info: (m) => addToast('info', m),
-    };
+    // addToast'ın kimliği sabit (useCallback [] deps) — bu sayede `val` da referans olarak
+    // stabil kalır ve tüketen component'lerdeki useEffect deps dizilerine güvenle eklenebilir.
+    const val: ToastContextValue = useMemo(() => ({
+        success: (m: string) => addToast('success', m),
+        error: (m: string) => addToast('error', m),
+        warning: (m: string) => addToast('warning', m),
+        info: (m: string) => addToast('info', m),
+    }), [addToast]);
 
     return (
         <ToastContext.Provider value={val}>

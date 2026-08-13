@@ -4,6 +4,9 @@ export interface DamageAssessmentResponse {
     districtName: string;
     neighborhoodId: string;
     neighborhoodName: string;
+    /** Haritadan gerçek bir bina seçilerek oluşturulduysa canonical building id (bkz. item 22/23:
+     *  bu binanın Operasyon Haritası'ndaki rengi hasar durumu değişince invalidate edilir). */
+    buildingId?: string;
     streetName?: string;
     buildingNo?: string;
     address: string;
@@ -103,6 +106,9 @@ export interface AssignDamageAssessmentRequest {
 
 export interface CreateDamageAssessmentRequest {
     neighborhoodId: string;
+    /** Haritadan gerçek bir bina seçildiyse — doluysa backend address/latitude/longitude/
+     *  streetName/buildingNo alanlarını bu binadan türetir (bkz. BuildingSelector). */
+    buildingId?: string;
     streetName?: string;
     buildingNo?: string;
     address: string;

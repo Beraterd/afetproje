@@ -90,6 +90,7 @@ export const notificationTypeLabels: Record<NotificationType, string> = {
     NEW_EARTHQUAKE: 'Yeni Deprem',
     SIMULATION_RESULT: 'Simülasyon',
     MESSAGE_DELIVERY_STATUS: 'SMS/Mail Durumu',
+    EMERGENCY_CONTACT_MESSAGE: 'Acil Durum Mesajı',
 };
 
 export function formatNotificationType(type: string): string {

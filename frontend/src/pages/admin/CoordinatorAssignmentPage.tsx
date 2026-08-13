@@ -15,6 +15,7 @@ import { getDistricts } from '@/api/districts.api';
 import { Button, Modal, FormField, LoadingSpinner, Badge } from '@/components/ui';
 import { useToast } from '@/components/shared/ToastProvider';
 import { useAuthStore } from '@/store/authStore';
+import { getApiErrorMessage } from '@/utils/errorParser';
 import { MapPin, UserCheck, Users, Building2, Navigation } from 'lucide-react';
 import { DistrictResponse } from '@/types';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
@@ -191,7 +192,7 @@ export const CoordinatorAssignmentPage: React.FC = () => {
             setDCAssignModal(null);
         },
         onError: (err: any) =>
-            toast.error(err.response?.data?.message || err.message || 'Atama başarısız'),
+            toast.error(getApiErrorMessage(err, 'Atama başarısız')),
     });
 
     const neighborhoodMutation = useMutation({
@@ -203,7 +204,7 @@ export const CoordinatorAssignmentPage: React.FC = () => {
             setAssignModal(null);
         },
         onError: (err: any) =>
-            toast.error(err.response?.data?.message || err.message || 'Atama başarısız'),
+            toast.error(getApiErrorMessage(err, 'Atama başarısız')),
     });
 
     // ── Location update mutations ──
@@ -217,7 +218,7 @@ export const CoordinatorAssignmentPage: React.FC = () => {
             setLocationModal(null);
         },
         onError: (err: any) =>
-            toast.error(err.response?.data?.message || err.message || 'Konum güncellenemedi'),
+            toast.error(getApiErrorMessage(err, 'Konum güncellenemedi')),
     });
 
     const neighborhoodLocationMutation = useMutation({
@@ -230,7 +231,7 @@ export const CoordinatorAssignmentPage: React.FC = () => {
             setLocationModal(null);
         },
         onError: (err: any) =>
-            toast.error(err.response?.data?.message || err.message || 'Konum güncellenemedi'),
+            toast.error(getApiErrorMessage(err, 'Konum güncellenemedi')),
     });
 
     const handleSaveLocation = (lat: number, lng: number) => {

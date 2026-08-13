@@ -67,6 +67,7 @@ public class TeamRecommendationService {
     private final EmailNotificationService emailNotificationService;
     private final IstanbulDistrictNeighborService neighborService;
     private final ObjectMapper objectMapper;
+    private final AuditLogService auditLogService;
 
     // ── Create from event ─────────────────────────────────────────────────────
 
@@ -653,6 +654,10 @@ public class TeamRecommendationService {
         rec.setApprovedAt(OffsetDateTime.now());
         recommendationRepository.save(rec);
 
+        auditLogService.logUserAction(principal, AuditActionType.TEAM_ASSIGNED, "TeamRecommendation", rec.getId(),
+                "AI ekip önerisi onaylandı ve seçilen kişilere görev daveti gönderildi",
+                Map.of("source", "AI_RECOMMENDATION", "selectedUserCount", req.selectedUserIds().size()));
+
         Event event = rec.getEvent();
         String managerName = approvedBy.getFirstName() + " " + approvedBy.getLastName();
 
@@ -727,6 +732,10 @@ public class TeamRecommendationService {
         rec.setApprovedBy(approvedBy);
         rec.setApprovedAt(OffsetDateTime.now());
         recommendationRepository.save(rec);
+
+        auditLogService.logUserAction(principal, AuditActionType.TEAM_ASSIGNED, "TeamRecommendation", rec.getId(),
+                "AI ekip önerisi (tüm önerilen kişiler) onaylandı",
+                Map.of("source", "AI_RECOMMENDATION"));
 
         List<TeamRecommendationMember> members = memberRepository.findByRecommendationIdOrderByOrderIdAsc(id);
         int mailErrors = 0;

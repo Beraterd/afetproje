@@ -34,6 +34,7 @@ export interface ErrorResponse {
     error: string;
     message: string;
     path: string;
+    requestId?: string;
     details?: FieldError[];
 }
 

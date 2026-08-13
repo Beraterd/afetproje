@@ -3,9 +3,26 @@ app:
   frontend-url: ${FRONTEND_URL:https://afetistanbul.online}
   short-link:
     base-url: ${SHORT_LINK_BASE_URL:https://afetistanbul.online}
+  security:
+    refresh-cookie-secure: ${JWT_REFRESH_COOKIE_SECURE:true}
+
+server:
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
 
 logging:
   level:
     com.afet: INFO
     org.springframework.web: WARN
     org.springframework.security: WARN
+
+# Swagger/OpenAPI production'da kapalı — /swagger-ui/**, /v3/api-docs/** ve /api-docs/**
+# SecurityConfig'te permitAll olsa da springdoc devre dışı bırakıldığında bu path'ler 404 döner.
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
