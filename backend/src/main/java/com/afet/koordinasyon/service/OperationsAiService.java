@@ -170,7 +170,7 @@ public class OperationsAiService {
 
     private void appendTopRiskDistricts(StringBuilder sb) {
         sb.append("[EN RİSKLİ İLÇELER — Risk Skoru Sıralaması]\n");
-        List<District> sorted = districtRepository.findByActiveTrue().stream()
+        List<District> sorted = districtRepository.findByActiveTrueOrderByNameAsc().stream()
                 .filter(d -> d.getRiskScore() != null && d.getRiskScore().compareTo(BigDecimal.ZERO) > 0)
                 .sorted(Comparator.comparing(District::getRiskScore).reversed())
                 .limit(5)
@@ -230,7 +230,7 @@ public class OperationsAiService {
             return;
         }
 
-        Map<UUID, String> nameMap = districtRepository.findByActiveTrue().stream()
+        Map<UUID, String> nameMap = districtRepository.findByActiveTrueOrderByNameAsc().stream()
                 .collect(Collectors.toMap(District::getId, District::getName));
 
         rows.stream()
@@ -258,7 +258,7 @@ public class OperationsAiService {
         });
 
         sb.append("[MAHALLE RİSK SIRALAMASI]\n");
-        List<Neighborhood> sortedNeighborhoods = neighborhoodRepository.findByDistrictId(districtId).stream()
+        List<Neighborhood> sortedNeighborhoods = neighborhoodRepository.findByDistrictIdOrderByNameAsc(districtId).stream()
                 .filter(n -> n.getRiskScore() != null && n.getRiskScore().compareTo(BigDecimal.ZERO) > 0)
                 .sorted(Comparator.comparing(Neighborhood::getRiskScore).reversed())
                 .limit(5)

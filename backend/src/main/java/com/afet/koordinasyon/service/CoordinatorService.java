@@ -46,7 +46,7 @@ public class CoordinatorService {
 
     @Transactional(readOnly = true)
     public List<CoordinatorDistrictResponse> listDistrictCoordinators() {
-        return districtRepository.findByActiveTrue().stream()
+        return districtRepository.findByActiveTrueOrderByNameAsc().stream()
                 .map(this::toDistrictResponse)
                 .toList();
     }
@@ -67,7 +67,7 @@ public class CoordinatorService {
             effectiveDistrictId = districtId;
         }
         List<Neighborhood> neighborhoods = effectiveDistrictId != null
-                ? neighborhoodRepository.findByDistrictId(effectiveDistrictId)
+                ? neighborhoodRepository.findByDistrictIdOrderByNameAsc(effectiveDistrictId)
                 : neighborhoodRepository.findAll();
         return neighborhoods.stream()
                 .map(this::toNeighborhoodResponse)

@@ -12,6 +12,7 @@ import { ShieldAlert } from 'lucide-react';
 import { DistrictResponse, NeighborhoodSummaryResponse } from '@/types';
 import { ApiError } from '@/utils/errorParser';
 import { isValidTurkishMobile, PHONE_HINT, PHONE_PLACEHOLDER } from '@/utils/phone';
+import { sortByNameTr } from '@/utils/turkishSort';
 
 const registerSchema = z.object({
     firstName: z.string().min(2, 'Ad en az 2 karakter olmalıdır'),
@@ -167,7 +168,7 @@ export const RegisterPage: React.FC = () => {
                                 }}
                             >
                                 <option value="">İlçe seçin...</option>
-                                {districts.map((d) => (
+                                {sortByNameTr(districts).map((d) => (
                                     <option key={d.id} value={d.id}>{d.name}</option>
                                 ))}
                             </select>
@@ -180,7 +181,7 @@ export const RegisterPage: React.FC = () => {
                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm disabled:bg-gray-100"
                             >
                                 <option value="">Mahalle seçin...</option>
-                                {neighborhoods.map((n) => (
+                                {sortByNameTr(neighborhoods).map((n) => (
                                     <option key={n.id} value={n.id}>{n.name}</option>
                                 ))}
                             </select>

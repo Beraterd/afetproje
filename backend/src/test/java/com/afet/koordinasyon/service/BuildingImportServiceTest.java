@@ -64,7 +64,7 @@ class BuildingImportServiceTest {
         merkez = Neighborhood.builder().id(UUID.randomUUID()).name("Merkez").district(testDistrict).build();
 
         org.mockito.Mockito.lenient().when(districtRepository.findByName("TestDistrict")).thenReturn(Optional.of(testDistrict));
-        org.mockito.Mockito.lenient().when(neighborhoodRepository.findByDistrictId(testDistrict.getId())).thenReturn(List.of(merkez));
+        org.mockito.Mockito.lenient().when(neighborhoodRepository.findByDistrictIdOrderByNameAsc(testDistrict.getId())).thenReturn(List.of(merkez));
         org.mockito.Mockito.lenient().when(buildingRepository.save(any(Building.class))).thenAnswer(inv -> inv.getArgument(0));
     }
 
@@ -80,7 +80,7 @@ class BuildingImportServiceTest {
     @Test
     @DisplayName("İlçenin hiç mahallesi yoksa import başlatılamaz")
     void importFromClasspath_noNeighborhoods_throws() {
-        when(neighborhoodRepository.findByDistrictId(testDistrict.getId())).thenReturn(List.of());
+        when(neighborhoodRepository.findByDistrictIdOrderByNameAsc(testDistrict.getId())).thenReturn(List.of());
 
         assertThatThrownBy(() -> service.importFromClasspath(FIXTURE, "TestDistrict"))
                 .isInstanceOf(IllegalStateException.class);

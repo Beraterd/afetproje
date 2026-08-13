@@ -1,5 +1,6 @@
 import React from 'react';
 import type { MapDistrictResponse, MapNeighborhoodResponse } from '@/types';
+import { sortByNameTr } from '@/utils/turkishSort';
 
 const RISK_DOT_CLASS: Record<string, string> = {
     GREEN: 'bg-green-500',
@@ -87,7 +88,7 @@ export const MapBreadcrumb: React.FC<MapBreadcrumbProps> = ({
                         Haritada polygon olmayan ilçeler (sınır verisi bekleniyor) listeden seçilebilir.
                     </p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1">
-                        {[...districts].sort((a, b) => a.name.localeCompare(b.name, 'tr')).map((d) => (
+                        {sortByNameTr(districts).map((d) => (
                             <button
                                 key={d.id}
                                 onClick={() => onSelectDistrict(d)}
@@ -110,7 +111,7 @@ export const MapBreadcrumb: React.FC<MapBreadcrumbProps> = ({
                 <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-xs font-medium text-blue-800 mb-2">{activeDistrictName} — Mahalleler</p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">
-                        {neighborhoods.map((nb) => (
+                        {sortByNameTr(neighborhoods).map((nb) => (
                             <button
                                 key={nb.id}
                                 onClick={() => onSelectNeighborhood(nb)}

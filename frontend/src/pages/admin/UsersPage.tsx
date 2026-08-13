@@ -4,6 +4,7 @@ import { getUsers, assignRole, deleteUser, adminUpdateUser } from '@/api/users.a
 import { getDistricts } from '@/api/districts.api';
 import { getNeighborhoods } from '@/api/neighborhoods.api';
 import { queryKeys } from '@/utils/queryKeys';
+import { sortByNameTr } from '@/utils/turkishSort';
 import { Button, DataTable, ColumnDef, FormField, ConfirmationDialog } from '@/components/ui';
 import { UserResponse, Role } from '@/types';
 import { useToast } from '@/components/shared/ToastProvider';
@@ -282,7 +283,7 @@ export const UsersPage: React.FC = () => {
                                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     >
                                         <option value="">Seçin</option>
-                                        {editDistricts.map((d: any) => (
+                                        {sortByNameTr(editDistricts).map((d: any) => (
                                             <option key={d.id} value={d.id}>{d.name}</option>
                                         ))}
                                     </select>
@@ -296,7 +297,7 @@ export const UsersPage: React.FC = () => {
                                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
                                     >
                                         <option value="">Seçin</option>
-                                        {editNeighborhoods.map((n: any) => (
+                                        {sortByNameTr(editNeighborhoods).map((n: any) => (
                                             <option key={n.id} value={n.id}>{n.name}</option>
                                         ))}
                                     </select>

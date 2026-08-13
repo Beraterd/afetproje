@@ -14,6 +14,7 @@ import { isValidTurkishMobile, PHONE_HINT, PHONE_PLACEHOLDER } from '@/utils/pho
 import { updateLocationPermission } from '@/api/users.api';
 import { Bell, MapPin, AlertTriangle } from 'lucide-react';
 import { getHighAccuracyPosition, ACCURACY_REJECT_M, ACCURACY_WARNING_M } from '@/utils/geolocation';
+import { sortByNameTr } from '@/utils/turkishSort';
 
 const ROLE_TR: Record<string, string> = {
     ADMIN: 'Yönetici',
@@ -324,7 +325,7 @@ export const ProfilePage: React.FC = () => {
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm"
                                 >
                                     <option value="">İlçe seçiniz</option>
-                                    {districts.map((d) => (
+                                    {sortByNameTr(districts).map((d) => (
                                         <option key={d.id} value={d.id}>{d.name}</option>
                                     ))}
                                 </select>
@@ -339,7 +340,7 @@ export const ProfilePage: React.FC = () => {
                                     <option value="">
                                         {loadingNeighborhoods ? 'Yükleniyor...' : 'Mahalle seçiniz'}
                                     </option>
-                                    {neighborhoods.map((n) => (
+                                    {sortByNameTr(neighborhoods).map((n) => (
                                         <option key={n.id} value={n.id}>{n.name}</option>
                                     ))}
                                 </select>

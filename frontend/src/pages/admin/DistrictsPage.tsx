@@ -9,6 +9,7 @@ import { useToast } from '@/components/shared/ToastProvider';
 import { getApiErrorMessage } from '@/utils/errorParser';
 import { MapPin, Settings, User } from 'lucide-react';
 import { format } from 'date-fns';
+import { sortByNameTr } from '@/utils/turkishSort';
 
 const RISK_COLOR_TR: Record<string, string> = {
     GREEN: 'Düşük',
@@ -116,7 +117,7 @@ export const DistrictsPage: React.FC = () => {
 
             <DataTable
                 columns={columns}
-                data={districts || []}
+                data={sortByNameTr(districts || [])}
                 isLoading={isLoading}
                 emptyMessage="İlçe bulunamadı."
             />

@@ -129,7 +129,8 @@ describe('EarthquakesPage — il/ilçe filtresi', () => {
         expect(districtSelect).not.toBeDisabled();
         await waitFor(() => {
             const options = within(districtSelect).getAllByRole('option').map((o) => o.textContent);
-            expect(options).toEqual(['Tüm İlçeler', 'Kartal', 'Kadıköy', 'Pendik']);
+            // Türkçe alfabetik sırada gösterilmeli (API'den gelen sıra Kartal/Kadıköy/Pendik olsa da).
+            expect(options).toEqual(['Tüm İlçeler', 'Kadıköy', 'Kartal', 'Pendik']);
         });
     });
 

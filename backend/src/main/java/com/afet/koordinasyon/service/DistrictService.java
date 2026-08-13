@@ -23,7 +23,7 @@ public class DistrictService {
 
     @Transactional(readOnly = true)
     public List<DistrictResponse> listActive() {
-        return districtRepository.findByActiveTrue().stream()
+        return districtRepository.findByActiveTrueOrderByNameAsc().stream()
                 .map(this::toResponse)
                 .toList();
     }
@@ -39,7 +39,7 @@ public class DistrictService {
     public List<NeighborhoodSummaryResponse> listNeighborhoods(UUID districtId) {
         districtRepository.findById(districtId)
                 .orElseThrow(() -> new ResourceNotFoundException("District", "id", districtId));
-        return neighborhoodRepository.findByDistrictId(districtId).stream()
+        return neighborhoodRepository.findByDistrictIdOrderByNameAsc(districtId).stream()
                 .map(n -> NeighborhoodSummaryResponse.builder()
                         .id(n.getId())
                         .name(n.getName())

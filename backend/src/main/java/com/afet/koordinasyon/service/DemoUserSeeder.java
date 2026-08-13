@@ -52,7 +52,7 @@ public class DemoUserSeeder implements ApplicationRunner {
         }
         District district = districts.get(0);
 
-        List<Neighborhood> neighborhoods = neighborhoodRepository.findByDistrictId(district.getId());
+        List<Neighborhood> neighborhoods = neighborhoodRepository.findByDistrictIdOrderByNameAsc(district.getId());
         if (neighborhoods.isEmpty()) {
             log.warn("Demo seed: '{}' ilçesinde mahalle bulunamadı, atlanıyor", district.getName());
             return;

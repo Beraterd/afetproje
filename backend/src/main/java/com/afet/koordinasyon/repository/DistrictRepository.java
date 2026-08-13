@@ -14,7 +14,10 @@ import java.util.UUID;
 
 @Repository
 public interface DistrictRepository extends JpaRepository<District, UUID> {
-    List<District> findByActiveTrue();
+    /** DB collation (en_US.utf8) sıralaması Türkçe alfabetik değildir (Ç/Ğ/İ/Ö/Ş/Ü doğru
+     *  sıralanmaz) — bu yalnızca deterministic bir varsayılan sağlar. Kullanıcıya dönük
+     *  gerçek Türkçe sıralama frontend'de `sortByNameTr`/`turkishCompare` ile garanti edilir. */
+    List<District> findByActiveTrueOrderByNameAsc();
 
     Optional<District> findByName(String name);
 

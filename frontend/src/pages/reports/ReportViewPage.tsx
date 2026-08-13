@@ -23,6 +23,7 @@ import type {
     StockReportResponse, DamageReportResponse, VolunteerReportResponse,
 } from '@/types';
 import type { KpiItem } from '@/components/reports/ReportCharts';
+import { sortByNameTr } from '@/utils/turkishSort';
 
 // ── Config ───────────────────────────────────────────────────────────────────
 
@@ -439,13 +440,13 @@ export const ReportViewPage: React.FC = () => {
                         <select value={districtId ?? ''} onChange={(e) => setParam('districtId', e.target.value)}
                             className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-brand-500 focus:outline-none">
                             <option value="">Sistem Geneli</option>
-                            {districts?.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                            {sortByNameTr(districts ?? []).map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
                         </select>
                         <select value={neighborhoodId ?? ''} onChange={(e) => setParam('neighborhoodId', e.target.value)}
                             disabled={!districtId}
                             className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-brand-500 focus:outline-none disabled:opacity-50">
                             <option value="">Tüm Mahalleler</option>
-                            {neighborhoods?.map((n) => <option key={n.id} value={n.id}>{n.name}</option>)}
+                            {sortByNameTr(neighborhoods ?? []).map((n) => <option key={n.id} value={n.id}>{n.name}</option>)}
                         </select>
                     </>
                 )}
@@ -453,7 +454,7 @@ export const ReportViewPage: React.FC = () => {
                     <select value={neighborhoodId ?? ''} onChange={(e) => setParam('neighborhoodId', e.target.value)}
                         className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-brand-500 focus:outline-none">
                         <option value="">İlçe Geneli</option>
-                        {neighborhoods?.map((n) => <option key={n.id} value={n.id}>{n.name}</option>)}
+                        {sortByNameTr(neighborhoods ?? []).map((n) => <option key={n.id} value={n.id}>{n.name}</option>)}
                     </select>
                 )}
             </div>

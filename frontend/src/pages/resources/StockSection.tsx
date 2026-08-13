@@ -27,6 +27,7 @@ import { useToast } from '@/components/shared/ToastProvider';
 import { useAuthStore } from '@/store/authStore';
 import { useDemoMode } from '@/hooks/useDemoMode';
 import { getApiErrorMessage } from '@/utils/errorParser';
+import { sortByNameTr } from '@/utils/turkishSort';
 
 const STATUS_OPTIONS = [
     { value: '', label: 'Tüm Durumlar' },
@@ -153,7 +154,7 @@ export function StockSection() {
                         onChange={e => setFilters(f => ({ ...f, districtId: e.target.value || undefined, neighborhoodId: undefined }))}
                     >
                         <option value="">Tüm İlçeler</option>
-                        {districts.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                        {sortByNameTr(districts).map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
                     </select>
                     <select
                         className="border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-50"
@@ -162,7 +163,7 @@ export function StockSection() {
                         onChange={e => setFilters(f => ({ ...f, neighborhoodId: e.target.value || undefined }))}
                     >
                         <option value="">Tüm Mahalleler</option>
-                        {filterNeighborhoods.map((n: any) => <option key={n.id} value={n.id}>{n.name}</option>)}
+                        {sortByNameTr(filterNeighborhoods).map((n: any) => <option key={n.id} value={n.id}>{n.name}</option>)}
                     </select>
                     <select
                         className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
@@ -435,7 +436,7 @@ function AddStockModal(props: {
                     <select className="modal-input disabled:bg-gray-50" value={form.districtId ?? ''} disabled={!isAdmin}
                         onChange={e => setForm(f => ({ ...f, districtId: e.target.value || undefined, neighborhoodId: undefined }))}>
                         <option value="">Seçin</option>
-                        {districts.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                        {sortByNameTr(districts).map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
                     </select>
                 </Field>
                 <Field label="Mahalle *">
@@ -443,7 +444,7 @@ function AddStockModal(props: {
                         disabled={isNeighborhoodCoord || !form.districtId}
                         onChange={e => setForm(f => ({ ...f, neighborhoodId: e.target.value || undefined }))}>
                         <option value="">{form.districtId ? 'Seçin' : 'Önce ilçe seçin'}</option>
-                        {neighborhoods.map((n: any) => <option key={n.id} value={n.id}>{n.name}</option>)}
+                        {sortByNameTr(neighborhoods).map((n: any) => <option key={n.id} value={n.id}>{n.name}</option>)}
                     </select>
                 </Field>
                 <Field label={form.category === 'OTHER' ? 'Açıklama / Not (önerilir)' : 'Açıklama / Not'}>

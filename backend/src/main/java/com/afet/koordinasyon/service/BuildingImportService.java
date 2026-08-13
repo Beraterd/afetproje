@@ -74,7 +74,7 @@ public class BuildingImportService {
                         "'" + districtName + "' ilçesi DB'de bulunamadı — önce district/neighborhood boundary migration'ları uygulanmalı"));
 
         Map<String, Neighborhood> neighborhoodByNormalizedName = new HashMap<>();
-        for (Neighborhood n : neighborhoodRepository.findByDistrictId(district.getId())) {
+        for (Neighborhood n : neighborhoodRepository.findByDistrictIdOrderByNameAsc(district.getId())) {
             neighborhoodByNormalizedName.put(normalize(n.getName()), n);
         }
         if (neighborhoodByNormalizedName.isEmpty()) {
@@ -229,7 +229,7 @@ public class BuildingImportService {
                 .collect(Collectors.toMap(BuildingRepository.NeighborhoodBuildingCount::getNeighborhoodId,
                         BuildingRepository.NeighborhoodBuildingCount::getBuildingCount));
 
-        return neighborhoodRepository.findByDistrictId(districtId).stream()
+        return neighborhoodRepository.findByDistrictIdOrderByNameAsc(districtId).stream()
                 .map(n -> NeighborhoodCoverageResponse.builder()
                         .neighborhoodId(n.getId())
                         .neighborhoodName(n.getName())

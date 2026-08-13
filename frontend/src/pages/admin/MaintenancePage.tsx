@@ -6,6 +6,7 @@ import { getDistricts } from '@/api/districts.api';
 import { BuildingImportResult } from '@/types/building';
 import { useToast } from '@/components/shared/ToastProvider';
 import { getApiErrorMessage } from '@/utils/errorParser';
+import { sortByNameTr } from '@/utils/turkishSort';
 import { Wrench, AlertTriangle, CheckCircle, Box } from 'lucide-react';
 
 const DEFAULT_PROTECTED_EMAILS = ['admin.gmail.com', 'admin@afetkoordinasyon.istanbul'];
@@ -100,7 +101,7 @@ export const MaintenancePage: React.FC = () => {
                         className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <option value="">İlçe seçin…</option>
-                        {districtsQuery.data?.map((d) => (
+                        {sortByNameTr(districtsQuery.data ?? []).map((d) => (
                             <option key={d.id} value={d.id}>{d.name}</option>
                         ))}
                     </select>

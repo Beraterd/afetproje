@@ -63,7 +63,7 @@ public class DemoAdminSeeder implements ApplicationRunner {
         }
         District district = districts.get(0);
 
-        List<Neighborhood> neighborhoods = neighborhoodRepository.findByDistrictId(district.getId());
+        List<Neighborhood> neighborhoods = neighborhoodRepository.findByDistrictIdOrderByNameAsc(district.getId());
         if (neighborhoods.isEmpty()) {
             log.warn("Demo admin seed: '{}' ilçesinde mahalle bulunamadı, atlanıyor", district.getName());
             return;

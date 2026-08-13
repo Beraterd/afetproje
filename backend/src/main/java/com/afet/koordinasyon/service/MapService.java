@@ -48,7 +48,7 @@ public class MapService {
 
     @Transactional(readOnly = true)
     public List<MapDistrictResponse> getDistrictsForMap() {
-        return districtRepository.findByActiveTrue().stream()
+        return districtRepository.findByActiveTrueOrderByNameAsc().stream()
                 .map(this::toMapDistrictResponse)
                 .toList();
     }
@@ -57,7 +57,7 @@ public class MapService {
     public List<MapNeighborhoodResponse> getNeighborhoodsForMap(UUID districtId) {
         districtRepository.findById(districtId)
                 .orElseThrow(() -> new ResourceNotFoundException("District", "id", districtId));
-        return neighborhoodRepository.findByDistrictId(districtId).stream()
+        return neighborhoodRepository.findByDistrictIdOrderByNameAsc(districtId).stream()
                 .map(this::toMapNeighborhoodResponse)
                 .toList();
     }

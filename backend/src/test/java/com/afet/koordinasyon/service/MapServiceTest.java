@@ -54,7 +54,7 @@ class MapServiceTest {
     @Test
     void getNeighborhoodsForMap_populatesBuildingCountFromBuildingRepository() {
         when(districtRepository.findById(pendik.getId())).thenReturn(java.util.Optional.of(pendik));
-        when(neighborhoodRepository.findByDistrictId(pendik.getId())).thenReturn(List.of(kurtkoy));
+        when(neighborhoodRepository.findByDistrictIdOrderByNameAsc(pendik.getId())).thenReturn(List.of(kurtkoy));
         when(buildingRepository.countByNeighborhoodId(kurtkoy.getId())).thenReturn(1842L);
 
         List<MapNeighborhoodResponse> result = mapService.getNeighborhoodsForMap(pendik.getId());
@@ -66,7 +66,7 @@ class MapServiceTest {
     @Test
     void getNeighborhoodsForMap_returnsZeroBuildingCountWhenNoneImported() {
         when(districtRepository.findById(pendik.getId())).thenReturn(java.util.Optional.of(pendik));
-        when(neighborhoodRepository.findByDistrictId(pendik.getId())).thenReturn(List.of(kurtkoy));
+        when(neighborhoodRepository.findByDistrictIdOrderByNameAsc(pendik.getId())).thenReturn(List.of(kurtkoy));
         when(buildingRepository.countByNeighborhoodId(kurtkoy.getId())).thenReturn(0L);
 
         List<MapNeighborhoodResponse> result = mapService.getNeighborhoodsForMap(pendik.getId());

@@ -19,6 +19,10 @@ backend_v52.log
 application-local.yml
 application-prod-local.yml
 
+# python
+__pycache__/
+scripts/__pycache__/
+
 # IDE / OS
 .idea/
 .vscode/

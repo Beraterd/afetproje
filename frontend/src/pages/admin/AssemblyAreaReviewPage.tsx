@@ -11,6 +11,7 @@ import {
 import { getDistricts } from '@/api/districts.api';
 import { getNeighborhoods } from '@/api/neighborhoods.api';
 import { queryKeys } from '@/utils/queryKeys';
+import { sortByNameTr } from '@/utils/turkishSort';
 import { AdminAssemblyAreaResponse, DistrictResponse, NeighborhoodSummaryResponse } from '@/types';
 import { useToast } from '@/components/shared/ToastProvider';
 import { Modal } from '@/components/ui/Modal';
@@ -508,7 +509,7 @@ export const AssemblyAreaReviewPage: React.FC = () => {
                         className="block w-full rounded-md border-0 py-1.5 pl-3 pr-8 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm"
                     >
                         <option value="">Tüm İlçeler</option>
-                        {districts.map((d) => (
+                        {sortByNameTr(districts).map((d) => (
                             <option key={d.id} value={d.id}>{d.name}</option>
                         ))}
                     </select>
@@ -521,7 +522,7 @@ export const AssemblyAreaReviewPage: React.FC = () => {
                         className="block w-full rounded-md border-0 py-1.5 pl-3 pr-8 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm disabled:opacity-50"
                     >
                         <option value="">Tüm Mahalleler</option>
-                        {filterNeighborhoods.map((n) => (
+                        {sortByNameTr(filterNeighborhoods).map((n) => (
                             <option key={n.id} value={n.id}>{n.name}</option>
                         ))}
                     </select>

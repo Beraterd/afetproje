@@ -14,7 +14,9 @@ import java.util.UUID;
 
 @Repository
 public interface NeighborhoodRepository extends JpaRepository<Neighborhood, UUID> {
-    List<Neighborhood> findByDistrictId(UUID districtId);
+    /** DB collation (en_US.utf8) Türkçe alfabetik değildir — bkz. DistrictRepository'deki
+     *  aynı not. Gerçek Türkçe sıralama frontend'de `sortByNameTr` ile garanti edilir. */
+    List<Neighborhood> findByDistrictIdOrderByNameAsc(UUID districtId);
 
     Optional<Neighborhood> findByCoordinatorId(UUID coordinatorId);
 

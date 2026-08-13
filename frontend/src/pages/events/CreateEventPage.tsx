@@ -11,6 +11,7 @@ import { getTeamTypes } from '@/api/teams.api';
 import { useToast } from '@/components/shared/ToastProvider';
 import { useAuthStore } from '@/store/authStore';
 import { getApiErrorMessage } from '@/utils/errorParser';
+import { sortByNameTr } from '@/utils/turkishSort';
 import { Button, FormField } from '@/components/ui';
 import { DistrictResponse, NeighborhoodSummaryResponse, TeamTypeResponse } from '@/types';
 
@@ -248,7 +249,7 @@ export const CreateEventPage: React.FC = () => {
                                 <option value="">
                                     {districtsLoading ? 'İlçeler yükleniyor...' : 'İlçe seçin...'}
                                 </option>
-                                {districts.map((d) => (
+                                {sortByNameTr(districts).map((d) => (
                                     <option key={d.id} value={d.id}>{d.name}</option>
                                 ))}
                             </select>
@@ -290,7 +291,7 @@ export const CreateEventPage: React.FC = () => {
                                         ? 'Mahalleler yükleniyor...'
                                         : 'Mahalle seçin...'}
                                 </option>
-                                {neighborhoods.map((n) => (
+                                {sortByNameTr(neighborhoods).map((n) => (
                                     <option key={n.id} value={n.id}>{n.name}</option>
                                 ))}
                             </select>

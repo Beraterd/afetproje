@@ -18,6 +18,7 @@ import { useToast } from '@/components/shared/ToastProvider';
 import { useAuthStore } from '@/store/authStore';
 import { useDemoMode } from '@/hooks/useDemoMode';
 import { getApiErrorMessage } from '@/utils/errorParser';
+import { sortByNameTr } from '@/utils/turkishSort';
 import { StockSection } from './StockSection';
 
 export function ResourceRequestsPage() {
@@ -264,7 +265,7 @@ export function ResourceRequestsPage() {
                             value={reqFilters.districtId ?? ''}
                             onChange={e => { setPage(0); setReqFilters(f => ({ ...f, districtId: e.target.value || undefined, neighborhoodId: undefined })); }}>
                             <option value="">Tüm İlçeler</option>
-                            {districts.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                            {sortByNameTr(districts).map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
                         </select>
                     )}
                     {isAdmin && (
@@ -272,7 +273,7 @@ export function ResourceRequestsPage() {
                             value={reqFilters.neighborhoodId ?? ''} disabled={!reqFilters.districtId}
                             onChange={e => { setPage(0); setReqFilters(f => ({ ...f, neighborhoodId: e.target.value || undefined })); }}>
                             <option value="">Tüm Mahalleler</option>
-                            {reqFilterNeighborhoods.map((n: any) => <option key={n.id} value={n.id}>{n.name}</option>)}
+                            {sortByNameTr(reqFilterNeighborhoods).map((n: any) => <option key={n.id} value={n.id}>{n.name}</option>)}
                         </select>
                     )}
                     <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
@@ -485,7 +486,7 @@ export function ResourceRequestsPage() {
                                 }}
                             >
                                 <option value="">Seçin</option>
-                                {districts.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                                {sortByNameTr(districts).map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
                             </select>
                             {districtLocked && isDistrictCoord && (
                                 <p className="mt-1 text-xs text-gray-400">
@@ -516,7 +517,7 @@ export function ResourceRequestsPage() {
                                     ) : (
                                         <>
                                             <option value="">Seçin</option>
-                                            {neighborhoods.map((n: any) => (
+                                            {sortByNameTr(neighborhoods).map((n: any) => (
                                                 <option key={n.id} value={n.id}>{n.name}</option>
                                             ))}
                                         </>

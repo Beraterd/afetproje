@@ -17,6 +17,7 @@ import { EarthquakeEventResponse, EarthquakeRiskLevel, EarthquakeSource } from '
 import { useToast } from '@/components/shared/ToastProvider';
 import { useAuthStore } from '@/store/authStore';
 import { getApiErrorMessage } from '@/utils/errorParser';
+import { turkishCompare } from '@/utils/turkishSort';
 import { Activity, RefreshCw, X } from 'lucide-react';
 
 const SYNC_INTERVAL_MS = 30_000;
@@ -294,7 +295,7 @@ export const EarthquakesPage: React.FC = () => {
                             onChange={(e) => updateParam('province', e.target.value || undefined)}
                         >
                             <option value="">Tüm İller</option>
-                            {provinces.map((p) => (
+                            {[...provinces].sort(turkishCompare).map((p) => (
                                 <option key={p} value={p}>{p}</option>
                             ))}
                         </select>
@@ -310,7 +311,7 @@ export const EarthquakesPage: React.FC = () => {
                             onChange={(e) => updateParam('district', e.target.value || undefined)}
                         >
                             <option value="">Tüm İlçeler</option>
-                            {districts.map((d) => (
+                            {[...districts].sort(turkishCompare).map((d) => (
                                 <option key={d} value={d}>{d}</option>
                             ))}
                         </select>

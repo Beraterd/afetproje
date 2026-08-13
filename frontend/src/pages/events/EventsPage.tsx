@@ -5,6 +5,7 @@ import { getEvents } from '@/api/events.api';
 import { getTeams } from '@/api/teams.api';
 import { getDistricts } from '@/api/districts.api';
 import { queryKeys } from '@/utils/queryKeys';
+import { sortByNameTr } from '@/utils/turkishSort';
 import { DataTable, ColumnDef, Button, Badge, FormField } from '@/components/ui';
 import { EventSummaryResponse, EventStatus } from '@/types';
 import { Plus } from 'lucide-react';
@@ -158,7 +159,7 @@ export const EventsPage: React.FC = () => {
                             className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6"
                         >
                             <option value="">Tüm İlçeler</option>
-                            {districts.map((d: any) => (
+                            {sortByNameTr(districts).map((d: any) => (
                                 <option key={d.id} value={d.id}>{d.name}</option>
                             ))}
                         </select>

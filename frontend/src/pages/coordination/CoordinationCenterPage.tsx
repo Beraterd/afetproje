@@ -7,6 +7,7 @@ import { LoadingSpinner } from '@/components/ui';
 import { Building2 } from 'lucide-react';
 import { DistrictSection } from '@/components/coordination/DistrictSection';
 import { NeighborhoodSection } from '@/components/coordination/NeighborhoodSection';
+import { turkishCompare } from '@/utils/turkishSort';
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export const CoordinationCenterPage: React.FC = () => {
@@ -131,7 +132,7 @@ export const CoordinationCenterPage: React.FC = () => {
                                             {loadingDcNeighborhoods ? 'Yükleniyor...' : '-- Mahalle seçiniz --'}
                                         </option>
                                         {[...dcNeighborhoods]
-                                            .sort((a, b) => a.name.localeCompare(b.name, 'tr'))
+                                            .sort((a, b) => turkishCompare(a.name, b.name))
                                             .map(n => (
                                                 <option key={n.id} value={n.id}>{n.name}</option>
                                             ))}
@@ -240,7 +241,7 @@ export const CoordinationCenterPage: React.FC = () => {
                         >
                             <option value="">-- İlçe seçiniz --</option>
                             {[...allDistricts]
-                                .sort((a, b) => a.name.localeCompare(b.name, 'tr'))
+                                .sort((a, b) => turkishCompare(a.name, b.name))
                                 .map(d => (
                                     <option key={d.id} value={d.id}>
                                         {d.name}
@@ -280,7 +281,7 @@ export const CoordinationCenterPage: React.FC = () => {
                             >
                                 <option value="">-- İlçe seçiniz --</option>
                                 {[...allDistricts]
-                                    .sort((a, b) => a.name.localeCompare(b.name, 'tr'))
+                                    .sort((a, b) => turkishCompare(a.name, b.name))
                                     .map(d => (
                                         <option key={d.id} value={d.id}>
                                             {d.name}
@@ -304,7 +305,7 @@ export const CoordinationCenterPage: React.FC = () => {
                                         : '-- Önce ilçe seçin --'}
                                 </option>
                                 {[...adminNeighborhoods]
-                                    .sort((a, b) => a.name.localeCompare(b.name, 'tr'))
+                                    .sort((a, b) => turkishCompare(a.name, b.name))
                                     .map(n => (
                                         <option key={n.id} value={n.id}>
                                             {n.name}

@@ -16,6 +16,7 @@ import { Button, Modal, FormField, LoadingSpinner, Badge } from '@/components/ui
 import { useToast } from '@/components/shared/ToastProvider';
 import { useAuthStore } from '@/store/authStore';
 import { getApiErrorMessage } from '@/utils/errorParser';
+import { sortByNameTr, turkishCompare } from '@/utils/turkishSort';
 import { MapPin, UserCheck, Users, Building2, Navigation } from 'lucide-react';
 import { DistrictResponse } from '@/types';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
@@ -285,7 +286,7 @@ export const CoordinatorAssignmentPage: React.FC = () => {
                                 className={inputCls}
                             >
                                 <option value="">— İlçe Seçin —</option>
-                                {districts.map((d) => (
+                                {sortByNameTr(districts).map((d) => (
                                     <option key={d.id} value={d.id}>{d.name}</option>
                                 ))}
                             </select>
@@ -402,7 +403,7 @@ export const CoordinatorAssignmentPage: React.FC = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {neighborhoodCoords.map((n) => (
+                                        {[...neighborhoodCoords].sort((a, b) => turkishCompare(a.neighborhoodName, b.neighborhoodName)).map((n) => (
                                             <tr key={n.neighborhoodId} className="hover:bg-gray-50">
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                     {n.neighborhoodName}

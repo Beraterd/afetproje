@@ -12,6 +12,7 @@ import { BuildingSelector, SelectedBuildingSummary } from '@/components/damage/B
 import { getBuilding3dConfig } from '@/api/buildings.api';
 import { queryKeys } from '@/utils/queryKeys';
 import { isWebglSupported } from '@/utils/webgl';
+import { sortByNameTr } from '@/utils/turkishSort';
 
 export type DamageAssessmentFormState = Partial<CreateDamageAssessmentRequest>;
 
@@ -115,7 +116,7 @@ export const DamageAssessmentCreateModal: React.FC<DamageAssessmentCreateModalPr
                                     onChange={(e) => onDistrictChange(e.target.value)}
                                 >
                                     <option value="">Seçin</option>
-                                    {districts.map((d) => (
+                                    {sortByNameTr(districts).map((d) => (
                                         <option key={d.id} value={d.id}>{d.name}</option>
                                     ))}
                                 </select>
@@ -137,7 +138,7 @@ export const DamageAssessmentCreateModal: React.FC<DamageAssessmentCreateModalPr
                                     onChange={(e) => onNeighborhoodChange(e.target.value)}
                                 >
                                     <option value="">Seçin</option>
-                                    {neighborhoods.map((n) => (
+                                    {sortByNameTr(neighborhoods).map((n) => (
                                         <option key={n.id} value={n.id}>{n.name}</option>
                                     ))}
                                 </select>

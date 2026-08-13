@@ -1,0 +1,4570 @@
+{
+  "districts": [
+    "Adalar",
+    "Ataşehir",
+    "Beykoz",
+    "Çekmeköy",
+    "Kadıköy",
+    "Kartal",
+    "Maltepe",
+    "Pendik",
+    "Sancaktepe",
+    "Sultanbeyli",
+    "Şile",
+    "Tuzla",
+    "Ümraniye",
+    "Üsküdar"
+  ],
+  "generated_at": "2026-08-13T19:07:53",
+  "district_geometry": {
+    "Adalar": {
+      "district": "Adalar",
+      "issues": [],
+      "status": "OK",
+      "geometry_type": "MultiPolygon",
+      "is_multipolygon": true,
+      "area_deg2": 0.0012134253263400066,
+      "bbox": {
+        "minLon": 28.969171,
+        "minLat": 40.818034,
+        "maxLon": 29.1482181,
+        "maxLat": 40.9144917
+      },
+      "valid_after_parse": true
+    },
+    "Ataşehir": {
+      "district": "Ataşehir",
+      "issues": [],
+      "status": "OK",
+      "geometry_type": "Polygon",
+      "is_multipolygon": false,
+      "area_deg2": 0.0026991843773750564,
+      "bbox": {
+        "minLon": 29.0723182,
+        "minLat": 40.9590646,
+        "maxLon": 29.2035055,
+        "maxLat": 41.0094893
+      },
+      "valid_after_parse": true
+    },
+    "Beykoz": {
+      "district": "Beykoz",
+      "issues": [],
+      "status": "OK",
+      "geometry_type": "Polygon",
+      "is_multipolygon": false,
+      "area_deg2": 0.03344083623316997,
+      "bbox": {
+        "minLon": 29.0642506,
+        "minLat": 41.042288,
+        "maxLon": 29.3654018,
+        "maxLat": 41.2353335
+      },
+      "valid_after_parse": true
+    },
+    "Çekmeköy": {
+      "district": "Çekmeköy",
+      "issues": [],
+      "status": "OK",
+      "geometry_type": "Polygon",
+      "is_multipolygon": false,
+      "area_deg2": 0.016294719550299985,
+      "bbox": {
+        "minLon": 29.1382426,
+        "minLat": 41.0130298,
+        "maxLon": 29.4020295,
+        "maxLat": 41.1325384
+      },
+      "valid_after_parse": true
+    },
+    "Kadıköy": {
+      "district": "Kadıköy",
+      "issues": [],
+      "status": "OK",
+      "geometry_type": "Polygon",
+      "is_multipolygon": false,
+      "area_deg2": 0.0026887351124549506,
+      "bbox": {
+        "minLon": 29.0148423,
+        "minLat": 40.9499656,
+        "maxLon": 29.1112349,
+        "maxLat": 41.0123011
+      },
+      "valid_after_parse": true
+    },
+    "Kartal": {
+      "district": "Kartal",
+      "issues": [],
+      "status": "OK",
+      "geometry_type": "Polygon",
+      "is_multipolygon": false,
+      "area_deg2": 0.004126898126295002,
+      "bbox": {
+        "minLon": 29.138277,
+        "minLat": 40.8781452,
+        "maxLon": 29.2551653,
+        "maxLat": 40.9529633
+      },
+      "valid_after_parse": true
+    },
+    "Maltepe": {
+      "district": "Maltepe",
+      "issues": [],
+      "status": "OK",
+      "geometry_type": "Polygon",
+      "is_multipolygon": false,
+      "area_deg2": 0.0057695986942999785,
+      "bbox": {
+        "minLon": 29.0948141,
+        "minLat": 40.906671,
+        "maxLon": 29.2162998,
+        "maxLat": 40.9812459
+      },
+      "valid_after_parse": true
+    },
+    "Pendik": {
+      "district": "Pendik",
+      "issues": [],
+      "status": "OK",
+      "geometry_type": "Polygon",
+      "is_multipolygon": false,
+      "area_deg2": 0.02037818685891498,
+      "bbox": {
+        "minLon": 29.2154413,
+        "minLat": 40.8538339,
+        "maxLon": 29.5067024,
+        "maxLat": 41.0605633
+      },
+      "valid_after_parse": true
+    },
+    "Sancaktepe": {
+      "district": "Sancaktepe",
+      "issues": [],
+      "status": "OK",
+      "geometry_type": "Polygon",
+      "is_multipolygon": false,
+      "area_deg2": 0.00688152332035004,
+      "bbox": {
+        "minLon": 29.1856762,
+        "minLat": 40.9460384,
+        "maxLon": 29.3643724,
+        "maxLat": 41.0527344
+      },
+      "valid_after_parse": true
+    },
+    "Sultanbeyli": {
+      "district": "Sultanbeyli",
+      "issues": [],
+      "status": "OK",
+      "geometry_type": "Polygon",
+      "is_multipolygon": false,
+      "area_deg2": 0.0031099445219950096,
+      "bbox": {
+        "minLon": 29.2447211,
+        "minLat": 40.9317408,
+        "maxLon": 29.3119449,
+        "maxLat": 41.0048762
+      },
+      "valid_after_parse": true
+    },
+    "Şile": {
+      "district": "Şile",
+      "issues": [],
+      "status": "OK",
+      "geometry_type": "MultiPolygon",
+      "is_multipolygon": true,
+      "area_deg2": 0.08395854618067466,
+      "bbox": {
+        "minLon": 29.3210642,
+        "minLat": 40.9617484,
+        "maxLon": 29.9588048,
+        "maxLat": 41.2166263
+      },
+      "valid_after_parse": true
+    },
+    "Tuzla": {
+      "district": "Tuzla",
+      "issues": [],
+      "status": "OK",
+      "geometry_type": "Polygon",
+      "is_multipolygon": false,
+      "area_deg2": 0.013380425079080016,
+      "bbox": {
+        "minLon": 29.2545791,
+        "minLat": 40.8027042,
+        "maxLon": 29.456816,
+        "maxLat": 40.9806318
+      },
+      "valid_after_parse": true
+    },
+    "Ümraniye": {
+      "district": "Ümraniye",
+      "issues": [],
+      "status": "OK",
+      "geometry_type": "Polygon",
+      "is_multipolygon": false,
+      "area_deg2": 0.004842754877644992,
+      "bbox": {
+        "minLon": 29.0803543,
+        "minLat": 40.9889727,
+        "maxLon": 29.1946641,
+        "maxLat": 41.065437
+      },
+      "valid_after_parse": true
+    },
+    "Üsküdar": {
+      "district": "Üsküdar",
+      "issues": [],
+      "status": "OK",
+      "geometry_type": "Polygon",
+      "is_multipolygon": false,
+      "area_deg2": 0.0037861796754549734,
+      "bbox": {
+        "minLon": 29.0063673,
+        "minLat": 40.992524,
+        "maxLon": 29.0916883,
+        "maxLat": 41.0778919
+      },
+      "valid_after_parse": true
+    }
+  },
+  "district_pair_overlaps": [],
+  "neighborhood_geometry": {
+    "Adalar": [
+      {
+        "district": "Adalar",
+        "neighborhood": "Burgazada",
+        "neighborhood_id": "11ff759e-98d7-4415-be64-f97623aeb1bc",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00017244232312499378,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.9999917698619016
+      },
+      {
+        "district": "Adalar",
+        "neighborhood": "Büyükada",
+        "neighborhood_id": "fddef65a-68a7-49df-9ac9-b66dc4b0b84a",
+        "issues": [
+          "('NULL_GEOMETRY', 'neighborhood:Adalar/Büyükada')"
+        ],
+        "is_sliver": null
+      },
+      {
+        "district": "Adalar",
+        "neighborhood": "Heybeliada",
+        "neighborhood_id": "037fcbeb-4177-41fc-a304-eba8ae9c058a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0002681032387849913,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Adalar",
+        "neighborhood": "Kınalıada",
+        "neighborhood_id": "a6462a53-00be-4dbb-8502-0c8c24356422",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001589529482750215,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Adalar",
+        "neighborhood": "Maden",
+        "neighborhood_id": "31c392db-6b3f-4f0c-b4a8-1a5d1ee0883d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0002694352416915398,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Adalar",
+        "neighborhood": "Nizam",
+        "neighborhood_id": "662d8f51-6c75-4210-b6e8-cd142ef6bea8",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00034450568100501285,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999989
+      },
+      {
+        "district": "Adalar",
+        "neighborhood": "Sedef Adası",
+        "neighborhood_id": "7923c24d-0251-45f1-b6a5-309a784a98af",
+        "issues": [
+          "('NULL_GEOMETRY', 'neighborhood:Adalar/Sedef Adası')"
+        ],
+        "is_sliver": null
+      }
+    ],
+    "Ataşehir": [
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Atatürk",
+        "neighborhood_id": "b10d710e-b598-49f7-ac91-a82b6093bc6e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0002700124176976652,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Aşıkveysel",
+        "neighborhood_id": "c5d10510-e077-49de-bd56-3e2922202b0e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 4.431329810752282e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Barbaros",
+        "neighborhood_id": "22222222-2222-2222-2222-00000000010d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00031349147443492613,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Büyükbakkalköy",
+        "neighborhood_id": "38224f6d-a5db-4b41-b268-2a1b394c92b9",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.044226454650393e-08,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 1.000000000000001
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Esatpaşa",
+        "neighborhood_id": "222b709d-ff04-4f4f-a526-856786b50593",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010521728302406781,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Esenevler",
+        "neighborhood_id": "79f64aef-4505-41ea-a5ce-653e0de0ef17",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 6.63223077514752e-08,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Esenkent",
+        "neighborhood_id": "09f68aba-e99f-4c11-b5ec-d9bc22241e50",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 1.3855858400241904e-07,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 1.0000000000003615
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Ferhatpaşa",
+        "neighborhood_id": "22222222-2222-2222-2222-00000000010e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00041460071851998493,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Fetih",
+        "neighborhood_id": "6826db9c-bbb3-47b9-833a-3ff71194e013",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 4.547116357765302e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Kayışdağı",
+        "neighborhood_id": "6d483759-3195-4c7d-a5e5-9ac518a6a919",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00019632903229885507,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000029
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Kozyatağı",
+        "neighborhood_id": "19f9298c-2f6a-4af1-b3f1-c30c3599fa82",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 1.654466815407584e-07,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.6076188600045109
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Küçükbakkalköy",
+        "neighborhood_id": "22222222-2222-2222-2222-00000000000c",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0002430891850449932,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Mevlana",
+        "neighborhood_id": "22222222-2222-2222-2222-00000000010f",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.517607850501646e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Mimar Sinan",
+        "neighborhood_id": "9b253e5c-7d5a-4c2a-bd50-33a903b475c4",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.338695241563161e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000049
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Mustafa Kemal",
+        "neighborhood_id": "d80528b2-1759-4686-9073-3ae72ee8501d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 6.448807446281227e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Yeni Çamlıca",
+        "neighborhood_id": "a205a86f-5a63-4186-ab4e-0558e98f80c3",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 7.881054569435441e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999559
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Yenisahra",
+        "neighborhood_id": "5ba61698-12ef-49f1-ae89-299b00599f3e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 7.616418818245933e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Yenişehir",
+        "neighborhood_id": "c3a6e488-5228-4a0a-88d7-e73bc7775e43",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.79171270318366e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999998751
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Örnek",
+        "neighborhood_id": "98f905ad-7b6c-4d22-ad0d-f9c261ee42b9",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010213187267274584,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "İnönü",
+        "neighborhood_id": "e6d323bd-d442-4d4b-806e-54134eb004d1",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00013334099565002767,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "İçerenköy",
+        "neighborhood_id": "876eb952-514e-4336-b047-da2635427bee",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00038454684052641815,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9996723609347866
+      },
+      {
+        "district": "Ataşehir",
+        "neighborhood": "Şerifali",
+        "neighborhood_id": "093ae741-8cb2-42a9-bb55-9181ab2fcddb",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 1.1814656793695637e-07,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.9999999999999998
+      }
+    ],
+    "Beykoz": [
+      {
+        "district": "Beykoz",
+        "neighborhood": "Acarlar",
+        "neighborhood_id": "19947a45-c8b8-479e-b052-8ed2e9c572a0",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0005821335930750204,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.000000000000001
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Akbaba",
+        "neighborhood_id": "36f543b3-9ee4-4dcc-9bf9-0f0cf5d7fe24",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0004824741695399888,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Alemdağ",
+        "neighborhood_id": "337ce470-1ca5-48ae-a28a-830832d13eef",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 6.332224948699011e-08,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.9999999999889033
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Alibahadır",
+        "neighborhood_id": "040dfcdd-9feb-4318-8ebf-dc8fc744930d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0012061211362750395,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999986
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Anadolu Hisarı",
+        "neighborhood_id": "157e35c6-2611-488d-a46f-8b23b2e61a51",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010610017774002264,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Anadolu Kavağı",
+        "neighborhood_id": "5a54a484-934c-466c-9df8-fa5d5703a7d7",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0005634844266861206,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9997123875082752
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Anadolufeneri",
+        "neighborhood_id": "a5221ce3-d563-48b7-883c-b7d4d7782c28",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0018171155724209995,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999991
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Anadoluhisarı",
+        "neighborhood_id": "8f75655a-0018-493a-8c1c-b7249e75feb2",
+        "issues": [
+          "('NULL_GEOMETRY', 'neighborhood:Beykoz/Anadoluhisarı')"
+        ],
+        "is_sliver": null
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Avcıkoru",
+        "neighborhood_id": "f9f63a84-22e5-4dda-8f79-6f8abd3c36d1",
+        "issues": [],
+        "is_sliver": true,
+        "area_deg2": 6.513929148876004e-08,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999735953
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Baklacı",
+        "neighborhood_id": "4cc30a78-dea9-429b-814a-9ae928917844",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.001261360211489051,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Bozhane",
+        "neighborhood_id": "6cf3de8c-df4d-472a-be85-11913b283be1",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.001545160653519929,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9998170105713972
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Cumhuriyetköy",
+        "neighborhood_id": "e8190517-b10a-49f3-bdb2-3d40c147045e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.001137094307669995,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.999999999999999
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Dereseki",
+        "neighborhood_id": "16d14666-080a-4eae-8c75-892b9fa320c1",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0009395706684999978,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000009
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Elmalı",
+        "neighborhood_id": "61b60b68-f245-4728-aa4c-a610f76530d7",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0004679044398099971,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Fatih",
+        "neighborhood_id": "13f4af9d-3fe9-4f38-abe2-7386bed92ec7",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00038698298544999273,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999994
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Göksu",
+        "neighborhood_id": "b6cacb85-e5d4-4a8b-a6fb-56c47e3ab5d8",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 7.859831857999094e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Göllü",
+        "neighborhood_id": "1423143e-2397-47f6-9ff9-215c34a41e3b",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0015741245050700284,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.998493392136494
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Görele",
+        "neighborhood_id": "e5435e06-f47f-4517-b487-ae45a857001b",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0003139251148950274,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999993
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Göztepe",
+        "neighborhood_id": "924aed31-5619-4bb4-908d-f7545e6b87d2",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0002790726321450193,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Gümüşsuyu",
+        "neighborhood_id": "1efab888-de39-41f3-95bb-22c71d7202f9",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00026353025926149963,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999992
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Kanlıca",
+        "neighborhood_id": "f8541cef-d7f2-49f1-bf98-f3f74000a8eb",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00014083110782003633,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999484528868631
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Kavacık",
+        "neighborhood_id": "f0e689cd-9bf6-49c5-b3b5-ee1d52889f35",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001742770907699925,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Kaynarca",
+        "neighborhood_id": "24a4c3f5-f010-4b5b-9f79-6b799b90185d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0005964115600199993,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Küçüksu",
+        "neighborhood_id": "94c64e81-8eb0-4cc3-8bd9-fba112a7a475",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.759931451761855e-08,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 1.0000000000000007
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Kılıçlı",
+        "neighborhood_id": "376173fc-b160-4850-809a-93896066a69e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0018125688135849974,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Mahmutşevketpaşa",
+        "neighborhood_id": "8aed9431-b0e7-4040-ac30-5e35115c9603",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0017265849977899828,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Merkez",
+        "neighborhood_id": "0e00f21a-61b7-4af8-b7e2-40e221553e7b",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0003826202694062369,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.000000000000005
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Ortaçeşme",
+        "neighborhood_id": "d99e8ceb-d830-461d-81d5-a420e6d6dc9b",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.732193495498832e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Paşabahçe",
+        "neighborhood_id": "2cf34dfb-66b2-42a2-9e5e-a26f91368255",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 6.127462067668549e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999849658529701
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Paşamandıra",
+        "neighborhood_id": "25304c5b-0650-4aac-8468-5513ef5d8272",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.001295670522039963,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999991
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Polonezköy",
+        "neighborhood_id": "16c5f9a5-9385-4127-a4f9-d67122ff06cb",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0031454597317201976,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000007
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Poyrazköy",
+        "neighborhood_id": "1fd7e15f-93b5-41e6-a283-e184f4981584",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0009193039310757781,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9998453565591248
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Riva",
+        "neighborhood_id": "2458c6a0-8054-461a-a225-c1b493c45ab8",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0024245103188450206,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9988134837068857
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Rüzgarlıbahçe",
+        "neighborhood_id": "d9c10c37-c0c2-4786-b5fc-930af7012f2f",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0003676956013650294,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Soğuksu",
+        "neighborhood_id": "eb904183-3bbf-480b-89e7-2536f662b775",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010080789039500688,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Tokatköy",
+        "neighborhood_id": "d1c7fdda-a6ce-49d1-9107-6a86f4366f5a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00043643193070999007,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Yalıköy",
+        "neighborhood_id": "855fd57d-14cd-49c5-b5bf-1602146b41d4",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010934510863999532,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999993
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Yavuz Selim",
+        "neighborhood_id": "d94273f3-7acd-44d8-b9bb-bafc938b7dd4",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0014472902709100398,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Yeni Mahalle",
+        "neighborhood_id": "4244f262-39e5-4357-b2c3-3abcb01ed2d5",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00026626893080054087,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.999968555370443
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Zerzavatçı",
+        "neighborhood_id": "a9f0c4ac-1910-4b72-a1ef-43aae166d971",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00037320973047501863,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Çamlıbahçe",
+        "neighborhood_id": "bed30743-e57e-4576-b56b-f96d17e2c934",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.4547033829983084e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Çavuşbaşı Çiftlik",
+        "neighborhood_id": "f33f4371-9299-498e-9f3d-2bc43557575b",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00043834149751502405,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Çengeldere",
+        "neighborhood_id": "bbabc734-298d-4e76-8497-74d71cc1f3c6",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0005599673092449636,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Çiğdem",
+        "neighborhood_id": "ba17c48c-9eab-4102-a65e-6854690a8e3a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.507505882999275e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Çubuklu",
+        "neighborhood_id": "67aef5ab-2571-4926-97c5-d83a37105e74",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0002522161412529249,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999981
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Örnekköy",
+        "neighborhood_id": "0c6d9742-1192-4981-9a2e-85e17d2de2af",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00039728666531501045,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "Öğümce",
+        "neighborhood_id": "b8acdfd0-911e-41b2-a696-aa47b95fcdd3",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0011388933282100286,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "İncirköy",
+        "neighborhood_id": "f268b5e8-b9d1-4151-b6bc-4e824be5e305",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00021397917880422391,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.999999999999999
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "İnkılap",
+        "neighborhood_id": "52ee32ae-c66f-4095-8275-1125f6f22525",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.035479066190745e-08,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.999999999999999
+      },
+      {
+        "district": "Beykoz",
+        "neighborhood": "İshaklı",
+        "neighborhood_id": "fa1aa93b-bace-4e76-a5d2-e87c339e578f",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0013252895095650077,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      }
+    ],
+    "Çekmeköy": [
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Alemdağ",
+        "neighborhood_id": "84eb30e6-f5c6-4ee7-ad04-bd8844370cdf",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0009686476621893635,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Aydınlar",
+        "neighborhood_id": "ae46b977-49f1-401b-abc6-6ecba56c8a41",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 7.002128638200429e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Cumhuriyet",
+        "neighborhood_id": "1baeab24-a45e-4e64-993a-3972f8ecdd56",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.0901145210008954e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Ekşioğlu",
+        "neighborhood_id": "b821e6b6-b8ba-4731-81cd-2f2ae867b841",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00044098525271397666,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999895
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Güngören",
+        "neighborhood_id": "c60d7adf-70af-4bd9-8a28-50b39deff7f9",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0002699114099399842,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Hamidiye",
+        "neighborhood_id": "e81a5a67-fcb2-43b4-a50a-550d3a7c7e41",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010723612846500524,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Huzur",
+        "neighborhood_id": "5aa6c3e6-444d-4054-b184-3de0ab2e3525",
+        "issues": [],
+        "is_sliver": true,
+        "area_deg2": 9.308106708084576e-08,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Hüseyinli",
+        "neighborhood_id": "0d5fa061-2d85-4f11-9c39-ec348feb9d9c",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0014068315592450156,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Kirazlıdere",
+        "neighborhood_id": "e5a8bdf5-7ba0-4eeb-bddc-1504ee9f94ce",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 7.468287373501113e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Koçullu",
+        "neighborhood_id": "98d7d36e-59d4-41d2-b61c-54e6cb43cc87",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0014751227299549712,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Meclis",
+        "neighborhood_id": "2cbfcaea-7493-47e0-96dc-7337f8582a35",
+        "issues": [],
+        "is_sliver": true,
+        "area_deg2": 5.333967491076366e-08,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.000000000107296
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Mehmet Akif",
+        "neighborhood_id": "6abbabbe-85b6-4e9c-a2a4-1e8e55686ce5",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.130816334519268e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Merkez",
+        "neighborhood_id": "6b894d12-7901-4201-a05e-38e9bde93b6a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.001084629695067715,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Mimar Sinan",
+        "neighborhood_id": "1b586c31-2831-4a2e-aacb-bacc4b44d027",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001393925651649862,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000007
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Necip Fazıl",
+        "neighborhood_id": "2ebe0ee2-1633-434c-b424-cdde7419d716",
+        "issues": [],
+        "is_sliver": true,
+        "area_deg2": 5.949814216295182e-08,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Nişantepe",
+        "neighborhood_id": "c352e1fd-4aac-41c9-92ba-456292e7589e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0004471893538617365,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999778
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Parseller",
+        "neighborhood_id": "d1d8bc26-9008-43dc-9380-04000f8458c6",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 6.190451973604482e-08,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.9999999999981191
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Paşaköy",
+        "neighborhood_id": "73f2cd81-4e65-4bd9-a702-d9ce3ec9cc81",
+        "issues": [],
+        "is_sliver": true,
+        "area_deg2": 9.774907416181399e-08,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Reşadiye",
+        "neighborhood_id": "af4ef736-9d60-4d9d-85a4-2bbe82d464db",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.002083326346434965,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000007
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Soğukpınar",
+        "neighborhood_id": "f8ac0696-34a9-4a01-b665-fa9990dde6b6",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 6.631852201000435e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Sultançiftliği",
+        "neighborhood_id": "859ee736-ca53-4e45-8c42-c8a0aa719b13",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00045553579333971724,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.999999999999999
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Sırapınar",
+        "neighborhood_id": "a9a94f4c-f92c-45a5-bf8f-7bc6203740b6",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.000979144441964982,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999993
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Taşdelen",
+        "neighborhood_id": "d218321d-003b-4c60-bf09-888544d4e1ca",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00034480555706499494,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999993
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Yavuz Selim",
+        "neighborhood_id": "8c56ea48-37b6-4553-b82c-60d87ef45ed0",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.927082614558143e-08,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 1.000000000009118
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Çamlık",
+        "neighborhood_id": "b986112e-957c-44af-9131-2d90fa4e545f",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 6.938333547312119e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Çatalmeşe",
+        "neighborhood_id": "fa35bdc2-11ee-4f15-b97e-7ec7b02492eb",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.000607813317694987,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Çekmeköy",
+        "neighborhood": "Ömerli",
+        "neighborhood_id": "a790280d-c1a0-4e56-9c99-c93d477503b5",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.005061103557590097,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.999999999999999
+      }
+    ],
+    "Kadıköy": [
+      {
+        "district": "Kadıköy",
+        "neighborhood": "19 Mayıs",
+        "neighborhood_id": "7620e626-9471-4008-85d9-0d634a8932ff",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00014359834962509856,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.999936402048266
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Acıbadem",
+        "neighborhood_id": "818c5f10-bda6-457e-ac80-92fe421f4704",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.3269848671874016e-08,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 1.000000000000711
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Bostancı",
+        "neighborhood_id": "22222222-2222-2222-2222-000000000009",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00018956473680415063,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999994
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Caddebostan",
+        "neighborhood_id": "5344d22f-a48b-4544-9c23-77306583359b",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00017922650144097446,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999982
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Caferağa",
+        "neighborhood_id": "ceacc2f0-dc5d-46c9-8de5-f445a4ccf717",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001331431623175373,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000049
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Dumlupınar",
+        "neighborhood_id": "7050104b-cf8b-4fb9-b3e5-08a8993cb9f6",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.315680946585451e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999998145
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Erenköy",
+        "neighborhood_id": "22222222-2222-2222-2222-00000000000a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00014447801245996657,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Eğitim",
+        "neighborhood_id": "5d0176b2-7e00-4364-ad30-611749762ed0",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010253539294500486,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Fenerbahçe",
+        "neighborhood_id": "22222222-2222-2222-2222-00000000010a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00018052975107968805,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.000000000000001
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Feneryolu",
+        "neighborhood_id": "5261bedf-760e-4811-a957-5effef4442df",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010828047724500114,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Fikirtepe",
+        "neighborhood_id": "b42d96a0-2948-49dd-b894-42d827979b30",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.6220789215000244e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Göztepe",
+        "neighborhood_id": "22222222-2222-2222-2222-00000000010c",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00019101034783501082,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Hasanpaşa",
+        "neighborhood_id": "fda73427-1057-4db0-9497-e2c94527af31",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.674747227528079e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.000000000000007
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Kozyatağı",
+        "neighborhood_id": "ddc1d13d-97d4-4eb4-bd97-0e08ee24e32a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00015475283683847473,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9928327744169877
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Koşuyolu",
+        "neighborhood_id": "aef56127-d760-41c3-ab32-da9905d35a72",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 7.473126652484774e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Merdivenköy",
+        "neighborhood_id": "50aa8d84-db8d-4cf3-a1f6-6458625bdff5",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00017981276806089346,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999462
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Osmanağa",
+        "neighborhood_id": "abb3266a-15b7-49cb-9ba7-c646d3b20ed6",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.763242037497944e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Rasimpaşa",
+        "neighborhood_id": "f0b57ca3-2248-4163-8adb-b98865aa7043",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.2001011479595e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999973
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Sahrayıcedit",
+        "neighborhood_id": "9da10432-f910-4b7f-82ee-dcc9ba59a718",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00014453925292100183,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999852
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Suadiye",
+        "neighborhood_id": "22222222-2222-2222-2222-00000000010b",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001594204623019127,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999977
+      },
+      {
+        "district": "Kadıköy",
+        "neighborhood": "Zühtüpaşa",
+        "neighborhood_id": "d88e5158-7388-4aea-93a1-727dbb18ea1c",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 7.15669359897877e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      }
+    ],
+    "Kartal": [
+      {
+        "district": "Kartal",
+        "neighborhood": "Atalar",
+        "neighborhood_id": "1a4966c6-aea5-4f2e-97d6-2a535329e425",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00011895262826998849,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Büyükbakkalköy",
+        "neighborhood_id": "c2cbbf49-a793-4896-bd20-d4e5595c446e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 1.7981227508545304e-07,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.9999999999999964
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Cevizli",
+        "neighborhood_id": "de0ffdff-cdce-4164-952d-b4b9d9d1e726",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001793776076345717,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999896
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Cumhuriyet",
+        "neighborhood_id": "55a18f3e-4b73-40e1-943d-bc25895e3b14",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00015766417855556683,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.999999999999988
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Esentepe",
+        "neighborhood_id": "ff572a46-1a93-429d-bcd9-b219f55557db",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00027187335320497124,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Fatih",
+        "neighborhood_id": "7da6ab92-b6ff-4968-a7ad-3e2163818822",
+        "issues": [],
+        "is_sliver": true,
+        "area_deg2": 9.46301937946436e-08,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999953
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Gümüşpınar",
+        "neighborhood_id": "ac6cd719-9021-43ab-b2f2-3cf43712f904",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00012447758485999483,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Hürriyet",
+        "neighborhood_id": "22222222-2222-2222-2222-000000000106",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00027513565143704187,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999433950076143
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Karlıktepe",
+        "neighborhood_id": "c820054b-ab92-487c-aad0-3238a9b19cd9",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00014462136727503173,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Kordonboyu",
+        "neighborhood_id": "e3ca64cf-0852-4ac6-abba-f10d87d2f195",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.000204066606700288,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9992238405729581
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Orhantepe",
+        "neighborhood_id": "71c79dd0-b8e6-4c1c-94aa-19685625c0fa",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0003107986010476652,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999976
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Orta",
+        "neighborhood_id": "a8cdc66b-db3c-4d2e-a38a-84430ef3a30a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00011336213756499396,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Petrol İş",
+        "neighborhood_id": "ce5152c7-4be9-4c9f-a839-78be371f7a76",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00011511029296000604,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Soğanlık Yeni",
+        "neighborhood_id": "5aea574a-9de3-45fc-9b88-bff21e21ee96",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00018819902418506647,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Topselvi Mahalesi",
+        "neighborhood_id": "d3fc2014-843e-4ddb-8a8c-998a049c444c",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.305507144999903e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Uğur Mumcu",
+        "neighborhood_id": "22222222-2222-2222-2222-000000000005",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001879760826928838,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Yakacık Yeni",
+        "neighborhood_id": "9dba18f9-a76c-4d76-89e7-43d929025be9",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0008413661174149969,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Yakacık Çarşı",
+        "neighborhood_id": "cb2fcbd6-faa1-47d5-a8ef-e0f4518fb4a9",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0004264095615450101,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9998001268515895
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Yalı",
+        "neighborhood_id": "0612419b-0d3b-42e3-b547-c7f27dc6adbc",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.674169796820961e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999069
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Yukarı",
+        "neighborhood_id": "704c159a-551d-450f-b262-eaed82f35390",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 3.4205647524991236e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Yunus",
+        "neighborhood_id": "fdc4d4d7-20d7-40c2-bba7-0ec0cb88ac80",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00014495081607805238,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Kartal",
+        "neighborhood": "Çavuşoğlu",
+        "neighborhood_id": "80fc498d-7a04-43bf-881f-97cd933331c8",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00014765455664497368,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      }
+    ],
+    "Maltepe": [
+      {
+        "district": "Maltepe",
+        "neighborhood": "Altayçeşme",
+        "neighborhood_id": "8fa93cac-549b-43ee-8b89-2bbd28021e14",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00014493668342501344,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Altıntepe",
+        "neighborhood_id": "db8ce296-522b-4779-9b1d-abe5c8f7f5f2",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001099526609893823,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999909
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Aydınevler",
+        "neighborhood_id": "5a1d3e39-d853-471e-9bd9-451ae638bcd5",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00015054514935073794,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Bağlarbaşı",
+        "neighborhood_id": "0c9dd4cc-37f2-48e1-847c-ee3e73f99420",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001755039325599837,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Başıbüyük",
+        "neighborhood_id": "86973376-ebc7-41c3-a7b9-5284707752a9",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0010870018789981442,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999982
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Büyükbakkalköy",
+        "neighborhood_id": "7ba43edf-b2b4-4437-9579-99a782eee479",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.002302856382548958,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000009
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Cevizli",
+        "neighborhood_id": "61db62d9-f10b-4612-adef-5d54227d45d4",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00023441751568396575,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Esenkent",
+        "neighborhood_id": "38475580-7902-4f73-a20c-4fc1b1a12947",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001302432816450164,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Feyzullah",
+        "neighborhood_id": "41b4de38-1c95-47b8-affb-d41ebd141d88",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.82780210649935e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Fındıklı",
+        "neighborhood_id": "89330240-4bea-4fa3-9df5-7c0b6d3cdf01",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00012573802016998002,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Girne",
+        "neighborhood_id": "9135ef77-613f-4591-a77b-f2c48b706111",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.23424399499911e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Gülensu",
+        "neighborhood_id": "cb9bb155-ccb9-44c6-8836-c6d907e097db",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.71825192050165e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Gülsuyu",
+        "neighborhood_id": "28c4b125-208f-45bc-80f4-542655353bd7",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.712587477000118e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Küçükyalı",
+        "neighborhood_id": "dbca0260-e63f-435f-912c-1e3a24629bc4",
+        "issues": [
+          "('NULL_GEOMETRY', 'neighborhood:Maltepe/Küçükyalı')"
+        ],
+        "is_sliver": null
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Küçükyalı Merkez",
+        "neighborhood_id": "c8638997-097a-427b-b30e-2fe064c01ab9",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00011094291540063788,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000089
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Uğur Mumcu",
+        "neighborhood_id": "2c0bd17f-3354-41bf-becd-43228e6f8e21",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 1.0288077530388534e-07,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 1.000000000000001
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Yalı",
+        "neighborhood_id": "83b63e6c-9fca-4b38-97b6-2ecbbbe4808a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0002422376266799935,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Zümrütevler",
+        "neighborhood_id": "c1658a16-ed47-42b9-81d9-5e68cc30405d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0003472399981750444,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "Çınar",
+        "neighborhood_id": "aa3f83f5-fc86-439f-ba1c-5589c66c3450",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010906121772371345,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000175
+      },
+      {
+        "district": "Maltepe",
+        "neighborhood": "İdealtepe",
+        "neighborhood_id": "763c0ec4-c9fa-4e51-ab4f-9faddc041bde",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00013422494739158023,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999982
+      }
+    ],
+    "Pendik": [
+      {
+        "district": "Pendik",
+        "neighborhood": "Ahmet Yesevi",
+        "neighborhood_id": "5d06d267-84ed-4b07-bc78-2d00eed061ce",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001422811878911511,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000009
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Bahçelievler",
+        "neighborhood_id": "6c8990e1-dc95-4f27-b08d-bdc82c02acdd",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.383089787496916e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Ballıca",
+        "neighborhood_id": "be66442a-a2e8-4c35-a019-a1223052602e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0025952079553759125,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Batı",
+        "neighborhood_id": "bafc93d0-d36d-40d8-8635-a8cee320b675",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00013051001802999492,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Doğu",
+        "neighborhood_id": "2898487d-e7d9-492b-b68e-cd996d757165",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001242624970271795,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999623
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Dumlupınar",
+        "neighborhood_id": "15e01d76-1e99-4cb4-9f8c-521a9267a05d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001518552192050034,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Emirli",
+        "neighborhood_id": "70a52d7f-9478-4034-be49-f430b5e475e3",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0015179625722599845,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Ertuğrul Gazi",
+        "neighborhood_id": "a77aaf12-64d0-4a77-a27f-3f22731b17fa",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0002559846988500274,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000007
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Esenler",
+        "neighborhood_id": "3830f738-c30a-4079-aa81-bd373475b4f4",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00011125331087502941,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Esenyalı",
+        "neighborhood_id": "907ac67c-031f-4947-b987-81566b32b5ef",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.204755628501899e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Fatih",
+        "neighborhood_id": "09dc2b14-65c8-4fb2-9a0e-ec9cbbde5389",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 6.948992915500161e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Fevzi Çakmak",
+        "neighborhood_id": "6f37095b-769d-49e7-a565-357661e0b339",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00019718979717001792,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Göçbeyli",
+        "neighborhood_id": "dc35ed20-2adc-45fc-ab80-44b8cf507fee",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0026793582582540416,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Güllü Bağlar",
+        "neighborhood_id": "c030b9ca-013a-4784-89ff-3be36fbdac29",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001331712752100112,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Güzelyalı",
+        "neighborhood_id": "22222222-2222-2222-2222-000000000102",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001833351270053186,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Harmandere",
+        "neighborhood_id": "38673982-2a6e-474b-b195-6e8add4cc448",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00013450398037999229,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Hürriyet",
+        "neighborhood_id": "4c512bf1-8942-405e-9074-6d01931e42fe",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 6.252681295307249e-08,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Kavakpınar",
+        "neighborhood_id": "22222222-2222-2222-2222-000000000101",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0003063447243450027,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Kaynarca",
+        "neighborhood_id": "22222222-2222-2222-2222-000000000003",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00034618386808226294,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Kurna",
+        "neighborhood_id": "912dce8c-e1ed-43b4-823f-098ddae1e85a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0034165922312790727,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Kurtdoğmuş",
+        "neighborhood_id": "181a5c6f-684f-48d8-ab6c-e0cea5ac0a83",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.003441304954749971,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999994
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Kurtköy",
+        "neighborhood_id": "22222222-2222-2222-2222-000000000001",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00019611303703501209,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Orhangazi",
+        "neighborhood_id": "57037fed-94e8-4551-b50d-51bf83ecf80c",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.673643433999883e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Orta",
+        "neighborhood_id": "a3a4b54d-8914-4a3f-8ce8-4ccda87e3a5c",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 3.363099723001154e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Ovacık",
+        "neighborhood_id": "db43c273-5db3-4ae2-ad64-e74c50d176ba",
+        "issues": [],
+        "is_sliver": true,
+        "area_deg2": 6.729715603233448e-08,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Paşaköy",
+        "neighborhood_id": "3cfde70c-1c38-4d29-89f1-ce2ed116e138",
+        "issues": [],
+        "is_sliver": true,
+        "area_deg2": 6.687322500416816e-08,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Ramazanoğlu",
+        "neighborhood_id": "3c268c0c-2864-4a63-82d4-4bfa778a31e8",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.000230153915854977,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Sanayi",
+        "neighborhood_id": "90907de5-d3cc-4255-b743-c23368fa356f",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0014703117379999996,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Sapan Bağları",
+        "neighborhood_id": "34e72165-bdab-4f20-a3a1-6f1115a1a99b",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.328261788999855e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Sülüntepe",
+        "neighborhood_id": "dfe42f54-6a3a-4580-a2a6-0890f3dd2bc9",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00014744963722499932,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Velibaba",
+        "neighborhood_id": "45365c27-f65c-452d-b74f-9f3d9c8a8ffc",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0003611875822321645,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9994442059985995
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Yayalar",
+        "neighborhood_id": "bd5f6f38-36a9-4302-a360-460f48ec5b8c",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00015738872939501116,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Yeni",
+        "neighborhood_id": "5bf51a18-d1ac-4f41-8fe6-ed5c8c43d962",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.313345227500903e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Yenişehir",
+        "neighborhood_id": "22222222-2222-2222-2222-000000000103",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0007072940157900137,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Yeşilbağlar",
+        "neighborhood_id": "9adf7da4-4cbb-4fd8-9833-ac66186906ce",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 3.903217297999152e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Çamlık",
+        "neighborhood_id": "a15fb1c8-9576-482c-bd21-809cb76de18a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00034801966536951955,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999981
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Çamçeşme",
+        "neighborhood_id": "c26fe873-665b-411f-a7bf-04ae92923a9a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00012389579361500735,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Çınardere",
+        "neighborhood_id": "07e8a957-e253-4b94-b3b9-b89f826df2f6",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001238830611300112,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9987035439308818
+      },
+      {
+        "district": "Pendik",
+        "neighborhood": "Şeyhli",
+        "neighborhood_id": "22ec0d84-eeef-48e2-86ab-f77984e02657",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00014289571616999118,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      }
+    ],
+    "Sancaktepe": [
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Abdurrahmangazi",
+        "neighborhood_id": "e8f1d809-76ca-413e-a7eb-bdcbad93a12b",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00041841864162502974,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Akpınar",
+        "neighborhood_id": "1512768d-39bf-4533-a073-1ff05b6bbcdf",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00020044060198500825,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Atatürk",
+        "neighborhood_id": "a90547e5-ab95-4eff-bd0d-19806e0d5034",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010396342097004212,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Emek",
+        "neighborhood_id": "9387f8c6-aef2-488e-851a-87fba208fb42",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00019751868409999368,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Eyüp Sultan",
+        "neighborhood_id": "2bdbe49c-7f55-41ab-87af-680577398f6e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0006654656898250243,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Fatih",
+        "neighborhood_id": "8f161a91-f5e3-499f-bd34-e5d53cde9118",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00038299615710419297,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999953
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Hilal",
+        "neighborhood_id": "ad124479-395e-4455-b843-9b3bc14cd34d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0002628997811606159,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000198
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Kemal Türkler",
+        "neighborhood_id": "9b97d968-79f4-41fb-b657-de83ef495d34",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.173350583995765e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Kurtdoğmuş",
+        "neighborhood_id": "be2b8d98-b08a-4433-a16f-cc3f5a311d80",
+        "issues": [],
+        "is_sliver": true,
+        "area_deg2": 6.687322500416816e-08,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Meclis",
+        "neighborhood_id": "709f393c-8dc1-47cb-aadb-b285aea46668",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001063119577349724,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Merve",
+        "neighborhood_id": "e7447453-eabc-4329-8b52-4f620643f243",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00011525390275461492,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Mevlana",
+        "neighborhood_id": "d0f84445-2cf4-4eae-ad7c-459667275e88",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00015413046131722757,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.999999999999981
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Mimar Sinan",
+        "neighborhood_id": "0b87298a-9b9a-4abe-8928-07cf1068198d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.942519468677743e-08,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.9999999999806597
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Nişantepe",
+        "neighborhood_id": "5bd1a608-42f1-4b7c-9adf-c61542c0a18e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.204047705151582e-08,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.9999999999999906
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Osmangazi",
+        "neighborhood_id": "0e3d6def-27e8-4c20-8014-1e5eb71fe4b7",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0003879261598635637,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Paşaköy",
+        "neighborhood_id": "a36d5841-17c4-41df-b1eb-72333c223860",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.002936357028775806,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.000000000000001
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Safa",
+        "neighborhood_id": "7be19c9a-b758-4be0-8128-9341d613f498",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.170574639003022e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Samandıra",
+        "neighborhood_id": "6beb2320-6134-4cb1-a0b3-a5652adfae46",
+        "issues": [
+          "('NULL_GEOMETRY', 'neighborhood:Sancaktepe/Samandıra')"
+        ],
+        "is_sliver": null
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Sarıgazi",
+        "neighborhood_id": "df2596b8-55ef-42dd-82bf-1108ca6931ff",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00013244216363504543,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Veysel Karani",
+        "neighborhood_id": "d2eb4ad9-bee6-4f8c-8fca-414398f0e883",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0003385534366599333,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999992
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Yenidoğan",
+        "neighborhood_id": "12a42760-70ec-48d8-8f45-210a602c8f98",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00011020455853636458,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Yunus Emre",
+        "neighborhood_id": "c65014c4-45ec-43b8-93d4-e9a2afa4b394",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00013054099553000997,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "Çamlık",
+        "neighborhood_id": "bc42bbca-19ad-4c4e-8b3d-a17397889cae",
+        "issues": [],
+        "is_sliver": true,
+        "area_deg2": 5.333967491076361e-08,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000009
+      },
+      {
+        "district": "Sancaktepe",
+        "neighborhood": "İnönü",
+        "neighborhood_id": "69ddf79e-898b-4441-8a6d-2e34e6ba75c2",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 6.477371950002019e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      }
+    ],
+    "Sultanbeyli": [
+      {
+        "district": "Sultanbeyli",
+        "neighborhood": "Abdurrahmangazi",
+        "neighborhood_id": "3cc1fb4a-029c-4db3-b73d-f8c02092091e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00022192704279000599,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999992
+      },
+      {
+        "district": "Sultanbeyli",
+        "neighborhood": "Adil",
+        "neighborhood_id": "cc45fca7-a0e1-42f0-8343-0a27c0475b8e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00020479088764440193,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Sultanbeyli",
+        "neighborhood": "Ahmet Yesevi",
+        "neighborhood_id": "c7b586b2-07b8-4bba-bf60-ff1a54cb489c",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00018131522149001527,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Sultanbeyli",
+        "neighborhood": "Akşemsettin",
+        "neighborhood_id": "00eacb7a-0b50-4adf-ae25-7456bf2649bd",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00013516493914502171,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Sultanbeyli",
+        "neighborhood": "Battalgazi",
+        "neighborhood_id": "9924fd50-2f84-4c16-8a42-fcdb629ff21e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0003981313610500175,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Sultanbeyli",
+        "neighborhood": "Fatih",
+        "neighborhood_id": "414e9186-e57c-4b04-8419-18a4886f7594",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001615145848799763,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999994
+      },
+      {
+        "district": "Sultanbeyli",
+        "neighborhood": "Hamidiye",
+        "neighborhood_id": "006389e5-8e4d-4cf2-ab09-96a562e6efd0",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00013732605539499594,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Sultanbeyli",
+        "neighborhood": "Hasanpaşa",
+        "neighborhood_id": "4074ee42-89c9-4d9e-8a0a-ec284d3c31a4",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.650275064498776e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Sultanbeyli",
+        "neighborhood": "Mecidiye",
+        "neighborhood_id": "c6bd666e-779d-423c-a551-f4753324a92d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00019437642397499263,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Sultanbeyli",
+        "neighborhood": "Mehmet Akif",
+        "neighborhood_id": "104b59e4-d6c9-49bf-b309-07e26d28bd36",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0002229290815000068,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Sultanbeyli",
+        "neighborhood": "Mimar Sinan",
+        "neighborhood_id": "701a9427-65cf-4de5-af7b-dc65ae4612f9",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00031756466239149517,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999984
+      },
+      {
+        "district": "Sultanbeyli",
+        "neighborhood": "Necip Fazıl",
+        "neighborhood_id": "27eac16a-275b-437c-b514-076d03680142",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00035185553443904357,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Sultanbeyli",
+        "neighborhood": "Orhangazi",
+        "neighborhood_id": "b39c8ba8-d0f3-4f02-9db1-3ccd27fa9a19",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00011355629474498724,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Sultanbeyli",
+        "neighborhood": "Turgut Reis",
+        "neighborhood_id": "dbac8b64-ffa7-42eb-aab8-55834dd54273",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00019181621452998794,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Sultanbeyli",
+        "neighborhood": "Yavuz Selim",
+        "neighborhood_id": "01ee47c8-706f-487e-a95c-b9b7f5e23b26",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00018126477330999706,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      }
+    ],
+    "Şile": [
+      {
+        "district": "Şile",
+        "neighborhood": "Ahmetli",
+        "neighborhood_id": "31da2251-d462-4c32-b251-2caf896c91ce",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0006854255559850418,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Akçakese",
+        "neighborhood_id": "2bb688d3-c557-44b9-841e-18000cd41bfe",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0008270417487493865,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9986804574106142
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Alacalı",
+        "neighborhood_id": "571bdd01-04ba-48f7-b1e6-125565f41b31",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0018742790178476552,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Avcıkoru",
+        "neighborhood_id": "cfba244a-35cc-4ff8-b73f-2f763ee11898",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0021230247097984737,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000009
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Ağaçdere",
+        "neighborhood_id": "e9b3267f-9d96-4067-bd17-e16b33c046d6",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0007127693611349771,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Ağva Merkez",
+        "neighborhood_id": "1618a471-d7d4-4ef8-acdb-c0abc63ff3d5",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00018714134526349611,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999994
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Balibey",
+        "neighborhood_id": "b247cdf1-9649-438e-b04e-4e776cc437fa",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0005897448565004209,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Bozgoca",
+        "neighborhood_id": "8bcfc1c4-ea05-48c0-9174-16b48703b521",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00043701604676502315,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Bucaklı",
+        "neighborhood_id": "16122579-74d3-40fb-a4ed-32239894e4df",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.001741901132464128,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9990386273447696
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Bıçkıdere",
+        "neighborhood_id": "8a745cc5-cc0e-4c49-aabd-095ddbff632f",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0010535303644050255,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Cumhuriyet",
+        "neighborhood_id": "03cd7133-1a69-492d-8915-86b9db9627c0",
+        "issues": [
+          "('NULL_GEOMETRY', 'neighborhood:Şile/Cumhuriyet')"
+        ],
+        "is_sliver": null
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Darlık",
+        "neighborhood_id": "a85cc44a-431f-453a-abe0-19654abfbcd6",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0019004301097291104,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999993
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Değirmen Çayırı",
+        "neighborhood_id": "9eb397f0-3d07-44aa-8ff6-06ebf8809775",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0009840578267049612,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Doğancılar",
+        "neighborhood_id": "4a88d03a-5f1c-4895-862b-3471bc57eac4",
+        "issues": [
+          "('NULL_GEOMETRY', 'neighborhood:Şile/Doğancılar')"
+        ],
+        "is_sliver": null
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Doğancılı",
+        "neighborhood_id": "525b14c8-2189-472b-ba4a-f790541b434f",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0016535022192044676,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999973
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Erenler",
+        "neighborhood_id": "f37df35a-845f-4baf-80a3-3824627c8cc7",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0016371469709700942,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Esenceli",
+        "neighborhood_id": "64a84cee-fce1-490a-8375-8867375cd690",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0020412776879146707,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000007
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Geredeli",
+        "neighborhood_id": "6c546595-2418-4c02-b75e-8ed005db6cd4",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0015743555608000303,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Gökmaşlı",
+        "neighborhood_id": "4afdcc3d-5446-4a4c-ba64-340824d8826d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0005547696314349676,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Göksu",
+        "neighborhood_id": "3624f293-899f-4468-a90a-c9a4026df67a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0024539562315150105,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Göçe",
+        "neighborhood_id": "329403cc-7fe1-4402-889a-97bee5e4c163",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0006009133648050038,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999988
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Hacı Kasım",
+        "neighborhood_id": "3024865d-53c3-4640-81c2-45e146920c70",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 2.300546712598749e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Hacıllı",
+        "neighborhood_id": "485fefb4-dca9-450d-85a5-79c60f21e066",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0016230555689900287,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Hasanlı",
+        "neighborhood_id": "d995f01b-9717-4952-aa52-c8759b7e34f3",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0012694997718999588,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Kabakoz",
+        "neighborhood_id": "9f147789-dafe-4413-b126-445a92c00ce7",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0020124495471898875,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9974014680237199
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Kadıköy",
+        "neighborhood_id": "7deda841-cfd6-40f2-b45e-e21a431c1e22",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00034033138883002377,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Kalem",
+        "neighborhood_id": "f243dbc8-c845-4938-876f-23c6529a2193",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0020773872315149973,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999993
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Karabeyli",
+        "neighborhood_id": "b64ff5f9-6a17-43c9-973f-ec5653499a7a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.001294274461745049,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999991
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Karacaköy",
+        "neighborhood_id": "4319c8e7-8852-408e-ad82-e263c1038ad8",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0008264156801935813,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999992
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Karakiraz",
+        "neighborhood_id": "832550a4-15df-4a5c-ac3f-0e628ed316f1",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0021628986448310717,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Karamandere",
+        "neighborhood_id": "2aaad750-fb99-4900-96a8-4349042b7bd1",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0012344567024749995,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999988
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Kervansaray",
+        "neighborhood_id": "a07abbb8-28f1-4b12-90e8-20383d3e939b",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00422321126150933,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999992
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Korucu",
+        "neighborhood_id": "25c373bf-b32b-4385-9ab9-8866d2d7c7a5",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00044420072575000454,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Kumbaba",
+        "neighborhood_id": "cee262fa-7ba0-485d-a989-b3e5c2406914",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00019660230133627412,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Kurfallı",
+        "neighborhood_id": "88781589-60b2-429d-99f7-565324ae6746",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0005066844008800171,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000007
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Kurna",
+        "neighborhood_id": "bbc00499-040a-4ebe-8f05-95475161b260",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0014397671078189695,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Kömürlük",
+        "neighborhood_id": "6006b5f4-55e0-4335-bead-217f8bb0e30a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.001201191585655334,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999988
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Kızılcaköy",
+        "neighborhood_id": "378efa01-09b5-4f9d-9760-613c35b6dbf8",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0024485307004361596,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Meşrutiyet",
+        "neighborhood_id": "e4893632-f5a1-49c8-a912-36f59ceb434c",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.000354571382540015,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999993
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Oruçoğlu",
+        "neighborhood_id": "3cf3a4e3-595e-49d8-8b93-c869cd85d546",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0023583190952665566,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999989
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Osmanköy",
+        "neighborhood_id": "0f8ad8b1-920b-47ca-8a92-df68883a4e2a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0011686123243949732,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000009
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Ovacık",
+        "neighborhood_id": "e19e6d3d-49f6-45ca-b5dc-901c8c1c80e6",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.000869252774279999,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Sahilköy",
+        "neighborhood_id": "066e2568-52d2-41a8-9f86-05c6cf8563e2",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0021253650251349698,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Satmazlı",
+        "neighborhood_id": "dc7b5355-a717-4fa8-baab-3dfd83f6fa14",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0009054961358699561,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Sofular",
+        "neighborhood_id": "d45c13e0-9479-44e5-ae8f-d6707189e0df",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0017163139523338415,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Sortullu",
+        "neighborhood_id": "c5445582-b038-455a-8c61-cc551ac130b5",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0006963259014600036,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Soğullu",
+        "neighborhood_id": "df2fdab9-457e-42dd-aa34-b627381d1092",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0018654938409799805,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Teke",
+        "neighborhood_id": "6785d33e-f6c0-446f-9557-7beb1b0cafaa",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0038636743333999544,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Ulupelit",
+        "neighborhood_id": "359bdd0f-2606-4a41-b993-ae2781f68da1",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00153398819754006,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Yaka",
+        "neighborhood_id": "938952d5-ecc9-4dd2-bb89-28bb9c41df20",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0020942859623268176,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Yaylalı",
+        "neighborhood_id": "22e31388-7a2c-404b-a643-616ae0e6ce31",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0008207481356600083,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000009
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Yazımanayır",
+        "neighborhood_id": "3fff305b-1c76-45dd-b687-7adfc330923e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0014272311917600225,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Yeniköy",
+        "neighborhood_id": "31072759-fd81-42cb-b1c3-9beb6f078167",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0023617587014250646,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Yeşilvadi",
+        "neighborhood_id": "465bf89e-cc5b-4bf3-bbe1-a311e95741f1",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0017328075304799777,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999983
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Çataklı",
+        "neighborhood_id": "70c519ca-e949-4d11-9325-e2dabb39c1d4",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0019112121525000577,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999994
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Çavuş",
+        "neighborhood_id": "3c46f0fa-2fd8-43b1-8717-c7e7767a30b8",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0005429407224132814,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999976
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Çayırbaşı",
+        "neighborhood_id": "7d5e184b-92e5-4d48-bd88-cb58737c1601",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0004299730585200279,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Çelebi",
+        "neighborhood_id": "c97bbafd-e9ed-4e03-ad8f-9bb8f1e68a61",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0008534358146300013,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Çengilli",
+        "neighborhood_id": "bc07f60a-3061-41c5-83fb-201645cda108",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0013690255933650225,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Üvezli",
+        "neighborhood_id": "f94e797a-eb80-471d-9664-ca75437bf91a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0017388588549100276,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "İmrendere",
+        "neighborhood_id": "6cebeaa8-5600-4b97-976a-7a4ced6aff9d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0010954719366149904,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "İmrenli",
+        "neighborhood_id": "86f33c29-08d9-4ebc-9835-952e068a4c1f",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.000934482776315603,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "İsaköy",
+        "neighborhood_id": "61691cbb-1c7b-4cd5-80ef-9e31328c4d7d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0004744903608299897,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.999999999999999
+      },
+      {
+        "district": "Şile",
+        "neighborhood": "Şuayipli",
+        "neighborhood_id": "e6cdb175-b45e-45bc-8fd8-672115bf2006",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0011202676919450072,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000018
+      }
+    ],
+    "Tuzla": [
+      {
+        "district": "Tuzla",
+        "neighborhood": "Akfırat",
+        "neighborhood_id": "414b70e7-5cdb-4567-b9f2-ad1ef61b87a8",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.002790362236090069,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999992
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "Anadolu",
+        "neighborhood_id": "4e6b8a27-5fca-434d-bbdf-aebcce767017",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001458001238550025,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "Aydınlı",
+        "neighborhood_id": "22222222-2222-2222-2222-000000000007",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0029208133005011517,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "Aydıntepe",
+        "neighborhood_id": "b367a802-90c3-4bf5-9d19-1cd5b2508cbf",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.000313546888039985,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999994
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "Cami",
+        "neighborhood_id": "22222222-2222-2222-2222-000000000107",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00013792939882441153,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9998794914053258
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "Cumhuriyet",
+        "neighborhood_id": "c5e257de-a4b0-4b9b-9668-6ea565f47633",
+        "issues": [],
+        "is_sliver": true,
+        "area_deg2": 9.792024152831615e-08,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000075
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "Evliya Çelebi",
+        "neighborhood_id": "a0f5c8d1-68a2-48f1-b4f8-7f74a53163ef",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00032231969946033715,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000007
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "Fatih",
+        "neighborhood_id": "9a408143-0810-49e1-80db-d14871ae6fe4",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00029365729617498857,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "Mescit",
+        "neighborhood_id": "401355d9-4115-494f-807e-ca026915de8d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00045653057057500117,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "Mimar Sinan",
+        "neighborhood_id": "22222222-2222-2222-2222-000000000109",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001432097381799926,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "Orhanlı",
+        "neighborhood_id": "ff69026f-1359-4738-98b9-a3c4a5f4ba11",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0008931628794449827,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999988
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "Orta",
+        "neighborhood_id": "f010f181-680c-4b70-8959-7c4f4c6b5e9c",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0003979618927449749,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "Postane",
+        "neighborhood_id": "0eb80cc0-077b-4efe-9b77-7f0cee475ad0",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0006762304223754088,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999971414333314
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "Tepeören",
+        "neighborhood_id": "c237fae5-2b6f-4576-9665-dd83b764c573",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.002798400727754086,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000007
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "Yayla",
+        "neighborhood_id": "01013b01-b8e6-45aa-bdd2-538102eed27a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00022927758086500926,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999993
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "İstasyon",
+        "neighborhood_id": "e3c3ae5c-6835-4b6b-88fb-abc717c0200b",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0005567714193749658,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "İçmeler",
+        "neighborhood_id": "22222222-2222-2222-2222-000000000108",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.807041301000032e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Tuzla",
+        "neighborhood": "Şifa",
+        "neighborhood_id": "7ee00550-caed-4a87-8567-e4c950eec5f5",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00020601405373002463,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      }
+    ],
+    "Ümraniye": [
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Adem Yavuz",
+        "neighborhood_id": "16de17af-5350-40d6-a947-e014c4b3d838",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.008057776500742e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Alemdağ",
+        "neighborhood_id": "11eb95dd-f1a7-478f-94d1-a807bceb2d1c",
+        "issues": [
+          "('NULL_GEOMETRY', 'neighborhood:Ümraniye/Alemdağ')"
+        ],
+        "is_sliver": null
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Altınşehir",
+        "neighborhood_id": "18e248a9-a72f-4702-a5dd-1b7c02582053",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.035786281997358e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Armağanevler",
+        "neighborhood_id": "bba3780c-e40e-4ec8-ac9f-0a62fbeeb809",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00011918931766003295,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Atakent",
+        "neighborhood_id": "37f6a212-69e0-44e6-ba99-606ea48f423a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010233453046999287,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Atatürk",
+        "neighborhood_id": "c5d35149-4b86-4e56-9df4-45c4db88514d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.088575890304919e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Aşağı Dudullu",
+        "neighborhood_id": "b20c20b3-69df-461d-878c-771db8d8d32a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010499437680215963,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Aşağıdudullu",
+        "neighborhood_id": "356dd7e4-9af4-4ac3-a98e-3209e6706977",
+        "issues": [
+          "('NULL_GEOMETRY', 'neighborhood:Ümraniye/Aşağıdudullu')"
+        ],
+        "is_sliver": null
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Bahçelievler",
+        "neighborhood_id": "746e8565-e425-4d78-aa0b-1c9b60648cf3",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.569208010194043e-08,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Baklacı",
+        "neighborhood_id": "733198f7-81a3-4f87-b2d2-fbe469d5db4a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 1.0724450131196752e-07,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.9999999999314529
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Bulgurlu",
+        "neighborhood_id": "c0826215-d3a6-48fb-9e21-ef6d24943377",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.829378720234668e-08,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.47690026051361795
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Cemil Meriç",
+        "neighborhood_id": "05044d92-81db-4192-9b44-188ad1c1246a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00017586003243003884,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Dudullu OSB",
+        "neighborhood_id": "03799832-d24a-4f89-95a5-4b9bf8375694",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0003067543850399834,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Dumlupınar",
+        "neighborhood_id": "c8878373-a440-49d1-83fc-5cbbd99b28bd",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010701899019140712,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999957
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Elmalıkent",
+        "neighborhood_id": "399cac01-b2f9-476b-9073-ebce421dc797",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001280656963557861,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Elmaşehir",
+        "neighborhood_id": "e6439761-723b-428c-afb4-e6eee3332dec",
+        "issues": [
+          "('NULL_GEOMETRY', 'neighborhood:Ümraniye/Elmaşehir')"
+        ],
+        "is_sliver": null
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Esenevler",
+        "neighborhood_id": "a6a771ac-775d-4f38-9ed4-5e19075ddea7",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 6.712542713225684e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9988457560115395
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Esenkent",
+        "neighborhood_id": "b4a2dadf-801a-4c3b-b954-7d56cd2038e7",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00017767858699318232,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000067
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Esenşehir",
+        "neighborhood_id": "1577fba6-e3cf-4dee-9e9a-0a490ffab3d9",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001096089469730144,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Fatih Sultan Mehmet",
+        "neighborhood_id": "18752f22-5c0c-4e2c-96f9-2a84ddc4d2c0",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00043842679603410046,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999967
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Finanskent",
+        "neighborhood_id": "668c46aa-05b6-4dc6-98c5-20aea63ed163",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00016003364745388184,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.999999999999987
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Hekimbaşı",
+        "neighborhood_id": "0f4bd870-e9e0-4dcb-a377-3d74817eae91",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00017601785387505583,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Huzur",
+        "neighborhood_id": "9f0c1813-35d8-47d4-a791-88d2a56b8de4",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 6.623864584291074e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Ihlamurkuyu",
+        "neighborhood_id": "8f8c8eff-f48d-4563-b617-346372bca4dd",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00014711776980998916,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Kazım Karabekir",
+        "neighborhood_id": "9008e693-0cbb-4df0-b791-c9023ac2ae68",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.697908629001983e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Madenler",
+        "neighborhood_id": "05a598f3-e519-446f-aab9-a515c9a8db48",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.727915100501686e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Mehmet Akif",
+        "neighborhood_id": "9e1aa89e-1925-4961-b38d-cbce3af34143",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 7.931259510499552e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Mimar Sinan",
+        "neighborhood_id": "1eed1160-a12e-41d4-a0bd-2e579208af0c",
+        "issues": [],
+        "is_sliver": true,
+        "area_deg2": 8.218343500594488e-08,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Namık Kemal",
+        "neighborhood_id": "dbbedde3-7c7b-4371-824b-e0a5510eb628",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.706127441811552e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9994395414449774
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Necip Fazıl",
+        "neighborhood_id": "86c7f050-fab8-49f3-b3ea-aa6ada533cce",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00018619865756286854,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Parseller",
+        "neighborhood_id": "fa26196b-5084-46ca-90a2-c373fb678e3c",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010715524799025711,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999449
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Saray",
+        "neighborhood_id": "bda64130-088a-4d2b-9b19-f0316999dbce",
+        "issues": [
+          "('NULL_GEOMETRY', 'neighborhood:Ümraniye/Saray')"
+        ],
+        "is_sliver": null
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Site",
+        "neighborhood_id": "ceb05b3b-2ae7-40fa-9cbf-c1c3084bca53",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.225194136998172e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Tantavi",
+        "neighborhood_id": "ffb50e80-8bc7-47ca-93d0-430afe9ac196",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.9826970107823635e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.99956510520859
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Tatlısu",
+        "neighborhood_id": "dd91d49f-2122-4be8-927b-1dd52e2a705c",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010908900752259314,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.99999999999998
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Tepeüstü",
+        "neighborhood_id": "7c575b6b-21e8-4631-bf8e-ac155b7cf8ca",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 4.5654835765012915e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Topağacı",
+        "neighborhood_id": "f6f367ae-e720-48d5-b09a-47479ffba5c3",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00013814575526399699,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Yamanevler",
+        "neighborhood_id": "d2daa8fb-e732-481a-8e28-ffb9e8b1c62c",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00014718145758000218,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Yeni Mahalle",
+        "neighborhood_id": "01b22865-d9dc-4538-9458-719c76e22bfc",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 6.206860459621204e-08,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.9999999999966452
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Yeni Çamlıca",
+        "neighborhood_id": "9be9c3ca-270f-42a5-b5c9-fde35894ba74",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 7.886030061596457e-08,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Yenişehir",
+        "neighborhood_id": "1952d3e8-126b-4c3e-888e-f9a6dec3a6c5",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 1.0524564150034372e-07,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.9999999999863066
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Yukarı Dudullu",
+        "neighborhood_id": "fdcca0ea-9267-4458-a1f9-1bf8ba33c0db",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00019091749458501867,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Yukarıdudullu",
+        "neighborhood_id": "266a0596-99f8-4784-8dd4-7e9042c01629",
+        "issues": [
+          "('NULL_GEOMETRY', 'neighborhood:Ümraniye/Yukarıdudullu')"
+        ],
+        "is_sliver": null
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Çakmak",
+        "neighborhood_id": "61ce4cd7-0aa2-45a5-8c86-3138269bc252",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.19854264699722e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Çamlık",
+        "neighborhood_id": "04b3edae-fb9c-4307-8816-b9e6bf118114",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00012433031334100548,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999224
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "İnkılap",
+        "neighborhood_id": "2288a4ae-ce92-4c59-8e3a-da781275dc02",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00034284589773778004,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "İstiklal",
+        "neighborhood_id": "de6018ea-13cb-4242-8beb-32db1ffa3236",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010707775114999495,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Ümraniye",
+        "neighborhood": "Şerifali",
+        "neighborhood_id": "d0327ab5-4cd9-493c-830a-35ab10892206",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001309279953715522,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999986
+      }
+    ],
+    "Üsküdar": [
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Acıbadem",
+        "neighborhood_id": "2bec2474-b8fc-4f14-b69d-12f4434553bc",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00017208406345729,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000018
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Ahmediye",
+        "neighborhood_id": "5c47954d-6cb8-4fe3-a5ad-e76750e15ae2",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 2.4616026519991135e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Altunizade",
+        "neighborhood_id": "79e48588-b8bc-45c3-a06f-c9914820165d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001894419071280645,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.999999999999979
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Aziz Mahmut Hüdayi",
+        "neighborhood_id": "00ae3aea-46aa-47d5-b37d-774cfbf624e8",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 3.641204438545389e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000042
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Bahçelievler",
+        "neighborhood_id": "9fed20fa-660a-4bc8-8806-0c99e6bbca7a",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00016927339643002618,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999756234904825
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Barbaros",
+        "neighborhood_id": "d23287f9-2825-49f9-b832-497da6acb855",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00015821013083002394,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Bağlarbaşı",
+        "neighborhood_id": "cb787830-10c0-45b3-9d30-cc605421e10c",
+        "issues": [
+          "('NULL_GEOMETRY', 'neighborhood:Üsküdar/Bağlarbaşı')"
+        ],
+        "is_sliver": null
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Beylerbeyi",
+        "neighborhood_id": "b7e8d69e-1554-440f-ac7a-212ada5a0e45",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00012210133847000428,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Bulgurlu",
+        "neighborhood_id": "15e2b13e-1900-414e-8cb1-38ba888e1f02",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.565279939781987e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9997013597940898
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Burhaniye",
+        "neighborhood_id": "52a9c98c-abed-485a-9b0d-c139b4f7f8a5",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00016576178710501146,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Cumhuriyet",
+        "neighborhood_id": "671be450-b329-4bc1-ae1f-8ed2517f439e",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.199257884070845e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Dumlupınar",
+        "neighborhood_id": "d08c98e5-c6b0-4518-bd18-7b7a74521988",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 1.7022525195834482e-07,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999180902
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Esatpaşa",
+        "neighborhood_id": "feaaab44-ea50-4c6c-b6d6-9fca5db1b0cf",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 1.2893257877309008e-07,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Ferah",
+        "neighborhood_id": "f364aaa5-e217-42b9-8b8f-dd5a6eadcd40",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00011506376401501634,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Güzeltepe",
+        "neighborhood_id": "f8a9f647-1b59-4e04-a7d9-a7a1a6ccec8c",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00010901919041999276,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Hasanpaşa",
+        "neighborhood_id": "c2076675-3c2e-49cb-aaa0-695aeec3ae45",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 1.2849392176340474e-07,
+        "geometry_type": "MultiPolygon",
+        "containment_ratio": 0.9999999999721239
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Kandilli",
+        "neighborhood_id": "b56a3e36-98fc-4259-a3be-936a0c1967bb",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001300197482228887,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Kirazlıtepe",
+        "neighborhood_id": "e3a9cd82-9883-4360-8497-82650f442a38",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 7.403483161000031e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Kuleli",
+        "neighborhood_id": "cae04360-9463-4c92-91f2-e28760572626",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 7.729265827001496e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Kuzguncuk",
+        "neighborhood_id": "f1a3dc52-02f0-4e4c-bfe2-7e3eb6e58bb4",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00016099192820128987,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Küplüce",
+        "neighborhood_id": "b86861a5-4508-49d0-a9f9-64d337be8cc5",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.20361330949865e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000007
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Küçük Çamlıca",
+        "neighborhood_id": "440bcddf-5fd1-4704-b19d-0911297e54cb",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0002605789220849866,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999998
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Küçüksu",
+        "neighborhood_id": "7e7c3e57-da3e-4b3d-b681-f36c7d929aff",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001740184945100142,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999905261496528
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Kısıklı",
+        "neighborhood_id": "2f069fb8-aa1e-4890-92a6-95f197ac80b3",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00016077763851238684,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Mehmet Akif Ersoy",
+        "neighborhood_id": "8b62b95c-ec07-4d77-95a8-e75b1d697783",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00011631884407500251,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000007
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Mimar Sinan",
+        "neighborhood_id": "76fe83d5-acd1-44b3-925c-c9aff80cf5bf",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.4541439726212316e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.999999999999994
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Muratreis",
+        "neighborhood_id": "8772cfde-a1fd-41e2-b98e-801f24718939",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 4.05846793000131e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Salacak",
+        "neighborhood_id": "617a561a-59d4-4241-b274-e9be73144b22",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 4.624793049637671e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000027
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Selami Ali",
+        "neighborhood_id": "6b8d4b04-e9bc-4d58-8d17-23d22f0ab5eb",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 4.7420618380013506e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Selimiye",
+        "neighborhood_id": "478f3f3c-a9f2-45b3-a6da-e162bdb75f5b",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00017617271951004656,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999993
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Sultantepe",
+        "neighborhood_id": "9d6b359b-a172-4503-b0ee-52a281237af6",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.542858009129664e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999866
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Valide-i Atik",
+        "neighborhood_id": "e77ba7dd-4854-4c2a-b645-4286382d83cf",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 4.510647811498688e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Vaniköy",
+        "neighborhood_id": "eafc3171-9002-48bb-b0fa-13e500cb909b",
+        "issues": [
+          "('NULL_GEOMETRY', 'neighborhood:Üsküdar/Vaniköy')"
+        ],
+        "is_sliver": null
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Yavuztürk",
+        "neighborhood_id": "f07b7a8a-c899-4aab-8fc3-c98c4ee896b0",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0001895776209178222,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999890104356698
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Zeynep Kamil",
+        "neighborhood_id": "50fae69e-a45d-44a1-a243-2fa53b200c2d",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 4.059730769501321e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000004
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Çengelköy",
+        "neighborhood_id": "80e0fb3f-1e34-43a2-93bd-e787622892a8",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00017822293882998396,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000007
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "Ünalan",
+        "neighborhood_id": "82e88da9-52e6-4e6b-92aa-8d1b6e699558",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.00016322390271994601,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Üsküdar",
+        "neighborhood": "İcadiye",
+        "neighborhood_id": "b832a94b-f7e1-47e1-8d24-f614231b69c9",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 5.2138921199988105e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999999
+      }
+    ]
+  },
+  "building_fk_mismatches": [],
+  "building_bounds_violations": [],
+  "building_spatial_match": {
+    "Adalar": {
+      "district": "Adalar",
+      "total_buildings": 6147,
+      "invalid_geometry": 0,
+      "correct": 6147,
+      "outside_all_gt_neighborhoods": 0,
+      "remappable_count": 0,
+      "remappable_sample": [],
+      "remappable_all": [],
+      "ambiguous_count": 0,
+      "ambiguous_sample": []
+    },
+    "Ataşehir": {
+      "district": "Ataşehir",
+      "total_buildings": 27181,
+      "invalid_geometry": 0,
+      "correct": 27181,
+      "outside_all_gt_neighborhoods": 0,
+      "remappable_count": 0,
+      "remappable_sample": [],
+      "remappable_all": [],
+      "ambiguous_count": 0,
+      "ambiguous_sample": []
+    },
+    "Beykoz": {
+      "district": "Beykoz",
+      "total_buildings": 34230,
+      "invalid_geometry": 0,
+      "correct": 34230,
+      "outside_all_gt_neighborhoods": 0,
+      "remappable_count": 0,
+      "remappable_sample": [],
+      "remappable_all": [],
+      "ambiguous_count": 0,
+      "ambiguous_sample": []
+    },
+    "Çekmeköy": {
+      "district": "Çekmeköy",
+      "total_buildings": 13657,
+      "invalid_geometry": 0,
+      "correct": 13657,
+      "outside_all_gt_neighborhoods": 0,
+      "remappable_count": 0,
+      "remappable_sample": [],
+      "remappable_all": [],
+      "ambiguous_count": 0,
+      "ambiguous_sample": []
+    },
+    "Kadıköy": {
+      "district": "Kadıköy",
+      "total_buildings": 20034,
+      "invalid_geometry": 0,
+      "correct": 20032,
+      "outside_all_gt_neighborhoods": 2,
+      "remappable_count": 0,
+      "remappable_sample": [],
+      "remappable_all": [],
+      "ambiguous_count": 0,
+      "ambiguous_sample": []
+    },
+    "Kartal": {
+      "district": "Kartal",
+      "total_buildings": 24519,
+      "invalid_geometry": 0,
+      "correct": 24519,
+      "outside_all_gt_neighborhoods": 0,
+      "remappable_count": 0,
+      "remappable_sample": [],
+      "remappable_all": [],
+      "ambiguous_count": 0,
+      "ambiguous_sample": []
+    },
+    "Maltepe": {
+      "district": "Maltepe",
+      "total_buildings": 25955,
+      "invalid_geometry": 0,
+      "correct": 25955,
+      "outside_all_gt_neighborhoods": 0,
+      "remappable_count": 0,
+      "remappable_sample": [],
+      "remappable_all": [],
+      "ambiguous_count": 0,
+      "ambiguous_sample": []
+    },
+    "Pendik": {
+      "district": "Pendik",
+      "total_buildings": 20710,
+      "invalid_geometry": 0,
+      "correct": 20710,
+      "outside_all_gt_neighborhoods": 0,
+      "remappable_count": 0,
+      "remappable_sample": [],
+      "remappable_all": [],
+      "ambiguous_count": 0,
+      "ambiguous_sample": []
+    },
+    "Sancaktepe": {
+      "district": "Sancaktepe",
+      "total_buildings": 27918,
+      "invalid_geometry": 0,
+      "correct": 27918,
+      "outside_all_gt_neighborhoods": 0,
+      "remappable_count": 0,
+      "remappable_sample": [],
+      "remappable_all": [],
+      "ambiguous_count": 0,
+      "ambiguous_sample": []
+    },
+    "Sultanbeyli": {
+      "district": "Sultanbeyli",
+      "total_buildings": 30951,
+      "invalid_geometry": 0,
+      "correct": 30951,
+      "outside_all_gt_neighborhoods": 0,
+      "remappable_count": 0,
+      "remappable_sample": [],
+      "remappable_all": [],
+      "ambiguous_count": 0,
+      "ambiguous_sample": []
+    },
+    "Şile": {
+      "district": "Şile",
+      "total_buildings": 8413,
+      "invalid_geometry": 0,
+      "correct": 8413,
+      "outside_all_gt_neighborhoods": 0,
+      "remappable_count": 0,
+      "remappable_sample": [],
+      "remappable_all": [],
+      "ambiguous_count": 0,
+      "ambiguous_sample": []
+    },
+    "Tuzla": {
+      "district": "Tuzla",
+      "total_buildings": 19825,
+      "invalid_geometry": 0,
+      "correct": 19825,
+      "outside_all_gt_neighborhoods": 0,
+      "remappable_count": 0,
+      "remappable_sample": [],
+      "remappable_all": [],
+      "ambiguous_count": 0,
+      "ambiguous_sample": []
+    },
+    "Ümraniye": {
+      "district": "Ümraniye",
+      "total_buildings": 31821,
+      "invalid_geometry": 0,
+      "correct": 31821,
+      "outside_all_gt_neighborhoods": 0,
+      "remappable_count": 0,
+      "remappable_sample": [],
+      "remappable_all": [],
+      "ambiguous_count": 0,
+      "ambiguous_sample": []
+    },
+    "Üsküdar": {
+      "district": "Üsküdar",
+      "total_buildings": 26229,
+      "invalid_geometry": 0,
+      "correct": 26229,
+      "outside_all_gt_neighborhoods": 0,
+      "remappable_count": 0,
+      "remappable_sample": [],
+      "remappable_all": [],
+      "ambiguous_count": 0,
+      "ambiguous_sample": []
+    }
+  }
+}

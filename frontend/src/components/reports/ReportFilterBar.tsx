@@ -4,6 +4,7 @@ import { getDistricts, getNeighborhoodsByDistrict } from '@/api/districts.api';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui';
 import { FileBarChart2, Lock } from 'lucide-react';
+import { sortByNameTr } from '@/utils/turkishSort';
 
 export interface ReportFilterValue {
     districtId?: string;
@@ -89,7 +90,7 @@ export const ReportFilterBar: React.FC<Props> = ({ value, onChange, onGenerate, 
                             className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-brand-500 min-w-[10rem]"
                         >
                             <option value="">Tüm İlçeler (Sistem)</option>
-                            {districts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                            {sortByNameTr(districts).map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
                         </select>
                     )}
                 </div>
@@ -111,7 +112,7 @@ export const ReportFilterBar: React.FC<Props> = ({ value, onChange, onGenerate, 
                             className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-brand-500 focus:ring-brand-500 disabled:opacity-50 min-w-[10rem]"
                         >
                             <option value="">{effectiveDistrictId ? 'Tüm Mahalleler' : 'Önce ilçe seçin'}</option>
-                            {neighborhoods.map((n) => <option key={n.id} value={n.id}>{n.name}</option>)}
+                            {sortByNameTr(neighborhoods).map((n) => <option key={n.id} value={n.id}>{n.name}</option>)}
                         </select>
                     )}
                 </div>
