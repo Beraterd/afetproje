@@ -138,7 +138,7 @@ app:
     # Virgülle ayrılmış District.name listesi — 3B bina katmanının aktif olduğu ilçelerin TEK
     # doğruluk kaynağı, kod içinde district hardcode edilmemeli. Yalnızca gerçekten import
     # edilip doğrulanmış ilçeler burada olmalı (bkz. GET /api/admin/buildings/import-status).
-    enabled-districts: ${BUILDING3D_ENABLED_DISTRICTS:Pendik,Kadıköy,Kartal}
+    enabled-districts: ${BUILDING3D_ENABLED_DISTRICTS:Pendik,Kadıköy,Kartal,Beykoz,Adalar,Ataşehir,Çekmeköy,Maltepe,Sancaktepe,Sultanbeyli,Şile,Tuzla,Ümraniye,Üsküdar}
     level-height-m: ${BUILDING3D_LEVEL_HEIGHT_M:3.0}
     fallback-height-m: ${BUILDING3D_FALLBACK_HEIGHT_M:6.0}
     building-min-zoom: ${BUILDING3D_BUILDING_MIN_ZOOM:15}
