@@ -15,7 +15,7 @@
     "Ümraniye",
     "Üsküdar"
   ],
-  "generated_at": "2026-08-13T19:07:53",
+  "generated_at": "2026-08-13T20:43:56",
   "district_geometry": {
     "Adalar": {
       "district": "Adalar",
@@ -4450,8 +4450,8 @@
       "district": "Kadıköy",
       "total_buildings": 20034,
       "invalid_geometry": 0,
-      "correct": 20032,
-      "outside_all_gt_neighborhoods": 2,
+      "correct": 20034,
+      "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
       "remappable_all": [],

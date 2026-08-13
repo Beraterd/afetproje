@@ -269,9 +269,26 @@ def audit_building_bounds_sanity(district_names: list[str]) -> list[dict]:
 
 def audit_building_spatial_match(district_name: str, ground_truth: dict, db_neighborhoods: list[dict]) -> dict:
     """For one district: build an STRtree from the FRESH OSM neighborhood
-    polygons (ground truth), then test every building's stored geometry's
-    representative_point against it. Compares against building.neighborhoodId
-    (by name, since ground-truth polygons aren't persisted with DB IDs)."""
+    polygons (ground truth), then test every building's point against it.
+    Compares against building.neighborhoodId (by name, since ground-truth
+    polygons aren't persisted with DB IDs).
+
+    IMPORTANT: the test point is the building's stored (latitude, longitude)
+    — i.e. Shapely's `.centroid` of the building polygon, rounded to 7
+    decimals — NOT `.representative_point()`. This matters: it is the exact
+    point scripts/fetch_district_buildings.py used at import time
+    (`centroid = poly.centroid`) to decide which neighborhood a building
+    belongs to, so re-deriving that same decision against a fresh boundary
+    fetch is only an apples-to-apples check if the same point is used.
+    representative_point() and centroid() usually agree, but for a building
+    sitting within ~20m of a neighborhood boundary line they can land on
+    opposite sides of it — an earlier run of this script used
+    representative_point() and produced 6 false-positive
+    "wrong neighborhood" findings across 313k buildings for exactly this
+    reason (verified by hand: switching to centroid/stored-lat-lon made all
+    6 resolve to "correct" against the same fresh ground truth). Buildings
+    with invalid geometry fall back to the stored lat/lon directly, which
+    is the same point either way."""
     if ground_truth is None:
         return {"district": district_name, "skipped": "no ground truth (OSM fetch failed)"}
 
@@ -322,10 +339,10 @@ def audit_building_spatial_match(district_name: str, ground_truth: dict, db_neig
         if geom is None:
             invalid_geom += 1
             continue
-        try:
-            pt = geom.representative_point()
-        except Exception:
-            pt = Point(float(r["longitude"]), float(r["latitude"]))
+        # Primary point: the building's stored centroid (lat/lon), matching
+        # exactly what BuildingImportService/fetch_district_buildings.py
+        # used to decide neighborhood membership at import time.
+        pt = Point(float(r["longitude"]), float(r["latitude"]))
 
         assigned_norm = norm(r["assigned_neighborhood"])
         candidate_idxs = tree.query(pt)
