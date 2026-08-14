@@ -26,7 +26,7 @@
     "Şişli",
     "Zeytinburnu"
   ],
-  "generated_at": "2026-08-14T19:44:48",
+  "generated_at": "2026-08-15T00:45:57",
   "district_geometry": {
     "Arnavutköy": {
       "district": "Arnavutköy",
@@ -426,6 +426,16 @@
         "area_deg2": 0.00016756035446000803,
         "geometry_type": "Polygon",
         "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Arnavutköy",
+        "neighborhood": "Arnavutköy Merkez",
+        "neighborhood_id": "f11edee4-bd42-4712-9692-237dc7dc293f",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0007274828515550051,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000007
       },
       {
         "district": "Arnavutköy",
@@ -870,6 +880,16 @@
       },
       {
         "district": "Avcılar",
+        "neighborhood": "Merkez",
+        "neighborhood_id": "9856bd33-f30c-459c-8bfb-7a8282aba298",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.146261224002051e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
+      },
+      {
+        "district": "Avcılar",
         "neighborhood": "Mustafa Kemal Paşa",
         "neighborhood_id": "d1dd6040-c7a1-46c9-8e07-7a94d68ca157",
         "issues": [],
@@ -1079,6 +1099,16 @@
         "area_deg2": 1.5004573829325522e-07,
         "geometry_type": "MultiPolygon",
         "containment_ratio": 1.0000000000000042
+      },
+      {
+        "district": "Bağcılar",
+        "neighborhood": "Merkez",
+        "neighborhood_id": "4403e405-ebed-4568-bf47-a8d141fa1693",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.155033783104728e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999996
       },
       {
         "district": "Bağcılar",
@@ -3125,12 +3155,13 @@
       },
       {
         "district": "Çatalca",
-        "neighborhood": "Karacaköy",
+        "neighborhood": "Karacaköy Merkez",
         "neighborhood_id": "4871b2af-9b7e-4213-a75b-1a5fee86a575",
-        "issues": [
-          "('NULL_GEOMETRY', 'neighborhood:Çatalca/Karacaköy')"
-        ],
-        "is_sliver": null
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.007302881208244907,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
       },
       {
         "district": "Çatalca",
@@ -3161,6 +3192,16 @@
         "area_deg2": 0.0012684592075238076,
         "geometry_type": "Polygon",
         "containment_ratio": 1.000000000000001
+      },
+      {
+        "district": "Çatalca",
+        "neighborhood": "Muratbey Merkez",
+        "neighborhood_id": "e24e49c1-b39a-4a84-84a5-9c765a662bd8",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.0020331041511209534,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
       },
       {
         "district": "Çatalca",
@@ -3812,6 +3853,16 @@
       },
       {
         "district": "Esenyurt",
+        "neighborhood": "Merkez",
+        "neighborhood_id": "7a7ff6ad-5567-4fad-b3b9-1fde481fc543",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 6.431693217500094e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0
+      },
+      {
+        "district": "Esenyurt",
         "neighborhood": "Mevlana",
         "neighborhood_id": "4876c4be-1ae7-414e-97f0-5c446c0dbb19",
         "issues": [],
@@ -4164,12 +4215,13 @@
       },
       {
         "district": "Eyüpsultan",
-        "neighborhood": "Göktürk",
+        "neighborhood": "Göktürk Merkez",
         "neighborhood_id": "5b94346e-8b3d-4b84-aff9-38bbe11b3ccf",
-        "issues": [
-          "('NULL_GEOMETRY', 'neighborhood:Eyüpsultan/Göktürk')"
-        ],
-        "is_sliver": null
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 0.002932254841085015,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999997
       },
       {
         "district": "Eyüpsultan",
@@ -5083,6 +5135,16 @@
       },
       {
         "district": "Gaziosmanpaşa",
+        "neighborhood": "Merkez",
+        "neighborhood_id": "c3ca3972-ad34-475f-9c0d-08ffa111bb9f",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 9.096960086381906e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 0.9999999999999277
+      },
+      {
+        "district": "Gaziosmanpaşa",
         "neighborhood": "Mevlana",
         "neighborhood_id": "459c8d1b-2e07-4023-a088-8df99eebe26d",
         "issues": [],
@@ -5242,6 +5304,16 @@
         "area_deg2": 0.0001032778689296871,
         "geometry_type": "Polygon",
         "containment_ratio": 1.0
+      },
+      {
+        "district": "Güngören",
+        "neighborhood": "Merkez",
+        "neighborhood_id": "a0f766ad-f81b-47e6-88fc-41f2579d50c1",
+        "issues": [],
+        "is_sliver": false,
+        "area_deg2": 8.464263392499544e-05,
+        "geometry_type": "Polygon",
+        "containment_ratio": 1.0000000000000002
       },
       {
         "district": "Güngören",
@@ -7145,9 +7217,9 @@
   "building_spatial_match": {
     "Arnavutköy": {
       "district": "Arnavutköy",
-      "total_buildings": 0,
+      "total_buildings": 5661,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 5661,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7157,9 +7229,9 @@
     },
     "Avcılar": {
       "district": "Avcılar",
-      "total_buildings": 0,
+      "total_buildings": 19512,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 19512,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7169,9 +7241,9 @@
     },
     "Bağcılar": {
       "district": "Bağcılar",
-      "total_buildings": 0,
+      "total_buildings": 23427,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 23427,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7181,9 +7253,9 @@
     },
     "Bahçelievler": {
       "district": "Bahçelievler",
-      "total_buildings": 0,
+      "total_buildings": 10940,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 10940,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7193,9 +7265,9 @@
     },
     "Bakırköy": {
       "district": "Bakırköy",
-      "total_buildings": 0,
+      "total_buildings": 8373,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 8373,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7205,9 +7277,9 @@
     },
     "Başakşehir": {
       "district": "Başakşehir",
-      "total_buildings": 0,
+      "total_buildings": 15986,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 15986,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7217,9 +7289,9 @@
     },
     "Bayrampaşa": {
       "district": "Bayrampaşa",
-      "total_buildings": 0,
+      "total_buildings": 17616,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 17616,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7229,9 +7301,9 @@
     },
     "Beşiktaş": {
       "district": "Beşiktaş",
-      "total_buildings": 0,
+      "total_buildings": 8838,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 8838,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7241,9 +7313,9 @@
     },
     "Beylikdüzü": {
       "district": "Beylikdüzü",
-      "total_buildings": 0,
+      "total_buildings": 5315,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 5315,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7253,9 +7325,9 @@
     },
     "Beyoğlu": {
       "district": "Beyoğlu",
-      "total_buildings": 0,
+      "total_buildings": 10935,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 10935,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7265,9 +7337,9 @@
     },
     "Büyükçekmece": {
       "district": "Büyükçekmece",
-      "total_buildings": 0,
+      "total_buildings": 17390,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 17390,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7277,9 +7349,9 @@
     },
     "Çatalca": {
       "district": "Çatalca",
-      "total_buildings": 0,
+      "total_buildings": 5430,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 5430,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7289,9 +7361,9 @@
     },
     "Esenler": {
       "district": "Esenler",
-      "total_buildings": 0,
+      "total_buildings": 21699,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 21699,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7301,9 +7373,9 @@
     },
     "Esenyurt": {
       "district": "Esenyurt",
-      "total_buildings": 0,
+      "total_buildings": 22620,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 22620,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7313,9 +7385,9 @@
     },
     "Eyüpsultan": {
       "district": "Eyüpsultan",
-      "total_buildings": 0,
+      "total_buildings": 24504,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 24504,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7325,9 +7397,9 @@
     },
     "Fatih": {
       "district": "Fatih",
-      "total_buildings": 0,
+      "total_buildings": 30739,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 30739,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7337,9 +7409,9 @@
     },
     "Gaziosmanpaşa": {
       "district": "Gaziosmanpaşa",
-      "total_buildings": 0,
+      "total_buildings": 26928,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 26928,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7349,9 +7421,9 @@
     },
     "Güngören": {
       "district": "Güngören",
-      "total_buildings": 0,
+      "total_buildings": 10683,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 10683,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7361,9 +7433,9 @@
     },
     "Kağıthane": {
       "district": "Kağıthane",
-      "total_buildings": 0,
+      "total_buildings": 16857,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 16857,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7373,9 +7445,9 @@
     },
     "Küçükçekmece": {
       "district": "Küçükçekmece",
-      "total_buildings": 0,
+      "total_buildings": 25696,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 25696,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7385,9 +7457,9 @@
     },
     "Sarıyer": {
       "district": "Sarıyer",
-      "total_buildings": 0,
+      "total_buildings": 17757,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 17757,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7397,9 +7469,9 @@
     },
     "Silivri": {
       "district": "Silivri",
-      "total_buildings": 0,
+      "total_buildings": 16093,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 16093,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7409,9 +7481,9 @@
     },
     "Sultangazi": {
       "district": "Sultangazi",
-      "total_buildings": 0,
+      "total_buildings": 34556,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 34556,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7421,9 +7493,9 @@
     },
     "Şişli": {
       "district": "Şişli",
-      "total_buildings": 0,
+      "total_buildings": 8793,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 8793,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],
@@ -7433,9 +7505,9 @@
     },
     "Zeytinburnu": {
       "district": "Zeytinburnu",
-      "total_buildings": 0,
+      "total_buildings": 13940,
       "invalid_geometry": 0,
-      "correct": 0,
+      "correct": 13940,
       "outside_all_gt_neighborhoods": 0,
       "remappable_count": 0,
       "remappable_sample": [],

@@ -62,6 +62,23 @@ LEVEL_HEIGHT_M_DEFAULT = 3.0  # kept in sync conceptually with backend app.build
                                # the script does NOT precompute estimatedHeightM/heightSource —
                                # the backend importer does, using its own configurable constant.
 
+# Canonical District.name -> the exact OSM `name` tag value, for districts where they differ.
+# Used ONLY to build Overpass query strings (rel["name"=...]/area["name"=...]); every other use
+# of the district name (ndjson displayAddress, DB lookups, neighborhoodName matching) keeps the
+# canonical name unchanged. Discovered case: OSM's admin_level=6 relation for Kağıthane
+# (relation 1765894) is tagged with the old orthography name="Kâğıthane" (circumflex â), not the
+# modern "Kağıthane" this app and Turkey's official TÜİK/İçişleri Bakanlığı sources use — an
+# exact-name Overpass query for "Kağıthane" legitimately returns zero relations. Add further
+# entries here if another district is found with the same kind of OSM/canonical name mismatch;
+# this is intentionally a lookup table, not a per-district branch in the fetch logic.
+OSM_NAME_ALIASES = {
+    "Kağıthane": "Kâğıthane",
+}
+
+
+def osm_query_name(district_name: str) -> str:
+    return OSM_NAME_ALIASES.get(district_name, district_name)
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 OUT_DIR = os.path.join(PROJECT_ROOT, "backend", "src", "main", "resources", "data", "buildings")
@@ -184,10 +201,11 @@ def norm(name: str) -> str:
 
 # ---------------------------------------------------------------------------
 def fetch_district_polygon(name: str):
+    query_name = osm_query_name(name)
     q = (f'[out:json][timeout:90];\n'
-         f'rel["name"="{name}"]["admin_level"="6"]["boundary"="administrative"];\n'
+         f'rel["name"="{query_name}"]["admin_level"="6"]["boundary"="administrative"];\n'
          'out geom;')
-    log(f"Fetching district polygon: {name}")
+    log(f"Fetching district polygon: {name}" + (f" (OSM name: {query_name})" if query_name != name else ""))
     data = overpass(q, timeout=90)
     rels = [e for e in data.get("elements", []) if e["type"] == "relation"]
     if not rels: raise RuntimeError(f"No OSM relation found for district '{name}'")
@@ -253,8 +271,9 @@ def fetch_neighborhoods(district_name: str, district_shape) -> list:
     return results
 
 def fetch_buildings(district_name: str) -> list:
+    query_name = osm_query_name(district_name)
     q = (f'[out:json][timeout:400];\n'
-         f'area["name"="{district_name}"]["admin_level"="6"]["boundary"="administrative"]->.a;\n'
+         f'area["name"="{query_name}"]["admin_level"="6"]["boundary"="administrative"]->.a;\n'
          f'way(area.a)["building"];\n'
          'out geom;')
     log(f"Fetching buildings for {district_name} (this can take several minutes)...")
