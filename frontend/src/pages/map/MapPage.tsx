@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useMemo, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
@@ -55,6 +55,26 @@ export const MapPage: React.FC = () => {
     // WebGL yoksa BuildingMap (maplibre-gl) hiç mount edilmez — Leaflet OperationMap'e düşer,
     // bkz. is3dActive aşağıda. Cihaz ömrü boyunca sabit olduğundan bir kez hesaplanır.
     const webglOk = useMemo(() => isWebglSupported(), []);
+
+    // ── maplibre-gl (~900kB) chunk'ını tarayıcı boştayken önceden ısıt ──
+    // Kullanıcı bir mahalleye tıklayıp BuildingMap'in Suspense fallback'ine düşene kadar bu
+    // chunk hiç indirilmemiş olabilir — ilk indirme+parse+WebGL init o anda senkron bir
+    // gecikme/kasma olarak hissedilir ("ilk 3B görünüm yüklenirken kasma"). requestIdleCallback
+    // ile sayfa açılışının/ilk boyamanın ARKASINDAN, tarayıcı asıl işini bitirdikten sonra
+    // indirmeyi tetikleriz — map initialization'ı geciktirmez (bkz. kural H), yalnızca
+    // kullanıcı mahalleye gerçekten tıkladığında chunk çoktan cache'te olur. WebGL yoksa hiç
+    // tetiklenmez (o cihazda 3B asla açılmayacak, boşuna bant genişliği harcanmasın).
+    useEffect(() => {
+        if (!webglOk) return;
+        const prefetch = () => { void import('@/components/map/BuildingMap'); };
+        const ric = (window as any).requestIdleCallback as ((cb: () => void) => number) | undefined;
+        if (ric) {
+            const id = ric(prefetch);
+            return () => (window as any).cancelIdleCallback?.(id);
+        }
+        const timeoutId = window.setTimeout(prefetch, 2000);
+        return () => window.clearTimeout(timeoutId);
+    }, [webglOk]);
 
     // Rol default'u yalnızca ilk mount'ta hesaplanır — kullanıcı layer'ları değiştirdikten
     // sonra sayfa içindeki başka bir re-render bunu resetlemez (bkz. #17).

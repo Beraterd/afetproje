@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useDeferredValue, useEffect, useMemo } from 'react';
 import { GeoJSON, MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -69,6 +69,15 @@ export const OperationMap: React.FC<OperationMapProps> = ({
         [districts],
     );
 
+    // İlçe/mahalle sınır poligonları (Leaflet <GeoJSON>, ~550KB toplam koordinat verisi) her
+    // ilçenin en az bir tanesi büyük/kıyı şeridi ağırlıklı olduğundan (Şile/Çatalca/Beykoz
+    // >45KB) senkron parse+SVG path üretimi tek bir commit'te ana thread'i bloklayabilir.
+    // useDeferredValue bu ağır katmanın render'ını düşük öncelikli/kesilebilir bir geçişe
+    // taşır — nihai görünüm birebir aynı kalır, yalnızca haritanın ilk etkileşimli hale gelmesi
+    // (taban tile + kontroller) bu senkron işin arkasında beklemek zorunda kalmaz.
+    const deferredDistrictsWithPolygon = useDeferredValue(districtsWithPolygon);
+    const deferredNeighborhoods = useDeferredValue(neighborhoods);
+
     return (
         <MapContainer center={[41.0082, 28.9784]} zoom={10} className="w-full h-full">
             <TileLayer
@@ -78,7 +87,7 @@ export const OperationMap: React.FC<OperationMapProps> = ({
             <MapBoundsController bounds={activeBounds} />
 
             {/* ── Risk layer: District polygons ── */}
-            {layers.risk && !activeDistrictId && districtsWithPolygon.map((district) => (
+            {layers.risk && !activeDistrictId && deferredDistrictsWithPolygon.map((district) => (
                 <GeoJSON
                     key={district.id + '-' + district.riskColor}
                     data={toFeature(district.polygon)}
@@ -91,7 +100,7 @@ export const OperationMap: React.FC<OperationMapProps> = ({
             ))}
 
             {/* ── Risk layer: Neighborhood polygons ── */}
-            {layers.risk && activeDistrictId && neighborhoods?.map((nb) => {
+            {layers.risk && activeDistrictId && deferredNeighborhoods?.map((nb) => {
                 if (!nb.polygon) return null;
                 const isActive = nb.id === activeNeighborhoodId;
                 return (
