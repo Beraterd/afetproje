@@ -24,13 +24,7 @@ import { queryKeys } from '@/utils/queryKeys';
 import type { BuildingColorMode } from './BuildingColorModeControl';
 import { buildFillColorExpression, buildFillOpacityExpression, buildHeightExpression } from './buildingColorExpressions';
 import { BuildingMapDebugPanel } from './BuildingMapDebugPanel';
-
-// Mevcut 2B haritayla (OperationMap.tsx) aynı basemap kaynağı — tutarlı görünüm ve
-// zaten doğrulanmış attribution için.
-const TILE_URL_TEMPLATE =
-    import.meta.env.VITE_MAP_TILE_URL || 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-const TILE_ATTRIBUTION =
-    import.meta.env.VITE_MAP_ATTRIBUTION || '&copy; OpenStreetMap contributors &copy; CARTO';
+import { MAP_RASTER_TILE_URLS, MAP_TILE_ATTRIBUTION } from '@/config/mapTiles';
 
 const BUILDINGS_SOURCE_ID = 'buildings';
 const BUILDINGS_FILL_LAYER_ID = 'buildings-fill';
@@ -159,14 +153,15 @@ export const BuildingMap: React.FC<BuildingMapProps> = ({
             style: {
                 version: 8,
                 sources: {
-                    'carto-basemap': {
+                    'basemap': {
                         type: 'raster',
-                        tiles: ['a', 'b', 'c', 'd'].map((s) => TILE_URL_TEMPLATE.replace('{s}', s)),
+                        tiles: MAP_RASTER_TILE_URLS,
                         tileSize: 256,
-                        attribution: TILE_ATTRIBUTION,
+                        maxzoom: 19,
+                        attribution: MAP_TILE_ATTRIBUTION,
                     },
                 },
-                layers: [{ id: 'carto-basemap-layer', type: 'raster', source: 'carto-basemap' }],
+                layers: [{ id: 'basemap-layer', type: 'raster', source: 'basemap' }],
             },
             pitch: MAP3D_CAMERA.pitch,
             bearing: MAP3D_CAMERA.bearing,

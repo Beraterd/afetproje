@@ -29,7 +29,7 @@ This guide describes how to run the Istanbul Disaster Coordination Platform Fron
    The default configurations should look like this:
    ```env
    VITE_API_BASE_URL=http://localhost:8080
-   VITE_MAP_TILE_URL=https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png
+   VITE_MAP_TILE_URL=https://tile.openstreetmap.org/{z}/{x}/{y}.png
    VITE_MAP_ATTRIBUTION="&copy; OpenStreetMap contributors"
    VITE_SESSION_STORAGE_KEY=afet_coord_rt
    ```

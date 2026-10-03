@@ -48,7 +48,7 @@ export default defineConfig(({ mode }) => {
                     runtimeCaching: [
                         {
                             // OpenStreetMap tiles — cache-first, 7-day TTL, 500 tiles max
-                            urlPattern: /^https:\/\/[abc]\.tile\.openstreetmap\.org\//,
+                            urlPattern: /^https:\/\/tile\.openstreetmap\.org\//,
                             handler: 'CacheFirst',
                             options: {
                                 cacheName: 'osm-tiles',

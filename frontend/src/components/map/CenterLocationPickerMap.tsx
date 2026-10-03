@@ -8,6 +8,7 @@
  * Used for both district and neighborhood coordination center forms.
  */
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { MAP_TILE_URL, MAP_TILE_ATTRIBUTION } from '@/config/mapTiles';
 import { MapContainer, TileLayer, Marker, GeoJSON, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -209,8 +210,8 @@ export const CenterLocationPickerMap: React.FC<CenterLocationPickerMapProps> = (
                     zoomControl={true}
                 >
                     <TileLayer
-                        attribution="&copy; OpenStreetMap contributors"
-                        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                        attribution={MAP_TILE_ATTRIBUTION}
+                        url={MAP_TILE_URL}
                     />
 
                     {mapCenter && <MapRecenterer center={mapCenter} zoom={hasPosition ? 15 : 13} />}

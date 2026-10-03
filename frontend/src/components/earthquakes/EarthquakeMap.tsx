@@ -1,4 +1,5 @@
 import React from 'react';
+import { MAP_TILE_URL, MAP_TILE_ATTRIBUTION } from '@/config/mapTiles';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import { EarthquakeEventResponse, EarthquakeRiskLevel } from '@/types';
 import { SOURCE_BADGE_CLASSES, SOURCE_LABELS } from '@/utils/earthquakeSourceLabels';
@@ -24,8 +25,8 @@ export const EarthquakeMap: React.FC<EarthquakeMapProps> = ({ points }) => {
         <div className="glass-card overflow-hidden" style={{ height: 360 }} data-testid="earthquake-map">
             <MapContainer center={[39.0, 35.0]} zoom={6} className="w-full h-full">
                 <TileLayer
-                    attribution="&copy; OpenStreetMap contributors"
-                    url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                    attribution={MAP_TILE_ATTRIBUTION}
+                    url={MAP_TILE_URL}
                 />
                 {points.map((eq) => (
                     <CircleMarker

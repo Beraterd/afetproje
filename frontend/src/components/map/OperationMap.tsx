@@ -1,4 +1,5 @@
 import React, { useDeferredValue, useEffect, useMemo } from 'react';
+import { MAP_TILE_URL, MAP_TILE_ATTRIBUTION } from '@/config/mapTiles';
 import { GeoJSON, MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -81,8 +82,8 @@ export const OperationMap: React.FC<OperationMapProps> = ({
     return (
         <MapContainer center={[41.0082, 28.9784]} zoom={10} className="w-full h-full">
             <TileLayer
-                attribution={import.meta.env.VITE_MAP_ATTRIBUTION || '&copy; OpenStreetMap contributors'}
-                url={import.meta.env.VITE_MAP_TILE_URL || 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'}
+                attribution={MAP_TILE_ATTRIBUTION}
+                url={MAP_TILE_URL}
             />
             <MapBoundsController bounds={activeBounds} />
 

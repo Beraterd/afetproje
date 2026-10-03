@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MAP_TILE_URL, MAP_TILE_ATTRIBUTION } from '@/config/mapTiles';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
     listNeighborhoodCoordinators,
@@ -107,8 +108,8 @@ const LocationPickerModal: React.FC<{
                         className="w-full h-full"
                     >
                         <TileLayer
-                            attribution="&copy; OpenStreetMap contributors"
-                            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                            attribution={MAP_TILE_ATTRIBUTION}
+                            url={MAP_TILE_URL}
                         />
                         <MapClickHandler onLocationSelected={handleLocationSelected} />
                         {pickedLat !== null && pickedLng !== null && (

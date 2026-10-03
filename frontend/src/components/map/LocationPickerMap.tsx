@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { MAP_TILE_URL, MAP_TILE_ATTRIBUTION } from '@/config/mapTiles';
 import { MapContainer, TileLayer, Marker, GeoJSON, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -227,8 +228,8 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
                     zoomControl={true}
                 >
                     <TileLayer
-                        attribution="&copy; OpenStreetMap contributors"
-                        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                        attribution={MAP_TILE_ATTRIBUTION}
+                        url={MAP_TILE_URL}
                     />
 
                     {/* Mahalle değişince haritayı yeni merkeze taşı */}
