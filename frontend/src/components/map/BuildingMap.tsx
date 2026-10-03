@@ -39,6 +39,11 @@ const SELECTED_LAYER_ID = 'buildings-selected-outline';
 const BOUNDARY_SOURCE_ID = 'neighborhood-boundary';
 const BOUNDARY_FILL_LAYER_ID = 'neighborhood-boundary-fill';
 const BOUNDARY_LINE_LAYER_ID = 'neighborhood-boundary-line';
+// Sokak arama seçimi vurgusu — bina anahat rengi (#2563eb, mavi) ve mahalle sınırı rengi
+// (#0f766e, teal) ile karışmasın diye ayrı, belirgin bir ton (item 24).
+const STREET_HIGHLIGHT_SOURCE_ID = 'street-highlight';
+const STREET_HIGHLIGHT_LAYER_ID = 'street-highlight-line';
+const STREET_HIGHLIGHT_COLOR = '#d97706';
 
 const EMPTY_COLLECTION: BuildingFeatureCollection = { type: 'FeatureCollection', features: [] };
 
@@ -46,6 +51,14 @@ export interface FlyToTarget {
     lat: number;
     lon: number;
     /** Aynı binaya ikinci kez uçuş isteğini de tetiklemek için artan sayaç. */
+    token: number;
+}
+
+export interface StreetFlyToTarget {
+    /** [minLon, minLat, maxLon, maxLat] — seçili mahalleye zaten clip edilmiş sokak segmenti. */
+    bounds: [number, number, number, number];
+    center: { lon: number; lat: number };
+    /** Aynı sokağa ikinci kez uçuş isteğini de tetiklemek için artan sayaç. */
     token: number;
 }
 
@@ -78,6 +91,12 @@ interface BuildingMapProps {
     colorMode?: BuildingColorMode;
     /** Seçili mahallenin sınır geometrisi — belirgin outline + hafif dolgu olarak çizilir. */
     neighborhoodBoundary?: GeoJSON.Geometry | null;
+    /** Arama sonucundan seçilen sokağın anahat vurgusu için geometrisi (LineString/
+     *  MultiLineString) — yalnızca görsel amaçlı, id state'i üst bileşende tutulur. */
+    selectedStreetGeometry?: GeoJSON.Geometry | null;
+    /** Sokak arama sonucundan uçuş — mevcut bina flyTo'sundan farklı olarak pitch/bearing'i
+     *  ZORLAMAZ (mevcut kamera açısını korur, item 27/28), bounds tabanlıdır (item 21/23). */
+    streetFlyTo?: StreetFlyToTarget | null;
 }
 
 /** 3B bina katmanı — kendi viewport (bbox) sorgusunu kendi yönetir (bkz.
@@ -102,6 +121,8 @@ export const BuildingMap: React.FC<BuildingMapProps> = ({
     flyTo,
     colorMode = 'damage',
     neighborhoodBoundary = null,
+    selectedStreetGeometry = null,
+    streetFlyTo = null,
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<MaplibreMap | null>(null);
@@ -254,6 +275,18 @@ export const BuildingMap: React.FC<BuildingMapProps> = ({
                 paint: { 'line-color': '#2563eb', 'line-width': 3.5 },
             });
 
+            // Sokak vurgusu — seçili bina anahattıyla aynı desende ayrı source/layer (bkz. o
+            // layer'ın yorumu), extrusion'dan SONRA eklenir ki uzun binaların arkasında
+            // kaybolmasın (aynı derinlik-tamponu gerekçesi, bkz. BOUNDARY_LINE_LAYER_ID yorumu).
+            map.addSource(STREET_HIGHLIGHT_SOURCE_ID, { type: 'geojson', data: EMPTY_COLLECTION });
+            map.addLayer({
+                id: STREET_HIGHLIGHT_LAYER_ID,
+                type: 'line',
+                source: STREET_HIGHLIGHT_SOURCE_ID,
+                paint: { 'line-color': STREET_HIGHLIGHT_COLOR, 'line-width': 5, 'line-opacity': 0.85 },
+                layout: { 'line-cap': 'round', 'line-join': 'round' },
+            });
+
             map.on('click', BUILDINGS_FILL_LAYER_ID, (e: MapLayerMouseEvent) => {
                 const feature = e.features?.[0];
                 const id = feature?.properties?.id as string | undefined;
@@ -327,6 +360,23 @@ export const BuildingMap: React.FC<BuildingMapProps> = ({
         }
     }, [selectedBuildingGeometry]);
 
+    // ── Seçili sokak anahat vurgusu ──
+    useEffect(() => {
+        const map = mapRef.current;
+        if (!map || !loadedRef.current) return;
+        const source = map.getSource(STREET_HIGHLIGHT_SOURCE_ID) as GeoJSONSource | undefined;
+        if (!source) return;
+        if (selectedStreetGeometry) {
+            source.setData({
+                type: 'Feature',
+                geometry: selectedStreetGeometry,
+                properties: {},
+            } as GeoJSON.Feature);
+        } else {
+            source.setData(EMPTY_COLLECTION as unknown as GeoJSON.FeatureCollection);
+        }
+    }, [selectedStreetGeometry]);
+
     // ── Mahalle sınırı ──
     useEffect(() => {
         const map = mapRef.current;
@@ -364,6 +414,35 @@ export const BuildingMap: React.FC<BuildingMapProps> = ({
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flyTo?.token]);
+
+    // ── Sokak arama sonucundan uçuş — item 21-23,27,28: bounds tabanlı (uzun caddede sadece
+    // mahalleye clip'li segment kadar zoom-out yapar), mevcut pitch/bearing KORUNUR (2B/3B
+    // hangi moddaysa o modda kalır — bina flyTo'sundaki gibi 3B pitch'e zorlamaz). ──
+    useEffect(() => {
+        const map = mapRef.current;
+        if (!map || !streetFlyTo) return;
+        const duration = reducedMotionRef.current ? 0 : MAP3D_CAMERA.flyDurationMs;
+        const [minLon, minLat, maxLon, maxLat] = streetFlyTo.bounds;
+        const diagonal = Math.hypot(maxLon - minLon, maxLat - minLat);
+        // Çok kısa sokak segmenti (item 22): fitBounds neredeyse-nokta bir dikdörtgende anlamsız/
+        // aşırı yakınlaşabilir — merkez + sabit, okunabilir zoom kullan.
+        const MIN_MEANINGFUL_DIAGONAL_DEG = 0.0004; // ~40m
+        if (diagonal < MIN_MEANINGFUL_DIAGONAL_DEG) {
+            map.flyTo({
+                center: [streetFlyTo.center.lon, streetFlyTo.center.lat],
+                zoom: Math.max(map.getZoom(), extrusionMinZoom + 2),
+                pitch: map.getPitch(),
+                bearing: map.getBearing(),
+                duration,
+            });
+        } else {
+            map.fitBounds(
+                [[minLon, minLat], [maxLon, maxLat]] as LngLatBoundsLike,
+                { padding: 60, maxZoom: 19, pitch: map.getPitch(), bearing: map.getBearing(), duration },
+            );
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [streetFlyTo?.token]);
 
     const zoomTooLow = !!viewport && viewport.zoom < buildingMinZoom;
 

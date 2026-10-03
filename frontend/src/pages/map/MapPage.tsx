@@ -22,12 +22,14 @@ import { MapLayerControls } from '@/components/map/MapLayerControls';
 import { MapEntityDetails, SelectedMapEntity } from '@/components/map/MapEntityDetails';
 import { AiDecisionSupportDrawer } from '@/components/map/AiDecisionSupportDrawer';
 import { OperationMap } from '@/components/map/OperationMap';
-import type { FlyToTarget } from '@/components/map/BuildingMap';
-import { BuildingSearchBox } from '@/components/map/BuildingSearchBox';
+import type { FlyToTarget, StreetFlyToTarget } from '@/components/map/BuildingMap';
+import { MapSearchBox } from '@/components/map/MapSearchBox';
 import { BuildingLegend } from '@/components/map/BuildingLegend';
 import { BuildingDetailsPanel } from '@/components/map/BuildingDetailsPanel';
 import { BuildingColorModeControl, BuildingColorMode } from '@/components/map/BuildingColorModeControl';
 import { getBuilding3dConfig, getBuildingById } from '@/api/buildings.api';
+import { getStreetById } from '@/api/streets.api';
+import { StreetSearchResultResponse } from '@/types/street';
 import { LayerState, LayerKey, getDefaultLayersForRole } from '@/components/map/operationMapLayers';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { isWebglSupported } from '@/utils/webgl';
@@ -52,6 +54,11 @@ export const MapPage: React.FC = () => {
     const [selectedBuildingId, setSelectedBuildingId]   = useState<string | null>(null);
     const [buildingFlyTo, setBuildingFlyTo]             = useState<FlyToTarget | null>(null);
     const [colorMode, setColorMode]                     = useState<BuildingColorMode>('damage');
+    // ── Sokak arama — item 21-25,41,42: seçim yalnız id tutar, geometri React Query cache'inden
+    // gelir (BuildingDetailsPanel'in selectedBuildingId'yle aynı deseni); mahalle/ilçe değişince
+    // aşağıdaki handler'larda sıfırlanır. ──
+    const [selectedStreetId, setSelectedStreetId]       = useState<string | null>(null);
+    const [streetFlyTo, setStreetFlyTo]                 = useState<StreetFlyToTarget | null>(null);
     // WebGL yoksa BuildingMap (maplibre-gl) hiç mount edilmez — Leaflet OperationMap'e düşer,
     // bkz. is3dActive aşağıda. Cihaz ömrü boyunca sabit olduğundan bir kez hesaplanır.
     const webglOk = useMemo(() => isWebglSupported(), []);
@@ -193,6 +200,14 @@ export const MapPage: React.FC = () => {
         enabled:  is3dActive && !!selectedBuildingId,
     });
 
+    // Seçili sokağın tam geometrisi — yalnız highlight çizmek için (autocomplete sonucu geometri
+    // taşımaz, bkz. StreetSearchResultResponse).
+    const { data: selectedStreetDetail } = useQuery({
+        queryKey: queryKeys.streets.detail(selectedStreetId ?? ''),
+        queryFn:  () => getStreetById(selectedStreetId!),
+        enabled:  is3dActive && !!selectedStreetId,
+    });
+
     const isLoading = loadingDistricts || (!!activeDistrictId && loadingNeighborhoods);
 
     // ── Handlers ──
@@ -204,6 +219,8 @@ export const MapPage: React.FC = () => {
         setSelectedEntity(null);
         setSelectedBuildingId(null);
         setBuildingFlyTo(null);
+        setSelectedStreetId(null);
+        setStreetFlyTo(null);
         if (district.polygon) {
             try {
                 setActiveBounds(L.geoJSON(district.polygon).getBounds());
@@ -218,6 +235,8 @@ export const MapPage: React.FC = () => {
         setSelectedEntity(null);
         setSelectedBuildingId(null);
         setBuildingFlyTo(null);
+        setSelectedStreetId(null);
+        setStreetFlyTo(null);
         // Mahalle bounds'una zoom — 3B-uygun ilçelerde BuildingMap bu bounds'u initialBounds
         // olarak devralır (aynı konumda, ani sıçrama olmadan render motoru değişir).
         if (nb.polygon) {
@@ -240,6 +259,8 @@ export const MapPage: React.FC = () => {
         setSelectedEntity(null);
         setSelectedBuildingId(null);
         setBuildingFlyTo(null);
+        setSelectedStreetId(null);
+        setStreetFlyTo(null);
     };
     const handleBackToDistrict = () => {
         setActiveNeighborhoodId(null);
@@ -247,6 +268,17 @@ export const MapPage: React.FC = () => {
         setSelectedEntity(null);
         setSelectedBuildingId(null);
         setBuildingFlyTo(null);
+        setSelectedStreetId(null);
+        setStreetFlyTo(null);
+    };
+
+    const handleSelectStreet = (result: StreetSearchResultResponse) => {
+        setSelectedStreetId(result.id);
+        setStreetFlyTo((prev) => ({
+            bounds: [result.bounds.minLon, result.bounds.minLat, result.bounds.maxLon, result.bounds.maxLat],
+            center: result.center,
+            token: (prev?.token ?? 0) + 1,
+        }));
     };
 
     const layerCounts = {
@@ -293,13 +325,15 @@ export const MapPage: React.FC = () => {
 
                 <div className="absolute z-[1000] top-3 left-3 flex flex-col items-start gap-2 w-72 max-w-[calc(100%-90px)]">
                     {is3dActive && activeDistrictId && (
-                        <BuildingSearchBox
+                        <MapSearchBox
                             districtId={activeDistrictId}
                             districtName={activeDistrictName}
+                            neighborhoodId={activeNeighborhoodId}
                             className="w-full bg-white rounded-full shadow-lg [&_input]:rounded-full [&_input]:border-0 [&_input]:shadow-none"
-                            onSelectResult={(r) => {
+                            onSelectBuilding={(r) => {
                                 setBuildingFlyTo((prev) => ({ lat: r.latitude, lon: r.longitude, token: (prev?.token ?? 0) + 1 }));
                             }}
+                            onSelectStreet={handleSelectStreet}
                         />
                     )}
 
@@ -388,6 +422,8 @@ export const MapPage: React.FC = () => {
                                         flyTo={buildingFlyTo}
                                         colorMode={colorMode}
                                         neighborhoodBoundary={activeNeighborhoodPolygon}
+                                        selectedStreetGeometry={selectedStreetDetail?.geometry ?? null}
+                                        streetFlyTo={streetFlyTo}
                                     />
                                 </Suspense>
                                 <BuildingLegend mode={colorMode} />

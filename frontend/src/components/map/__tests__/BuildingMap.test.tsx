@@ -327,6 +327,79 @@ describe('BuildingMap — renklendirme ve mahalle sınırı', () => {
     });
 });
 
+describe('BuildingMap — sokak arama vurgusu ve uçuşu', () => {
+    it('adds the street highlight layer after the buildings extrusion layer (same depth-buffer reasoning as the boundary line)', () => {
+        renderMap();
+        const map = FakeMap.instances[0];
+        act(() => map.fireLoad());
+
+        const order = map.layerOrder;
+        expect(order.indexOf('street-highlight-line')).toBeGreaterThan(order.indexOf('buildings-fill'));
+    });
+
+    it('seeds the street highlight source empty, then sets it when a street is selected, then clears it on deselect', () => {
+        const { rerenderWith } = renderMap({ selectedStreetGeometry: null });
+        const map = FakeMap.instances[0];
+        act(() => map.fireLoad());
+
+        const source = map.getSource('street-highlight');
+        expect(source.initialData).toEqual({ type: 'FeatureCollection', features: [] });
+
+        const streetGeometry: GeoJSON.Geometry = {
+            type: 'MultiLineString',
+            coordinates: [[[29.1, 40.9], [29.11, 40.905]]],
+        };
+        rerenderWith({ selectedStreetGeometry: streetGeometry });
+        expect(source.setData).toHaveBeenCalledWith(
+            expect.objectContaining({ type: 'Feature', geometry: streetGeometry }),
+        );
+
+        rerenderWith({ selectedStreetGeometry: null });
+        expect(source.setData).toHaveBeenLastCalledWith({ type: 'FeatureCollection', features: [] });
+    });
+
+    it('fitBounds()s to the street bounds WITHOUT forcing 3D pitch/bearing (preserves current camera, unlike building flyTo)', () => {
+        const { rerenderWith } = renderMap();
+        const map = FakeMap.instances[0];
+        act(() => map.fireLoad());
+        // Kullanıcı 2B (flat) moddaysa bile sokak zoom'u bu açıyı BOZMAMALI.
+        map.easeTo({ pitch: 0, bearing: 0 });
+
+        rerenderWith({ streetFlyTo: { bounds: [29.0, 40.9, 29.02, 40.92], center: { lon: 29.01, lat: 40.91 }, token: 1 } });
+
+        const [boundsArg, optionsArg] = map.calls.fitBounds.at(-1)!;
+        expect(boundsArg).toEqual([[29.0, 40.9], [29.02, 40.92]]);
+        expect(optionsArg).toMatchObject({ pitch: 0, bearing: 0, maxZoom: 19 });
+    });
+
+    it('falls back to flyTo(center) for a near-point street segment instead of a degenerate fitBounds', () => {
+        const { rerenderWith } = renderMap({ extrusionMinZoom: 16 });
+        const map = FakeMap.instances[0];
+        act(() => map.fireLoad());
+        // Mount sırasında initialBounds için zaten bir fitBounds çağrısı olur — baseline'ı al.
+        const fitBoundsCallsBefore = map.calls.fitBounds?.length ?? 0;
+
+        // ~10m'lik bir bbox — item 22'nin "çok kısa sokak" senaryosu.
+        rerenderWith({ streetFlyTo: { bounds: [29.01, 40.91, 29.0101, 40.9101], center: { lon: 29.0105, lat: 40.9105 }, token: 1 } });
+
+        expect(map.calls.fitBounds?.length ?? 0).toBe(fitBoundsCallsBefore); // yeni fitBounds çağrısı YOK
+        expect(map.calls.flyTo.at(-1)?.[0]).toMatchObject({ center: [29.0105, 40.9105] });
+    });
+
+    it('re-triggers on the same street selected twice in a row (token increments)', () => {
+        const { rerenderWith } = renderMap();
+        const map = FakeMap.instances[0];
+        act(() => map.fireLoad());
+        const fitBoundsCallsBefore = map.calls.fitBounds?.length ?? 0;
+
+        const target = { bounds: [29.0, 40.9, 29.02, 40.92] as [number, number, number, number], center: { lon: 29.01, lat: 40.91 } };
+        rerenderWith({ streetFlyTo: { ...target, token: 1 } });
+        rerenderWith({ streetFlyTo: { ...target, token: 2 } });
+
+        expect(map.calls.fitBounds.length).toBe(fitBoundsCallsBefore + 2);
+    });
+});
+
 describe('BuildingMap — DEV teşhis paneli entegrasyonu', () => {
     // Panelin İÇ mantığı (safe-read, hata durumları, vb.) BuildingMapDebugPanel.test.tsx'te
     // izole test ediliyor — burada yalnızca BuildingMap'in paneli GERÇEK source/layer ID'leri ve

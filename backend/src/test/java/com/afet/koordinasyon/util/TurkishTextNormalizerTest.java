@@ -43,4 +43,13 @@ class TurkishTextNormalizerTest {
     void nullInputReturnsEmpty() {
         assertThat(TurkishTextNormalizer.normalize(null)).isEmpty();
     }
+
+    @Test
+    @DisplayName("â/î/û şapka varyantları düz a/i/u'ya katlanır, kelimeyi bölmez")
+    void foldsCircumflexVariants() {
+        assertThat(TurkishTextNormalizer.normalize("Kâğıthane")).isEqualTo("kagithane");
+        assertThat(TurkishTextNormalizer.normalize("Kağıthane")).isEqualTo("kagithane");
+        assertThat(TurkishTextNormalizer.normalize("Sâbit Sokak")).isEqualTo(TurkishTextNormalizer.normalize("Sabit Sokak"));
+        assertThat(TurkishTextNormalizer.normalize("Âlem Sokak")).isEqualTo(TurkishTextNormalizer.normalize("Alem Sokak"));
+    }
 }

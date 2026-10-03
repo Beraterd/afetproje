@@ -74,4 +74,9 @@ export const queryKeys = {
         bbox: (districtId: string, neighborhoodId: string | undefined, bbox: string | undefined, zoomBucket: number | null) =>
             ['buildings', 'bbox', districtId, neighborhoodId, bbox, zoomBucket] as const,
     },
+    streets: {
+        search: (districtId: string, neighborhoodId: string, q: string) =>
+            ['streets', 'search', districtId, neighborhoodId, q] as const,
+        detail: (id: string) => ['streets', 'detail', id] as const,
+    },
 };
