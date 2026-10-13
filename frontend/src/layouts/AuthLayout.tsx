@@ -1,12 +1,14 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 
 export const AuthLayout: React.FC = () => {
-    const { accessToken } = useAuthStore();
+    const { accessToken, user } = useAuthStore();
+    const [searchParams] = useSearchParams();
+    const isDemoAdminSwitch = user?.demo && searchParams.get('mode') === 'admin';
 
     // If user is already logged in, redirect away from auth pages to dashboard
-    if (accessToken) {
+    if (accessToken && !isDemoAdminSwitch) {
         return <Navigate to="/dashboard" replace />;
     }
 

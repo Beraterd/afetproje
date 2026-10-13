@@ -164,6 +164,7 @@ ai:
   enabled: ${AI_ENABLED:true}
   provider: ${AI_PROVIDER:claude}
   claude-api-key: ${CLAUDE_API_KEY:}
+  claude-workspace-id: ${CLAUDE_WORKSPACE_ID:}
   openai-api-key: ${OPENAI_API_KEY:}
   model: ${AI_MODEL:claude-haiku-4-5}
   max-photos: ${AI_MAX_PHOTOS:3}

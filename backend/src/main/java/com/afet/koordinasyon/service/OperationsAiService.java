@@ -1,5 +1,7 @@
 package com.afet.koordinasyon.service;
 
+import com.afet.koordinasyon.service.ai.ClaudeApiHeaders;
+
 import com.afet.koordinasyon.domain.entity.District;
 import com.afet.koordinasyon.domain.entity.Neighborhood;
 import com.afet.koordinasyon.domain.enums.EventStatus;
@@ -43,7 +45,6 @@ import java.util.stream.Collectors;
 public class OperationsAiService {
 
     private static final String API_URL = "https://api.anthropic.com/v1/messages";
-    private static final String ANTHROPIC_VERSION = "2023-06-01";
 
     private static final String SYSTEM_PROMPT = """
             Sen afet koordinasyon merkezi için çalışan bir operasyon analisti asistanısın.
@@ -84,6 +85,9 @@ public class OperationsAiService {
 
     @Value("${ai.claude-api-key:}")
     private String apiKey;
+
+    @Value("${ai.claude-workspace-id:}")
+    private String workspaceId;
 
     @Value("${ai.model:claude-sonnet-4-6}")
     private String model;
@@ -390,8 +394,7 @@ public class OperationsAiService {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(API_URL))
-                .header("x-api-key", apiKey)
-                .header("anthropic-version", ANTHROPIC_VERSION)
+                .headers(ClaudeApiHeaders.create(apiKey, workspaceId))
                 .header("content-type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .timeout(Duration.ofSeconds(60))

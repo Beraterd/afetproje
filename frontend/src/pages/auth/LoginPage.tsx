@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Link, useNavigate } from 'react-router-dom';
-import { login, demoLogin } from '@/api/auth.api';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { login, demoLogin, logout } from '@/api/auth.api';
+import { clearAllOfflineData } from '@/lib/offlineDb';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/components/shared/ToastProvider';
 import { Button, FormField } from '@/components/ui';
@@ -18,6 +20,9 @@ type LoginValues = z.infer<typeof loginSchema>;
 
 export const LoginPage: React.FC = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const isAdminLogin = searchParams.get('mode') === 'admin';
+    const queryClient = useQueryClient();
     const { setAuth } = useAuthStore();
     const toast = useToast();
     const [isDemoLoading, setIsDemoLoading] = useState(false);
@@ -32,6 +37,19 @@ export const LoginPage: React.FC = () => {
     const onSubmit = async (data: LoginValues) => {
         try {
             const res = await login(data);
+            if (isAdminLogin && (res.user.role !== 'ADMIN' || res.user.demo)) {
+                await logout().catch(() => undefined);
+                localStorage.removeItem('afet_token');
+                useAuthStore.getState().clearAuth();
+                queryClient.clear();
+                setError('root', { message: 'Bu hesap yönetici yetkisine sahip değil. Lütfen admin hesabınızla giriş yapın.' });
+                return;
+            }
+            if (isAdminLogin) {
+                await queryClient.cancelQueries();
+                queryClient.clear();
+                await clearAllOfflineData();
+            }
             setAuth(res.token, res.user);
             localStorage.setItem('afet_token', res.token);
             toast.success('Başarıyla giriş yapıldı');
@@ -72,9 +90,14 @@ export const LoginPage: React.FC = () => {
                 <div className="sm:mx-auto sm:w-full sm:max-w-md mb-6 flex flex-col items-center">
                     <ShieldIcon className="h-12 w-12 text-blue-600 mb-2" />
                     <h2 className="text-center text-2xl font-bold tracking-tight text-gray-900">
-                        Hesabınıza Giriş Yapın
+                        {isAdminLogin ? 'Yönetici Girişi' : 'Hesabınıza Giriş Yapın'}
                     </h2>
                     <p className="mt-1 text-sm text-gray-500">İstanbul Afet Koordinasyon Sistemi</p>
+                    {isAdminLogin && (
+                        <p className="mt-3 text-center text-sm text-gray-600">
+                            Admin hesabınızla giriş yaptığınızda kayıt ekleme, düzenleme ve silme işlemleri aktif olur.
+                        </p>
+                    )}
                 </div>
 
                 <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -109,7 +132,7 @@ export const LoginPage: React.FC = () => {
                     )}
 
                     <Button type="submit" className="w-full" size="lg" loading={isSubmitting}>
-                        Giriş Yap
+                        {isAdminLogin ? 'Admin Moduna Geç' : 'Giriş Yap'}
                     </Button>
                 </form>
 

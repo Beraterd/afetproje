@@ -1,5 +1,7 @@
 package com.afet.koordinasyon.service;
 
+import com.afet.koordinasyon.service.ai.ClaudeApiHeaders;
+
 import com.afet.koordinasyon.domain.entity.*;
 import com.afet.koordinasyon.domain.enums.*;
 import com.afet.koordinasyon.dto.request.ApproveRecommendationRequest;
@@ -36,7 +38,6 @@ import java.util.*;
 public class TeamRecommendationService {
 
     private static final String API_URL = "https://api.anthropic.com/v1/messages";
-    private static final String ANTHROPIC_VERSION = "2023-06-01";
 
     private static final int SCORE_SAME_NEIGHBORHOOD  = 100;
     private static final int SCORE_SAME_DISTRICT      = 80;
@@ -49,6 +50,9 @@ public class TeamRecommendationService {
 
     @Value("${ai.claude-api-key:}")
     private String apiKey;
+
+    @Value("${ai.claude-workspace-id:}")
+    private String workspaceId;
 
     @Value("${ai.model:claude-sonnet-4-6}")
     private String model;
@@ -847,8 +851,7 @@ public class TeamRecommendationService {
         HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(API_URL))
-                .header("x-api-key", apiKey)
-                .header("anthropic-version", ANTHROPIC_VERSION)
+                .headers(ClaudeApiHeaders.create(apiKey, workspaceId))
                 .header("content-type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
                 .timeout(Duration.ofSeconds(30)).build();
