@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { EventAiRecommendationPanel } from '@/components/events/EventAiRecommendationPanel';
 import type { TeamRecommendationResponse } from '@/types';
 import { AI_DISCLAIMER_TEXT } from '@/components/ai/AiDisclaimer';
+import { useAuthStore } from '@/store/authStore';
 
 function makeRecommendation(): TeamRecommendationResponse {
     return {
@@ -50,6 +51,19 @@ const baseProps = {
 };
 
 describe('EventAiRecommendationPanel', () => {
+    it('lets demo users request AI advice but keeps task emails disabled', async () => {
+        useAuthStore.setState({ user: { id: 'demo', firstName: 'Demo', lastName: 'Admin', email: 'demo@example.test', role: 'ADMIN', demo: true } });
+        const request = vi.fn();
+        const first = render(<EventAiRecommendationPanel recommendation={null} {...baseProps} onRequestRecommendation={request} />);
+        const user = userEvent.setup();
+        await user.click(screen.getByRole('button', { name: 'AI ile Kişi Öner' }));
+        expect(request).toHaveBeenCalledOnce();
+        first.unmount();
+        render(<EventAiRecommendationPanel recommendation={makeRecommendation()} {...baseProps} selectedUserIds={new Set(['u1'])} />);
+        expect(screen.getByRole('button', { name: /Seçilen Kişilere Görev Maili Gönder/ })).toBeDisabled();
+        expect(screen.getByRole('button', { name: 'Öneriyi Reddet' })).toBeDisabled();
+        useAuthStore.setState({ user: null });
+    });
     it('shows the AI disclaimer', () => {
         render(<EventAiRecommendationPanel recommendation={makeRecommendation()} {...baseProps} />);
         expect(screen.getByText(AI_DISCLAIMER_TEXT)).toBeInTheDocument();

@@ -17,12 +17,13 @@ vi.mock('@/api/damageAssessments.api', () => ({
     removeDamageAssignment: vi.fn(),
     getEligibleAssignees: vi.fn(),
     triggerAiAnalysis: vi.fn(),
+    previewAiAnalysis: vi.fn(),
     enqueueMissingAiAnalysis: vi.fn().mockResolvedValue({ enqueued: 0 }),
 }));
 vi.mock('@/api/districts.api', () => ({ getDistricts: vi.fn().mockResolvedValue([]) }));
 vi.mock('@/api/neighborhoods.api', () => ({ getNeighborhoods: vi.fn().mockResolvedValue([]) }));
 
-import { getDamageAssessments, verifyDamageAssessment } from '@/api/damageAssessments.api';
+import { getDamageAssessments, verifyDamageAssessment, previewAiAnalysis, triggerAiAnalysis } from '@/api/damageAssessments.api';
 import { DamageAssessmentsPage } from '@/pages/damage/DamageAssessmentsPage';
 
 function makeUser(role: UserSummaryResponse['role']): UserSummaryResponse {
@@ -66,6 +67,18 @@ beforeEach(() => {
 });
 
 describe('DamageAssessmentsPage (post-refactor)', () => {
+    it('shows demo AI results without enqueuing an update to the real assessment', async () => {
+        useAuthStore.setState({ accessToken: 'demo-token', user: { ...makeUser('ADMIN'), demo: true } });
+        vi.mocked(previewAiAnalysis).mockResolvedValue({ comment: 'Demo AI ön değerlendirmesi.', confidence: 'LOW', model: 'claude-haiku-4-5' });
+        renderPage();
+        await screen.findByText('Test Sokak No:1');
+        const user = userEvent.setup();
+        await user.click(screen.getByRole('button', { name: /detayları gör/i }));
+        await user.click(screen.getByRole('button', { name: 'AI Yorumu Yenile' }));
+        expect(await screen.findByText('Demo AI ön değerlendirmesi.')).toBeInTheDocument();
+        expect(previewAiAnalysis).toHaveBeenCalledWith(sample.id);
+        expect(triggerAiAnalysis).not.toHaveBeenCalled();
+    });
     it('renders the page heading and the create button for a user allowed to create', async () => {
         renderPage();
         expect(screen.getByRole('heading', { name: 'Hasar Tespiti' })).toBeInTheDocument();

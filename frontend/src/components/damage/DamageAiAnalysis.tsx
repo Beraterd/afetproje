@@ -3,6 +3,7 @@ import { Brain, RefreshCw } from 'lucide-react';
 import type { DamageAssessmentResponse } from '@/types';
 import { aiConfidenceBadgeColor } from './damageDisplay';
 import { AiBadge, AiDisclaimer } from '@/components/ai/AiDisclaimer';
+import { useDemoMode } from '@/hooks/useDemoMode';
 
 interface DamageAiAnalysisProps {
     assessment: DamageAssessmentResponse;
@@ -17,8 +18,10 @@ interface DamageAiAnalysisProps {
 export const DamageAiAnalysis: React.FC<DamageAiAnalysisProps> = ({
     assessment, canRefresh, refreshing, onRefresh,
 }) => {
+    const { isDemo } = useDemoMode();
     return (
         <div className="border-t border-gray-100 pt-4">
+            {isDemo && <p className="mb-3 text-xs text-blue-700">Demo AI yorumunu deneyebilirsiniz. Sonuçlar bu ekranda gösterilir; gerçek kayıt değiştirilmez.</p>}
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                     <Brain className="h-4 w-4 text-purple-600" />
@@ -32,7 +35,7 @@ export const DamageAiAnalysis: React.FC<DamageAiAnalysisProps> = ({
                         className="flex items-center gap-1.5 text-xs text-purple-600 hover:text-purple-800 disabled:opacity-50 transition-colors"
                     >
                         <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} />
-                        {refreshing ? 'Ekleniyor...' : 'AI Yorumu Yenile'}
+                        {refreshing ? (isDemo ? 'Analiz ediliyor...' : 'Ekleniyor...') : 'AI Yorumu Yenile'}
                     </button>
                 )}
             </div>

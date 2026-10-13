@@ -197,7 +197,12 @@ public class TeamRecommendationService {
                 .status(RecommendationStatus.DRAFT)
                 .aiExplanation(aiExplanation).requestedBy(requestedBy).event(linkedEvent)
                 .build();
-        rec = recommendationRepository.save(rec);
+        if (requestedBy.isDemo()) {
+            rec.setId(UUID.randomUUID());
+            rec.setCreatedAt(OffsetDateTime.now());
+        } else {
+            rec = recommendationRepository.save(rec);
+        }
 
         List<TeamRecommendationMember> members = new ArrayList<>();
         for (int i = 0; i < top.size(); i++) {
@@ -209,7 +214,9 @@ public class TeamRecommendationService {
                     .proximityLevel(sc.proximityLevel()).availability("AVAILABLE")
                     .previousSimilarTask(sc.previousSimilarTask()).build());
         }
-        memberRepository.saveAll(members);
+        if (!requestedBy.isDemo()) {
+            memberRepository.saveAll(members);
+        }
         rec.setMembers(members);
         return toResponse(rec, members);
     }

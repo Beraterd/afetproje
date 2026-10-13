@@ -11,6 +11,8 @@ import com.afet.koordinasyon.dto.response.DamagePointResponse;
 import com.afet.koordinasyon.dto.response.PagedResponse;
 import com.afet.koordinasyon.security.UserPrincipal;
 import com.afet.koordinasyon.service.DamageAssessmentService;
+import com.afet.koordinasyon.service.DamageAssessmentAiService;
+import com.afet.koordinasyon.service.ai.AiAssessmentResult;
 import com.afet.koordinasyon.service.ai.DamageAiBatchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -38,6 +40,13 @@ public class DamageAssessmentController {
 
     private final DamageAssessmentService damageAssessmentService;
     private final DamageAiBatchService damageAiBatchService;
+    private final DamageAssessmentAiService damageAssessmentAiService;
+
+    @PostMapping("/{id}/ai-preview")
+    @PreAuthorize("hasAnyRole('ADMIN','DISTRICT_COORDINATOR','NEIGHBORHOOD_COORDINATOR')")
+    public ResponseEntity<AiAssessmentResult> previewAi(@PathVariable UUID id) throws Exception {
+        return ResponseEntity.ok(damageAssessmentAiService.preview(id));
+    }
 
     @GetMapping
     @Operation(summary = "List damage assessments (role-filtered)")

@@ -45,6 +45,40 @@ class DemoModeWriteGuardFilterTest {
     }
 
     @Test
+    void demoAiPreviewsPassButSavingAndSendingRemainBlocked() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(demoPrincipal(), null, List.of()));
+        String id = UUID.randomUUID().toString();
+        for (String path : List.of("/api/ai/operations-assistant", "/api/team-recommendations", "/api/auth/logout",
+                "/api/damage-assessments/" + id + "/ai-preview",
+                "/api/events/" + id + "/team-recommendations")) {
+            MockHttpServletRequest request = new MockHttpServletRequest("POST", path);
+            MockHttpServletResponse response = new MockHttpServletResponse();
+            FilterChain chain = mock(FilterChain.class);
+            filter.doFilter(request, response, chain);
+            verify(chain).doFilter(request, response);
+        }
+        for (String path : List.of("/api/damage-assessments/" + id + "/ai-analysis",
+                "/api/damage-assessments/ai/enqueue-missing",
+                "/api/team-recommendations/" + id + "/approve",
+                "/api/team-recommendations/" + id + "/reject",
+                "/api/events/" + id + "/team-recommendations/approve")) {
+            MockHttpServletRequest request = new MockHttpServletRequest("POST", path);
+            MockHttpServletResponse response = new MockHttpServletResponse();
+            FilterChain chain = mock(FilterChain.class);
+            filter.doFilter(request, response, chain);
+            assertThat(response.getStatus()).isEqualTo(403);
+            verify(chain, never()).doFilter(request, response);
+        }
+        MockHttpServletRequest patch = new MockHttpServletRequest("PATCH", "/api/ai/operations-assistant");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        FilterChain chain = mock(FilterChain.class);
+        filter.doFilter(patch, response, chain);
+        assertThat(response.getStatus()).isEqualTo(403);
+        verify(chain, never()).doFilter(patch, response);
+    }
+
+    @Test
     @DisplayName("Demo hesabıyla yapılan POST isteği 403 ile engellenir ve controller'a ulaşmaz")
     void demoUser_postRequest_isRejected() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(

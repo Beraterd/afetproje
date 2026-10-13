@@ -12,6 +12,7 @@ import {
     removeDamageAssignment,
     getEligibleAssignees,
     triggerAiAnalysis,
+    previewAiAnalysis,
     enqueueMissingAiAnalysis,
 } from '@/api/damageAssessments.api';
 import { getDistricts } from '@/api/districts.api';
@@ -106,6 +107,18 @@ export function DamageAssessmentsPage() {
     const handleAiRefresh = async (assessmentId: string) => {
         setAiRefreshing(true);
         try {
+            if (user?.demo) {
+                const result = await previewAiAnalysis(assessmentId);
+                setShowDetailModal(prev => prev?.id === assessmentId ? {
+                    ...prev, aiAnalysisStatus: 'COMPLETED', aiComment: result.comment,
+                    aiConfidence: result.confidence, aiModel: result.model,
+                    aiPriority: result.priority, aiRecommendations: result.recommendations,
+                    aiRiskScore: result.riskScore, aiAnalyzedAt: new Date().toISOString(),
+                    aiConfidenceLabel: { LOW: 'Düşük', MEDIUM: 'Orta', HIGH: 'Yüksek' }[result.confidence],
+                } : prev);
+                toastSuccess('Demo AI yorumu hazır. Gerçek kayıt değiştirilmedi.');
+                return;
+            }
             await triggerAiAnalysis(assessmentId);
             setShowDetailModal(prev => prev ? { ...prev, aiAnalysisStatus: 'PENDING' } : null);
             toastSuccess('AI analizi kuyruğa eklendi. Sonuç arka planda işlenecek.');

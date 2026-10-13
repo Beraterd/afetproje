@@ -23,7 +23,8 @@ import java.util.Set;
 /**
  * "Admin Demo Modu" için son çare güvenlik katmanı: demo hesabıyla kimliği doğrulanmış her
  * istekte, HTTP metodu değişiklik yapan bir metotsa (POST/PUT/PATCH/DELETE) isteği controller'a
- * ULAŞTIRMADAN 403 ile keser. Bu davranış, hangi controller/endpoint'in @PreAuthorize kullandığına
+ * ULAŞTIRMADAN 403 ile keser. Kayıt kaydetmeyen AI önizlemeleri ve kendi oturumunu kapatma
+ * aşağıdaki dar izin listesine tabidir. Bu davranış, hangi endpoint'in @PreAuthorize kullandığına
  * bakılmaksızın geçerlidir — yeni bir yazma endpoint'i eklendiğinde ekstra bir şey yapılmasına
  * gerek yoktur, tek istisna elle eklenmiş bir @PreAuthorize değil, bu filtredir.
  *
@@ -44,7 +45,7 @@ public class DemoModeWriteGuardFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        if (MUTATING_METHODS.contains(request.getMethod()) && isDemoPrincipal()) {
+        if (MUTATING_METHODS.contains(request.getMethod()) && isDemoPrincipal() && !isAiPreview(request)) {
             writeRestrictedResponse(request, response);
             return;
         }
@@ -57,6 +58,16 @@ public class DemoModeWriteGuardFilter extends OncePerRequestFilter {
         return authentication != null
                 && authentication.getPrincipal() instanceof UserPrincipal principal
                 && principal.isDemo();
+    }
+
+    private boolean isAiPreview(HttpServletRequest request) {
+        if (!HttpMethod.POST.matches(request.getMethod())) return false;
+        String path = request.getRequestURI();
+        return path.equals("/api/ai/operations-assistant")
+                || path.equals("/api/auth/logout")
+                || path.equals("/api/team-recommendations")
+                || path.matches("/api/damage-assessments/[0-9a-fA-F-]{36}/ai-preview")
+                || path.matches("/api/events/[0-9a-fA-F-]{36}/team-recommendations");
     }
 
     private void writeRestrictedResponse(HttpServletRequest request, HttpServletResponse response)

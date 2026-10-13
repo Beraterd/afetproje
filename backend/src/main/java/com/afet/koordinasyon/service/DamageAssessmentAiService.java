@@ -2,6 +2,9 @@ package com.afet.koordinasyon.service;
 
 import com.afet.koordinasyon.domain.entity.DamageAssessment;
 import com.afet.koordinasyon.domain.enums.AiAnalysisStatus;
+import com.afet.koordinasyon.domain.enums.AiConfidence;
+import com.afet.koordinasyon.exception.BusinessRuleException;
+import com.afet.koordinasyon.exception.ResourceNotFoundException;
 import com.afet.koordinasyon.domain.enums.PhotoType;
 import com.afet.koordinasyon.repository.DamageAssessmentRepository;
 import com.afet.koordinasyon.service.ai.AiAssessmentResult;
@@ -62,6 +65,32 @@ public class DamageAssessmentAiService {
     private final PlatformTransactionManager transactionManager;
 
     private TransactionTemplate transactionTemplate;
+
+    /** Demo AI previews never enqueue jobs or change the shared damage record. */
+    public AiAssessmentResult preview(UUID id) throws Exception {
+        if (!aiEnabled || resolveApiKey() == null || resolveApiKey().isBlank()) {
+            throw new BusinessRuleException("Yapay zekâ servisi yapılandırılmamış.");
+        }
+        TransactionTemplate read = new TransactionTemplate(transactionManager);
+        read.setReadOnly(true);
+        PreviewData data = read.execute(status -> {
+            DamageAssessment assessment = damageAssessmentRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("DamageAssessment", "id", id));
+            String description = "Bildirilen hasar: " + assessment.getDamageLevel().getLabel()
+                    + "; çökme şüphesi: " + assessment.isCollapseRisk()
+                    + "; acil tahliye ihtiyacı: " + assessment.isEmergencyEvacuationNeeded()
+                    + "; gaz kaçağı şüphesi: " + assessment.isGasLeakRisk();
+            return new PreviewData(collectPhotos(assessment), description);
+        });
+        if (!data.photos().isEmpty()) {
+            return assessmentProvider.analyze(data.photos());
+        }
+        AiAssessmentResult result = assessmentProvider.analyzeDescription(data.description());
+        return new AiAssessmentResult("Fotoğraf bulunamadığı için yalnızca bildirim metnine dayalı ön yorum: "
+                + result.comment(), AiConfidence.LOW, result.model(), null, result.recommendations(), null);
+    }
+
+    private record PreviewData(List<PhotoData> photos, String description) {}
 
     @PostConstruct
     public void init() {

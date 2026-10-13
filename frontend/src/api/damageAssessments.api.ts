@@ -99,3 +99,11 @@ export const enqueueMissingAiAnalysis = async (): Promise<{ enqueued: number }> 
     const res = await axiosInstance.post<{ enqueued: number }>('/damage-assessments/ai/enqueue-missing');
     return res.data;
 };
+
+export const previewAiAnalysis = async (id: string): Promise<{
+    comment: string; confidence: 'LOW' | 'MEDIUM' | 'HIGH'; model: string;
+    priority?: number; recommendations?: string; riskScore?: number;
+}> => {
+    const res = await axiosInstance.post(`/damage-assessments/${id}/ai-preview`);
+    return res.data;
+};

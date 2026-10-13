@@ -52,6 +52,17 @@ public class ClaudeVisionProvider implements AiDamageAssessmentProvider {
 
     @Override
     public AiAssessmentResult analyze(List<PhotoData> photos) throws Exception {
+        return analyze(photos, "Lütfen sağlanan fotoğrafları analiz ediniz ve yapı hasarı değerlendirmesi yapınız.");
+    }
+
+    @Override
+    public AiAssessmentResult analyzeDescription(String description) throws Exception {
+        return analyze(List.of(), "Fotoğraf sağlanmadı. Görüntü gördüğünü iddia etme. Yalnızca aşağıdaki bildirim metninden "
+                + "temkinli bir ön yorum üret. confidence LOW, priority ve riskScore null olsun. "
+                + "Profesyonel saha incelemesini öner. Bildirim: " + description);
+    }
+
+    private AiAssessmentResult analyze(List<PhotoData> photos, String prompt) throws Exception {
         ObjectNode body = objectMapper.createObjectNode();
         body.put("model", model);
         body.put("max_tokens", 500);
@@ -74,7 +85,7 @@ public class ClaudeVisionProvider implements AiDamageAssessmentProvider {
 
         ObjectNode textBlock = content.addObject();
         textBlock.put("type", "text");
-        textBlock.put("text", "Lütfen sağlanan fotoğrafları analiz ediniz ve yapı hasarı değerlendirmesi yapınız.");
+        textBlock.put("text", prompt);
 
         String requestBody = objectMapper.writeValueAsString(body);
 

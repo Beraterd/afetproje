@@ -70,8 +70,6 @@ export const EventAiRecommendationPanel: React.FC<EventAiRecommendationPanelProp
                             variant="primary"
                             onClick={onRequestRecommendation}
                             leftIcon={<Sparkles className="h-4 w-4" />}
-                            disabled={isDemo}
-                            disabledReason={isDemo ? disabledReason : undefined}
                         >
                             AI ile Kişi Öner
                         </Button>

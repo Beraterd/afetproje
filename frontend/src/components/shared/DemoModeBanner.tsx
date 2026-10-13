@@ -15,7 +15,7 @@ export const DemoModeBanner: React.FC = () => {
         >
             <Eye className="h-4 w-4 shrink-0" />
             <span className="font-medium flex-1">
-                Demo modundasınız. Bu oturumda yapılan değişiklikler kaydedilmez ve düzenleme işlemleri devre dışıdır.
+                Demo modundasınız. Yapay zekâ özelliklerini deneyebilirsiniz; kayıt değiştirme ve görev gönderme işlemleri kapalıdır.
             </span>
             <Link
                 to="/login?mode=admin"
