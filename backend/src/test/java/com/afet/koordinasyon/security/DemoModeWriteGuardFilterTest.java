@@ -49,7 +49,7 @@ class DemoModeWriteGuardFilterTest {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(demoPrincipal(), null, List.of()));
         String id = UUID.randomUUID().toString();
-        for (String path : List.of("/api/ai/operations-assistant", "/api/team-recommendations", "/api/auth/logout",
+        for (String path : List.of("/api/ai/operations-assistant", "/api/team-recommendations", "/api/auth/logout", "/api/auth/login",
                 "/api/damage-assessments/" + id + "/ai-preview",
                 "/api/events/" + id + "/team-recommendations")) {
             MockHttpServletRequest request = new MockHttpServletRequest("POST", path);
